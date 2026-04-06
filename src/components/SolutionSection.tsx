@@ -50,6 +50,10 @@ const SolutionSection = () => {
               <div className="text-xs opacity-60 mt-1">GBP & EUR native</div>
             </div>
             <div>
+              <div className="text-xl font-bold font-mono">Solana</div>
+              <div className="text-xs opacity-60 mt-1">Blockchain powered</div>
+            </div>
+            <div>
               <div className="text-xl font-bold font-mono">FCA / MiCA</div>
               <div className="text-xs opacity-60 mt-1">Compliance by design</div>
             </div>
