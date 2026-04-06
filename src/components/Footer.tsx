@@ -9,7 +9,7 @@ const Footer = () => {
           <div className="bg-primary-foreground/5 rounded-xl p-5 text-xs leading-relaxed text-primary-foreground/70">
             <p className="font-semibold text-primary-foreground/90 mb-2">Important Regulatory Notice</p>
             <p>
-              Border Pay (operated by Finteco) is <strong className="text-primary-foreground/90">not yet authorised</strong> by the Financial Conduct Authority (FCA), the Central Bank of Ireland, or any other regulatory body to issue stablecoins or provide payment services. This website is for informational purposes only and does not constitute an offer or solicitation of any financial services. By registering your interest, you are expressing a non-binding interest in our future services. Headquartered in Belfast, Northern Ireland, operating across the UK–Ireland corridor.
+              Border Pay Limited is <strong className="text-primary-foreground/90">not yet authorised</strong> by the Financial Conduct Authority (FCA), the Central Bank of Ireland, or any other regulatory body to issue stablecoins or provide payment services. This website is for informational purposes only and does not constitute an offer or solicitation of any financial services. By registering your interest, you are expressing a non-binding interest in our future services. Headquartered in Belfast, Northern Ireland, operating across the UK–Ireland corridor. Company number: NI739444.
             </p>
           </div>
         </div>
@@ -22,7 +22,7 @@ const Footer = () => {
             <span className="text-sm font-semibold">Border Pay</span>
           </div>
           <p className="text-xs text-primary-foreground/50">
-            © {new Date().getFullYear()} Finteco Ltd. Belfast, Northern Ireland. All rights reserved.
+            © {new Date().getFullYear()} Border Pay Limited. Belfast, Northern Ireland. All rights reserved.
           </p>
         </div>
       </div>
