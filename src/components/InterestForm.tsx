@@ -19,10 +19,13 @@ const InterestForm = () => {
     setError(null);
 
     try {
+      const id = crypto.randomUUID();
+
       // Save to database
       const { error: dbError } = await supabase
         .from("interest_registrations")
         .insert({
+          id,
           name: formData.name,
           email: formData.email,
           company: formData.company || null,
@@ -31,13 +34,18 @@ const InterestForm = () => {
 
       if (dbError) throw dbError;
 
-      // Send notification email
-      await supabase.functions.invoke("notify-interest", {
+      // Send notification email via transactional email system
+      await supabase.functions.invoke("send-transactional-email", {
         body: {
-          name: formData.name,
-          email: formData.email,
-          company: formData.company,
-          location: formData.location,
+          templateName: "interest-notification",
+          recipientEmail: "contact@finteco.co.uk",
+          idempotencyKey: `interest-notify-${id}`,
+          templateData: {
+            name: formData.name,
+            email: formData.email,
+            company: formData.company,
+            location: formData.location,
+          },
         },
       });
 
