@@ -1,4 +1,4 @@
-import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
+import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig, Img, staticFile } from "remotion";
 import { loadFont } from "@remotion/google-fonts/DMSans";
 
 const { fontFamily } = loadFont("normal", { weights: ["400", "600", "700"], subsets: ["latin"] });
@@ -20,33 +20,18 @@ export const Scene5Close: React.FC = () => {
 
   const urlOpacity = interpolate(frame, [100, 115], [0, 1], { extrapolateRight: "clamp" });
 
-  // Gentle pulse on the CTA
   const ctaPulse = 1 + Math.sin(frame * 0.06) * 0.02;
-
   const floatY = Math.sin(frame * 0.025) * 4;
 
   return (
     <AbsoluteFill style={{ fontFamily, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center", transform: `translateY(${floatY}px)` }}>
-        {/* Logo mark */}
-        <div
-          style={{
-            opacity: logoOpacity,
-            transform: `scale(${logoScale})`,
-            width: 80,
-            height: 80,
-            borderRadius: 20,
-            background: "linear-gradient(135deg, hsl(150, 50%, 40%), hsl(150, 60%, 30%))",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "0 auto 30px",
-            fontSize: 36,
-            fontWeight: 700,
-            color: "white",
-          }}
-        >
-          B
+        {/* Logo */}
+        <div style={{ opacity: logoOpacity, transform: `scale(${logoScale})`, marginBottom: 30 }}>
+          <Img
+            src={staticFile("images/logo.png")}
+            style={{ width: 100, height: 100, objectFit: "contain", margin: "0 auto" }}
+          />
         </div>
 
         <div

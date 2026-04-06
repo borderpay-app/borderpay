@@ -1,4 +1,4 @@
-import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig } from "remotion";
+import { AbsoluteFill, useCurrentFrame, interpolate, spring, useVideoConfig, Img, staticFile } from "remotion";
 import { loadFont } from "@remotion/google-fonts/DMSans";
 
 const { fontFamily } = loadFont("normal", { weights: ["400", "700"], subsets: ["latin"] });
@@ -7,23 +7,34 @@ export const Scene1Opening: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const titleY = interpolate(spring({ frame, fps, config: { damping: 20, stiffness: 180 } }), [0, 1], [80, 0]);
-  const titleOpacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: "clamp" });
+  // Logo appears first
+  const logoScale = spring({ frame, fps, config: { damping: 12 } });
+  const logoOpacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
 
-  const subtitleOpacity = interpolate(frame, [25, 45], [0, 1], { extrapolateRight: "clamp" });
-  const subtitleY = interpolate(spring({ frame: frame - 20, fps, config: { damping: 25 } }), [0, 1], [40, 0]);
+  const titleY = interpolate(spring({ frame: frame - 15, fps, config: { damping: 20, stiffness: 180 } }), [0, 1], [80, 0]);
+  const titleOpacity = interpolate(frame, [15, 35], [0, 1], { extrapolateRight: "clamp" });
 
-  const badgeScale = spring({ frame: frame - 50, fps, config: { damping: 12 } });
-  const badgeOpacity = interpolate(frame, [50, 60], [0, 1], { extrapolateRight: "clamp" });
+  const subtitleOpacity = interpolate(frame, [40, 60], [0, 1], { extrapolateRight: "clamp" });
+  const subtitleY = interpolate(spring({ frame: frame - 35, fps, config: { damping: 25 } }), [0, 1], [40, 0]);
+
+  const badgeScale = spring({ frame: frame - 65, fps, config: { damping: 12 } });
+  const badgeOpacity = interpolate(frame, [65, 75], [0, 1], { extrapolateRight: "clamp" });
 
   const lineWidth = interpolate(frame, [10, 60], [0, 600], { extrapolateRight: "clamp" });
 
-  // Gentle floating for the entire scene
   const floatY = Math.sin(frame * 0.03) * 3;
 
   return (
     <AbsoluteFill style={{ fontFamily, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ textAlign: "center", transform: `translateY(${floatY}px)` }}>
+        {/* Logo */}
+        <div style={{ opacity: logoOpacity, transform: `scale(${logoScale})`, marginBottom: 30 }}>
+          <Img
+            src={staticFile("images/logo.png")}
+            style={{ width: 120, height: 120, objectFit: "contain", margin: "0 auto" }}
+          />
+        </div>
+
         {/* Accent line */}
         <div
           style={{
