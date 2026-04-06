@@ -9,12 +9,12 @@ const points = [
   {
     emoji: "🇪🇺",
     title: "EU Single Market Access",
-    desc: "Under the Windsor Framework, Northern Ireland remains in the EU single market for goods — unique in the UK.",
+    desc: "Under the Windsor Framework, Northern Ireland stays in the EU single market for goods — unique in the UK.",
   },
   {
     emoji: "🇬🇧",
     title: "UK Market Access",
-    desc: "NI businesses also have full access to the UK internal market — the best of both worlds.",
+    desc: "NI businesses also keep full access to the UK internal market — the best of both worlds.",
   },
   {
     emoji: "💷💶",
@@ -35,14 +35,13 @@ export const SceneNI: React.FC = () => {
   const headingOpacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: "clamp" });
   const headingY = interpolate(spring({ frame, fps, config: { damping: 25 } }), [0, 1], [50, 0]);
 
-  // Map animation
   const mapOpacity = interpolate(frame, [15, 35], [0, 1], { extrapolateRight: "clamp" });
   const mapScale = spring({ frame: frame - 10, fps, config: { damping: 15 } });
 
   return (
     <AbsoluteFill style={{ fontFamily, display: "flex", alignItems: "center", justifyContent: "center" }}>
       <div style={{ display: "flex", gap: 80, alignItems: "flex-start", maxWidth: 1600, padding: "0 80px" }}>
-        {/* Left: heading + map visualization */}
+        {/* Left */}
         <div style={{ flex: "0 0 500px" }}>
           <div style={{ opacity: headingOpacity, transform: `translateY(${headingY}px)` }}>
             <div style={{ fontSize: 14, fontWeight: 600, color: "hsl(40, 80%, 55%)", letterSpacing: 4, textTransform: "uppercase", marginBottom: 12 }}>
@@ -54,7 +53,6 @@ export const SceneNI: React.FC = () => {
             </div>
           </div>
 
-          {/* Visual: dual-access badge */}
           <div
             style={{
               marginTop: 40,
@@ -84,7 +82,7 @@ export const SceneNI: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: points */}
+        {/* Right */}
         <div style={{ flex: 1 }}>
           {points.map((p, i) => {
             const delay = 30 + i * 20;
