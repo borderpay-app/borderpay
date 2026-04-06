@@ -3,7 +3,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const NOTIFY_EMAIL = 'contact@finteco.co.uk'
+const NOTIFY_EMAIL = 'hello@borderpay.app'
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
