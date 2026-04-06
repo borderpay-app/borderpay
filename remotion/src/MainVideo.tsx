@@ -4,6 +4,7 @@ import { fade } from "@remotion/transitions/fade";
 import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
 import { Scene1Opening } from "./scenes/Scene1";
+import { SceneNI } from "./scenes/SceneNI";
 import { Scene2Problem } from "./scenes/Scene2";
 import { Scene3Solution } from "./scenes/Scene3";
 import { Scene3bStablecoinBenefits } from "./scenes/Scene3b";
@@ -23,18 +24,25 @@ export const MainVideo: React.FC = () => {
           presentation={fade()}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
+        <TransitionSeries.Sequence durationInFrames={330}>
+          <SceneNI />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={wipe({ direction: "from-left" })}
+          timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
+        />
         <TransitionSeries.Sequence durationInFrames={310}>
           <Scene2Problem />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
-          presentation={wipe({ direction: "from-left" })}
+          presentation={fade()}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
         <TransitionSeries.Sequence durationInFrames={280}>
           <Scene3Solution />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
-          presentation={fade()}
+          presentation={wipe({ direction: "from-left" })}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
         <TransitionSeries.Sequence durationInFrames={350}>
