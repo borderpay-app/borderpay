@@ -17,49 +17,49 @@ export const MainVideo: React.FC = () => {
     <AbsoluteFill>
       <PersistentBackground />
       <TransitionSeries>
-        <TransitionSeries.Sequence durationInFrames={250}>
+        <TransitionSeries.Sequence durationInFrames={280}>
           <Scene1Opening />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={330}>
+        <TransitionSeries.Sequence durationInFrames={420}>
           <SceneNI />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={wipe({ direction: "from-left" })}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={310}>
+        <TransitionSeries.Sequence durationInFrames={380}>
           <Scene2Problem />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={280}>
+        <TransitionSeries.Sequence durationInFrames={320}>
           <Scene3Solution />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={wipe({ direction: "from-left" })}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={350}>
+        <TransitionSeries.Sequence durationInFrames={380}>
           <Scene3bStablecoinBenefits />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={slide({ direction: "from-right" })}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={320}>
+        <TransitionSeries.Sequence durationInFrames={360}>
           <Scene4HowItWorks />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={300}>
+        <TransitionSeries.Sequence durationInFrames={330}>
           <Scene5Close />
         </TransitionSeries.Sequence>
       </TransitionSeries>
