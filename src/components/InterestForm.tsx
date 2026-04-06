@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 const InterestForm = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -10,9 +13,46 @@ const InterestForm = () => {
     location: "northern-ireland",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Save to database
+      const { error: dbError } = await supabase
+        .from("interest_registrations")
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          company: formData.company || null,
+          location: formData.location,
+        });
+
+      if (dbError) throw dbError;
+
+      // Send notification email
+      await supabase.functions.invoke("notify-interest", {
+        body: {
+          name: formData.name,
+          email: formData.email,
+          company: formData.company,
+          location: formData.location,
+        },
+      });
+
+      setSubmitted(true);
+    } catch (err: any) {
+      console.error("Registration error:", err);
+      // Still show success if DB insert worked but email failed
+      if (err?.code !== "23505") {
+        setError("Something went wrong. Please try again.");
+      } else {
+        setSubmitted(true);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -58,6 +98,12 @@ const InterestForm = () => {
               <form onSubmit={handleSubmit} className="space-y-5">
                 <h3 className="text-lg font-semibold text-foreground mb-1">Express your interest</h3>
                 <p className="text-sm text-muted-foreground mb-6">No commitment — just let us know you're interested.</p>
+
+                {error && (
+                  <div className="bg-destructive/10 text-destructive text-sm p-3 rounded-lg">
+                    {error}
+                  </div>
+                )}
 
                 <div>
                   <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Full Name</label>
@@ -110,9 +156,10 @@ const InterestForm = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-primary text-primary-foreground py-3 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity"
+                  disabled={loading}
+                  className="w-full bg-primary text-primary-foreground py-3 rounded-lg text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
-                  Register Interest
+                  {loading ? "Submitting..." : "Register Interest"}
                 </button>
 
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
