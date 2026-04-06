@@ -24,7 +24,7 @@ const Hero = () => {
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
-            Stablecoin-powered settlement for businesses trading across Northern Ireland and Ireland. Sub-0.5% fees. Near-instant transfers. No hidden FX markups.
+            Stablecoin-powered settlement for businesses trading across Northern Ireland and Ireland.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4 animate-fade-up" style={{ animationDelay: "0.3s" }}>
