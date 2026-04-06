@@ -14,14 +14,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-border">
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <svg viewBox="0 0 18 18" fill="none" className="w-4 h-4">
-              <rect x="1" y="5" width="7" height="10" rx="1.5" fill="rgba(255,255,255,0.6)" />
-              <rect x="10" y="3" width="7" height="12" rx="1.5" fill="rgba(255,255,255,0.9)" />
-              <circle cx="4.5" cy="2.5" r="1.5" fill="rgba(255,255,255,0.4)" />
-              <circle cx="13.5" cy="1.5" r="1.5" fill="rgba(255,255,255,0.7)" />
-            </svg>
-          </div>
+          <img src={logo} alt="Border Pay" className="h-8 w-auto" />
           <span className="text-lg font-semibold tracking-tight text-foreground">Border Pay</span>
         </div>
 
