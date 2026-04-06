@@ -18,13 +18,9 @@ const Footer = () => {
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 bg-primary-foreground/10 rounded-md flex items-center justify-center">
-              <svg viewBox="0 0 18 18" fill="none" className="w-3.5 h-3.5">
-                <rect x="1" y="5" width="7" height="10" rx="1.5" fill="rgba(255,255,255,0.6)" />
-                <rect x="10" y="3" width="7" height="12" rx="1.5" fill="rgba(255,255,255,0.9)" />
-              </svg>
-            </div>
+            <img src={logo} alt="Border Pay" className="h-6 w-auto brightness-0 invert" />
             <span className="text-sm font-semibold">Border Pay</span>
+          </div>
           </div>
           <p className="text-xs text-primary-foreground/50">
             © {new Date().getFullYear()} Finteco Ltd. Belfast, Northern Ireland. All rights reserved.
