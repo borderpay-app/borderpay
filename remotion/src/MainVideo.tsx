@@ -5,6 +5,7 @@ import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
 import { Scene1Opening } from "./scenes/Scene1";
 import { SceneNI } from "./scenes/SceneNI";
+import { SceneBrexit } from "./scenes/SceneBrexit";
 import { Scene2Problem } from "./scenes/Scene2";
 import { Scene3Solution } from "./scenes/Scene3";
 import { Scene3bStablecoinBenefits } from "./scenes/Scene3b";
@@ -24,42 +25,49 @@ export const MainVideo: React.FC = () => {
           presentation={fade()}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={420}>
+        <TransitionSeries.Sequence durationInFrames={400}>
           <SceneNI />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={wipe({ direction: "from-left" })}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={380}>
-          <Scene2Problem />
+        <TransitionSeries.Sequence durationInFrames={420}>
+          <SceneBrexit />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={320}>
-          <Scene3Solution />
+        <TransitionSeries.Sequence durationInFrames={360}>
+          <Scene2Problem />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={wipe({ direction: "from-left" })}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={380}>
+        <TransitionSeries.Sequence durationInFrames={300}>
+          <Scene3Solution />
+        </TransitionSeries.Sequence>
+        <TransitionSeries.Transition
+          presentation={fade()}
+          timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
+        />
+        <TransitionSeries.Sequence durationInFrames={370}>
           <Scene3bStablecoinBenefits />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={slide({ direction: "from-right" })}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={360}>
+        <TransitionSeries.Sequence durationInFrames={340}>
           <Scene4HowItWorks />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition
           presentation={fade()}
           timing={springTiming({ config: { damping: 200 }, durationInFrames: 25 })}
         />
-        <TransitionSeries.Sequence durationInFrames={330}>
+        <TransitionSeries.Sequence durationInFrames={310}>
           <Scene5Close />
         </TransitionSeries.Sequence>
       </TransitionSeries>
