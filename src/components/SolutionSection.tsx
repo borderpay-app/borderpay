@@ -50,6 +50,10 @@ const SolutionSection = () => {
               <div className="text-xs opacity-60 mt-1">GBP & EUR native</div>
             </div>
             <div>
+              <div className="text-xl font-bold font-mono">Solana</div>
+              <div className="text-xs opacity-60 mt-1">Blockchain powered</div>
+            </div>
+            <div>
               <div className="text-xl font-bold font-mono">FCA / MiCA</div>
               <div className="text-xs opacity-60 mt-1">Compliance by design</div>
             </div>
@@ -64,7 +68,7 @@ const SolutionSection = () => {
             </div>
             <h3 className="font-semibold text-foreground mb-2">Instant Settlement</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Near-instant cross-border settlement via on-chain stablecoin transfers. No more waiting 2–5 days.
+              Built on Solana for near-instant cross-border settlement. No more waiting 2–5 days.
             </p>
           </div>
           <div className="bg-card border border-border rounded-xl p-6">
