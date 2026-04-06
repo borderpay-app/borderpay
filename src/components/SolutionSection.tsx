@@ -1,0 +1,94 @@
+import { Zap, Shield, ArrowRight } from "lucide-react";
+
+const SolutionSection = () => {
+  return (
+    <section id="solution" className="py-24">
+      <div className="max-w-6xl mx-auto px-6">
+        <div className="text-center max-w-2xl mx-auto mb-16">
+          <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">The Solution</p>
+          <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
+            The dual-peg stablecoin layer
+          </h2>
+          <p className="mt-4 text-muted-foreground leading-relaxed">
+            Border Pay sits between UK and Irish businesses, converting GBP and EUR into audited dual-peg stablecoins, settling across the corridor in seconds.
+          </p>
+        </div>
+
+        {/* Flow diagram */}
+        <div className="bg-primary rounded-2xl p-8 sm:p-12 mb-16">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-primary-foreground">
+            {[
+              { flag: "🇬🇧", label: "UK Business", sub: "Sends GBP" },
+              { flag: "⬡", label: "On-Ramp", sub: "GBP → FTGBP" },
+              { flag: "⚡", label: "Settlement", sub: "< 30 seconds" },
+              { flag: "⬡", label: "Off-Ramp", sub: "FTEUR → EUR" },
+              { flag: "🇮🇪", label: "Irish Business", sub: "Receives EUR" },
+            ].map((step, i) => (
+              <div key={step.label} className="flex items-center gap-3 sm:gap-0 sm:flex-col text-center">
+                <div className="w-14 h-14 rounded-xl bg-primary-foreground/10 flex items-center justify-center text-2xl flex-shrink-0">
+                  {step.flag}
+                </div>
+                <div className="sm:mt-3">
+                  <div className="text-sm font-semibold">{step.label}</div>
+                  <div className="text-xs opacity-60">{step.sub}</div>
+                </div>
+                {i < 4 && <ArrowRight size={16} className="hidden sm:block absolute" style={{ display: "none" }} />}
+              </div>
+            ))}
+          </div>
+          <div className="mt-8 pt-6 border-t border-primary-foreground/10 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center text-primary-foreground">
+            <div>
+              <div className="text-xl font-bold font-mono">&lt; 30 sec</div>
+              <div className="text-xs opacity-60 mt-1">Settlement</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold font-mono">&lt; 0.5%</div>
+              <div className="text-xs opacity-60 mt-1">All-in fee</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold font-mono">Dual-Peg</div>
+              <div className="text-xs opacity-60 mt-1">GBP & EUR native</div>
+            </div>
+            <div>
+              <div className="text-xl font-bold font-mono">FCA / MiCA</div>
+              <div className="text-xs opacity-60 mt-1">Compliance by design</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Features */}
+        <div className="grid sm:grid-cols-3 gap-6">
+          <div className="bg-card border border-border rounded-xl p-6">
+            <div className="w-10 h-10 rounded-lg bg-forest-light flex items-center justify-center mb-4">
+              <Zap size={18} className="text-primary" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Instant Settlement</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Near-instant cross-border settlement via on-chain stablecoin transfers. No more waiting 2–5 days.
+            </p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-6">
+            <div className="w-10 h-10 rounded-lg bg-forest-light flex items-center justify-center mb-4">
+              <Shield size={18} className="text-primary" />
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Fully Compliant</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Built for FCA and MiCA regulatory frameworks. Pre-application submitted to FCA Sandbox.
+            </p>
+          </div>
+          <div className="bg-card border border-border rounded-xl p-6">
+            <div className="w-10 h-10 rounded-lg bg-forest-light flex items-center justify-center mb-4">
+              <span className="text-lg">🇬🇧🇮🇪</span>
+            </div>
+            <h3 className="font-semibold text-foreground mb-2">Built for the Border</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Purpose-built for the unique NI–Ireland dual-currency corridor. Payroll, suppliers, tax — all in one wallet.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default SolutionSection;
