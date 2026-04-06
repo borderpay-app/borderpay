@@ -30,8 +30,8 @@ const DemoSection = () => {
           <iframe
             src="/demo.html"
             title="Border Pay Demo"
-            className="w-full border-0"
-            style={{ height: "680px" }}
+            className="w-full border-0 min-h-[500px] sm:min-h-[680px]"
+            style={{ height: "680px", maxHeight: "80vh" }}
           />
         </div>
 
