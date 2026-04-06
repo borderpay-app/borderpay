@@ -22,7 +22,7 @@ const Footer = () => {
             <span className="text-sm font-semibold">Border Pay</span>
           </div>
           <p className="text-xs text-primary-foreground/50">
-            © {new Date().getFullYear()} Finteco Ltd. Belfast, Northern Ireland. All rights reserved.
+            © {new Date().getFullYear()} Border Pay Limited. Belfast, Northern Ireland. All rights reserved.
           </p>
         </div>
       </div>
