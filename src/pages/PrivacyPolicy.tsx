@@ -75,7 +75,7 @@ const PrivacyPolicy = () => {
 
           <section>
             <h2 className="text-lg font-semibold text-foreground">9. Contact</h2>
-            <p>For privacy-related queries, contact us at: <a href="mailto:contact@finteco.co.uk" className="text-primary hover:underline">contact@finteco.co.uk</a></p>
+            <p>For privacy-related queries, contact us at: <a href="mailto:hello@borderpay.app" className="text-primary hover:underline">hello@borderpay.app</a></p>
           </section>
         </div>
       </main>

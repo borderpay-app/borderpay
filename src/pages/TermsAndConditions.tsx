@@ -59,7 +59,7 @@ const TermsAndConditions = () => {
 
           <section>
             <h2 className="text-lg font-semibold text-foreground">10. Contact</h2>
-            <p>For questions about these terms, contact us at: <a href="mailto:contact@finteco.co.uk" className="text-primary hover:underline">contact@finteco.co.uk</a></p>
+            <p>For questions about these terms, contact us at: <a href="mailto:hello@borderpay.app" className="text-primary hover:underline">hello@borderpay.app</a></p>
           </section>
         </div>
       </main>
