@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -20,6 +21,11 @@ const Footer = () => {
           <div className="flex items-center gap-2.5">
             <img src={logo} alt="Border Pay" className="h-20 w-auto" />
             <span className="text-sm font-semibold">Border Pay</span>
+          </div>
+          <div className="flex items-center gap-4 text-xs text-primary-foreground/50">
+            <Link to="/privacy" className="hover:text-primary-foreground/80 transition-colors">Privacy Policy</Link>
+            <span>·</span>
+            <Link to="/terms" className="hover:text-primary-foreground/80 transition-colors">Terms & Conditions</Link>
           </div>
           <p className="text-xs text-primary-foreground/50">
             © {new Date().getFullYear()} Border Pay Limited. Belfast, Northern Ireland. All rights reserved.
