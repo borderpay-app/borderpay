@@ -55,7 +55,7 @@ export const template = {
   component: InterestNotificationEmail,
   subject: (data: Record<string, any>) =>
     `New Interest: ${data.name || 'Unknown'}${data.company ? ` (${data.company})` : ''}`,
-  to: 'contact@finteco.co.uk',
+  to: 'hello@borderpay.app',
   displayName: 'Interest registration notification',
   previewData: { name: 'Jane Smith', email: 'jane@example.com', company: 'Acme Ltd', location: 'northern-ireland' },
 } satisfies TemplateEntry
