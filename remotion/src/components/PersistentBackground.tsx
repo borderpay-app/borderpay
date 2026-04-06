@@ -2,7 +2,7 @@ import { AbsoluteFill, useCurrentFrame, interpolate } from "remotion";
 
 export const PersistentBackground: React.FC = () => {
   const frame = useCurrentFrame();
-  const hueShift = interpolate(frame, [0, 2220], [0, 35]);
+  const hueShift = interpolate(frame, [0, 3107], [0, 40]);
   
   return (
     <AbsoluteFill>
