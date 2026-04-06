@@ -38,7 +38,7 @@ const InterestForm = () => {
       await supabase.functions.invoke("send-transactional-email", {
         body: {
           templateName: "interest-notification",
-          recipientEmail: "contact@finteco.co.uk",
+          recipientEmail: "hello@borderpay.app",
           idempotencyKey: `interest-notify-${id}`,
           templateData: {
             name: formData.name,
