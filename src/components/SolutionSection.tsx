@@ -75,9 +75,9 @@ const SolutionSection = () => {
             <div className="w-10 h-10 rounded-lg bg-forest-light flex items-center justify-center mb-4">
               <Shield size={18} className="text-primary" />
             </div>
-            <h3 className="font-semibold text-foreground mb-2">Fully Compliant</h3>
+            <h3 className="font-semibold text-foreground mb-2">Regulation-Ready</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Built for FCA and MiCA regulatory frameworks. Pre-application submitted to FCA Sandbox.
+              Designed for FCA and MiCA compliance from day one. Regulatory authorisation currently in progress.
             </p>
           </div>
           <div className="bg-card border border-border rounded-xl p-6">
