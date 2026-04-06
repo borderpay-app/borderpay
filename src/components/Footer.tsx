@@ -18,7 +18,7 @@ const Footer = () => {
       <div className="max-w-6xl mx-auto px-6 py-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">
-            <img src={logo} alt="Border Pay" className="h-14 w-auto" />
+            <img src={logo} alt="Border Pay" className="h-20 w-auto" />
             <span className="text-sm font-semibold">Border Pay</span>
           </div>
           <p className="text-xs text-primary-foreground/50">
