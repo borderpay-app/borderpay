@@ -10,7 +10,7 @@ const SolutionSection = () => {
             The dual-peg stablecoin layer
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            We make it easy to send money between the UK and Ireland — fast, low-cost, and without the usual bank hassle.
+            We make it easy to send money between the UK and Ireland: fast, low-cost, and without the usual bank hassle.
           </p>
         </div>
 
