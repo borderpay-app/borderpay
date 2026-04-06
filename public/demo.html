@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Border Pay — Cross-Border Business Wallet</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F6F2;--sf:#fff;--bd:rgba(0,0,0,.08);--bds:rgba(0,0,0,.14);--tx:#0D0D0C;--txm:#6B6B67;--txf:#A8A8A4;--ac:#1A3A2A;--ace:#1A2B4A;--gn:#166534;--gnb:#DCFCE7;--am:#92400E;--amb:#FEF3C7;--rd:#991B1B;--rdb:#FEE2E2;--bl:#1E3A5F;--blb:#DBEAFE;--r:12px;--rs:8px;--sh:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);--shm:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.04)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex}
+.sidebar{width:220px;min-height:100vh;background:var(--ac);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh}
+.logo-wrap{padding:24px 20px 20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo{display:flex;align-items:center;gap:8px}
+.logo-mark{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:8px;display:flex;align-items:center;justify-content:center}
+.logo-mark svg{width:18px;height:18px}
+.logo-text{color:#fff;font-size:16px;font-weight:600;letter-spacing:-.3px}
+.logo-sub{color:rgba(255,255,255,.45);font-size:10px;letter-spacing:.5px;text-transform:uppercase;margin-top:1px}
+.nav{flex:1;padding:16px 12px;display:flex;flex-direction:column;gap:2px}
+.nav-section-label{font-size:10px;font-weight:500;color:rgba(255,255,255,.3);letter-spacing:.8px;text-transform:uppercase;padding:12px 8px 6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:rgba(255,255,255,.6);font-size:13.5px;cursor:pointer;transition:all .15s;text-decoration:none}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(255,255,255,.12);color:#fff;font-weight:500}
+.nav-icon{width:16px;height:16px;opacity:.7;flex-shrink:0}
+.nav-item.active .nav-icon{opacity:1}
+.nav-badge{margin-left:auto;background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px}
+.sidebar-footer{padding:16px 12px;border-top:1px solid rgba(255,255,255,.08)}
+.user-row{display:flex;align-items:center;gap:10px;padding:8px}
+.user-avatar{width:32px;height:32px;background:rgba(255,255,255,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;flex-shrink:0}
+.user-name{color:rgba(255,255,255,.85);font-size:12.5px;font-weight:500}
+.user-role{color:rgba(255,255,255,.4);font-size:11px}
+.main{flex:1;overflow-y:auto;padding:28px 32px;max-width:1000px}
+.page{display:none}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.page.active{display:block;animation:fadeIn .2s ease}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px}
+.page-title{font-size:22px;font-weight:600;letter-spacing:-.4px}
+.page-subtitle{font-size:13.5px;color:var(--txm);margin-top:3px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:500;cursor:pointer;border:none;transition:all .15s}
+.btn-primary{background:var(--ac);color:#fff}.btn-primary:hover{opacity:.88}
+.btn-ghost{background:transparent;color:var(--tx);border:1px solid var(--bds)}.btn-ghost:hover{background:rgba(0,0,0,.03)}
+.card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.wallets-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.wallet-card{border-radius:var(--r);padding:18px 18px 16px;position:relative;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.wallet-card:hover{transform:translateY(-2px);box-shadow:var(--shm)}
+.wallet-card.gbp{background:var(--ac)}.wallet-card.eur{background:var(--ace)}
+.wallet-card.fgbp{background:linear-gradient(135deg,#2A4A1A,#3A6A22)}
+.wallet-card.feur{background:linear-gradient(135deg,#3A1A4A,#5A2A6A)}
+.wallet-flag{font-size:18px;margin-bottom:10px;display:block}
+.wallet-label{color:rgba(255,255,255,.55);font-size:10px;font-weight:500;letter-spacing:.8px;text-transform:uppercase}
+.wallet-amount{color:#fff;font-family:'DM Mono',monospace;font-size:20px;font-weight:500;letter-spacing:-.5px;margin-top:4px}
+.wallet-currency{color:rgba(255,255,255,.45);font-size:11px;margin-top:6px}
+.wallet-stable-badge{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.12);color:rgba(255,255,255,.7);font-size:9px;font-weight:600;padding:3px 7px;border-radius:20px;text-transform:uppercase}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.section-title{font-size:14px;font-weight:600;letter-spacing:-.2px}
+.section-link{font-size:12.5px;color:var(--txm);cursor:pointer;text-decoration:none}.section-link:hover{color:var(--tx)}
+.tx-item{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bd);transition:background .1s}
+.tx-item:last-child{border-bottom:none}.tx-item:hover{background:rgba(0,0,0,.015)}
+.tx-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.tx-info{flex:1;min-width:0}
+.tx-name{font-size:13.5px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-meta{font-size:12px;color:var(--txm);margin-top:1px}
+.tx-amount{text-align:right;flex-shrink:0}
+.tx-value{font-family:'DM Mono',monospace;font-size:13.5px;font-weight:500}.tx-value.credit{color:var(--gn)}
+.tx-curr{font-size:11px;color:var(--txf);margin-top:1px}
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 8px;border-radius:20px}
+.badge-success{background:var(--gnb);color:var(--gn)}.badge-pending{background:var(--amb);color:var(--am)}
+.badge-failed{background:var(--rdb);color:var(--rd)}.badge-info{background:var(--blb);color:var(--bl)}
+.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+.metric-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:16px 18px}
+.metric-label{font-size:11px;font-weight:500;color:var(--txm);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.metric-value{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;letter-spacing:-.5px}
+.metric-sub{font-size:12px;color:var(--txm);margin-top:4px}
+.metric-trend{font-size:12px;margin-top:4px}.metric-trend.up{color:var(--gn)}.metric-trend.down{color:var(--rd)}
+.fx-bar{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px 20px;display:flex;align-items:center;gap:20px;margin-bottom:24px;flex-wrap:wrap}
+.fx-label{font-size:11px;color:var(--txm);font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.fx-pair{display:flex;align-items:center;gap:8px}
+.fx-rate{font-family:'DM Mono',monospace;font-size:13.5px;font-weight:500}
+.fx-change{font-size:11.5px}.fx-change.pos{color:var(--gn)}.fx-change.neg{color:var(--rd)}
+.fx-divider{width:1px;height:20px;background:var(--bds)}
+.payroll-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--bd)}.payroll-row:last-child{border-bottom:none}
+.payroll-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.payroll-name{font-size:13.5px;font-weight:500}.payroll-role{font-size:12px;color:var(--txm)}
+.payroll-amount{font-family:'DM Mono',monospace;font-size:13.5px;font-weight:500}
+.payroll-currency{font-size:11px;color:var(--txf)}
+.jurisdiction-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.3px}
+.jurisdiction-ie{background:#E8F5E9;color:#2E7D32}.jurisdiction-ni{background:#E3F2FD;color:#1565C0}
+.form-group{margin-bottom:16px}
+.form-label{font-size:12px;font-weight:500;color:var(--txm);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.3px}
+.form-input{width:100%;padding:10px 12px;border:1px solid var(--bds);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13.5px;background:var(--sf);color:var(--tx);outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--ac)}.form-select{appearance:none;cursor:pointer}
+.convert-input-group{flex:1;background:var(--sf);border:1px solid var(--bds);border-radius:var(--rs);display:flex;overflow:hidden}
+.convert-currency{padding:10px 12px;background:rgba(0,0,0,.03);border-right:1px solid var(--bd);font-size:12px;font-weight:600;color:var(--txm);white-space:nowrap}
+.convert-input-inner{flex:1;border:none;outline:none;padding:10px 12px;font-family:'DM Mono',monospace;font-size:14px;background:transparent;color:var(--tx)}
+.tax-summary{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.tax-card{border-radius:var(--r);padding:16px;border:1px solid var(--bd)}
+.tax-card.ie{background:#F0FDF4;border-color:#BBF7D0}.tax-card.ni{background:#EFF6FF;border-color:#BFDBFE}
+.tax-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.tax-card.ie .tax-title{color:var(--gn)}.tax-card.ni .tax-title{color:var(--bl)}
+.tax-item{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px}
+.tax-item:last-child{margin-bottom:0;padding-top:8px;border-top:1px solid rgba(0,0,0,.06);font-weight:600}
+.pension-bar{height:8px;background:var(--bd);border-radius:4px;overflow:hidden;margin-top:8px}
+.pension-fill{height:100%;border-radius:4px;background:var(--ac)}
+.tabs{display:flex;background:var(--bg);border-radius:var(--rs);padding:3px;margin-bottom:20px}
+.tab{flex:1;text-align:center;padding:7px 12px;font-size:12.5px;font-weight:500;border-radius:6px;cursor:pointer;color:var(--txm);transition:all .15s}
+.tab.active{background:var(--sf);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.divider{height:1px;background:var(--bd);margin:20px 0}
+.rate-display{text-align:center;padding:12px;background:var(--bg);border-radius:var(--rs);margin:12px 0;font-size:13px;color:var(--txm)}
+.rate-display strong{color:var(--tx);font-family:'DM Mono',monospace}
+.supplier-item{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid var(--bd)}.supplier-item:last-child{border-bottom:none}
+.supplier-logo{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
+.progress-row{margin-bottom:16px}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:12.5px}
+.progress-bar{height:6px;background:var(--bd);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px}
+.alert-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--rs);margin-bottom:16px;font-size:13px}
+.alert-bar.info{background:var(--blb);color:var(--bl)}.alert-bar.success{background:var(--gnb);color:var(--gn)}.alert-bar.warning{background:var(--amb);color:var(--am)}
+.quick-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+.quick-action{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:14px 12px;text-align:center;cursor:pointer;transition:all .15s}
+.quick-action:hover{border-color:var(--ac);transform:translateY(-1px);box-shadow:var(--sh)}
+.quick-action-icon{font-size:20px;margin-bottom:6px}.quick-action-label{font-size:12px;font-weight:500;color:var(--txm)}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo-wrap">
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 18 18" fill="none"><rect x="1" y="5" width="7" height="10" rx="1.5" fill="rgba(255,255,255,0.6)"/><rect x="10" y="3" width="7" height="12" rx="1.5" fill="rgba(255,255,255,0.9)"/><circle cx="4.5" cy="2.5" r="1.5" fill="rgba(255,255,255,0.4)"/><circle cx="13.5" cy="1.5" r="1.5" fill="rgba(255,255,255,0.7)"/></svg>
+      </div>
+      <div><div class="logo-text">Border Pay</div><div class="logo-sub">Business Wallet</div></div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section-label">Wallet</div>
+    <a class="nav-item active" onclick="showPage('dashboard')"><svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".5"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".3"/></svg>Overview</a>
+    <a class="nav-item" onclick="showPage('send')"><svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M2 8h12M10 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>Send &amp; Convert</a>
+    <a class="nav-item" onclick="showPage('transactions')"><svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M1 4h14M1 8h10M1 12h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Transactions</a>
+    <div class="nav-section-label">Payments</div>
+    <a class="nav-item" onclick="showPage('payroll')"><svg class="nav-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="5" r="3" stroke="currentColor" stroke-width="1.5"/><path d="M2 14c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Payroll<span class="nav-badge">4</span></a>
+    <a class="nav-item" onclick="showPage('suppliers')"><svg class="nav-icon" viewBox="0 0 16 16" fill="none"><rect x="1" y="5" width="14" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M5 5V4a3 3 0 016 0v1" stroke="currentColor" stroke-width="1.5"/></svg>Suppliers</a>
+    <a class="nav-item" onclick="showPage('tax')"><svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M3 2h10a1 1 0 011 1v10a1 1 0 01-1 1H3a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.5"/><path d="M5 8h6M5 11h4M5 5h2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>Tax &amp; Compliance</a>
+    <a class="nav-item" onclick="showPage('pension')"><svg class="nav-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1l1.5 4.5H14l-3.5 2.5 1.5 4.5L8 10l-4 2.5L5.5 8 2 5.5h4.5L8 1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>Pensions</a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-row">
+      <div class="user-avatar">MC</div>
+      <div><div class="user-name">McBride Ltd</div><div class="user-role">Admin · Verified</div></div>
+    </div>
+  </div>
+</div>
+<main class="main">
+
+  <div id="page-dashboard" class="page active">
+    <div class="page-header">
+      <div><div class="page-title">Good morning, McBride</div><div class="page-subtitle">Thursday, 19 March 2026 · Belfast / Dublin operations</div></div>
+      <div style="display:flex;gap:8px;"><button class="btn btn-ghost" onclick="showPage('send')">Send</button><button class="btn btn-primary" onclick="showPage('send')">+ Add Funds</button></div>
+    </div>
+    <div class="fx-bar">
+      <span class="fx-label">Live FX</span>
+      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">GBP/EUR</span><span class="fx-rate">1.1742</span><span class="fx-change pos">+0.18%</span></div>
+      <div class="fx-divider"></div>
+      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">FGBP/GBP</span><span class="fx-rate">1.0000</span><span class="fx-change pos">Pegged</span></div>
+      <div class="fx-divider"></div>
+      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">FEUR/EUR</span><span class="fx-rate">1.0000</span><span class="fx-change pos">Pegged</span></div>
+      <div class="fx-divider"></div>
+      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">FGBP/FEUR</span><span class="fx-rate">1.1742</span><span class="fx-change neg">−0.04%</span></div>
+    </div>
+    <div class="wallets-row">
+      <div class="wallet-card gbp"><span class="wallet-flag">🇬🇧</span><div class="wallet-label">Fiat GBP</div><div class="wallet-amount">£48,320.00</div><div class="wallet-currency">British Pounds Sterling</div></div>
+      <div class="wallet-card eur"><span class="wallet-flag">🇮🇪</span><div class="wallet-label">Fiat EUR</div><div class="wallet-amount">€31,840.50</div><div class="wallet-currency">Euro</div></div>
+      <div class="wallet-card fgbp"><span class="wallet-flag">⬡</span><div class="wallet-stable-badge">Stablecoin</div><div class="wallet-label">FGBP</div><div class="wallet-amount">12,500.00</div><div class="wallet-currency">Pegged 1:1 to GBP</div></div>
+      <div class="wallet-card feur"><span class="wallet-flag">⬡</span><div class="wallet-stable-badge">Stablecoin</div><div class="wallet-label">FEUR</div><div class="wallet-amount">8,200.00</div><div class="wallet-currency">Pegged 1:1 to EUR</div></div>
+    </div>
+    <div class="metric-grid">
+      <div class="metric-card"><div class="metric-label">Monthly Outflow</div><div class="metric-value">£94,200</div><div class="metric-trend up">↑ 3.2% vs last month</div></div>
+      <div class="metric-card"><div class="metric-label">Pending Payments</div><div class="metric-value">7</div><div class="metric-sub">Next due: payroll Friday</div></div>
+      <div class="metric-card"><div class="metric-label">FX Saved (YTD)</div><div class="metric-value">£1,840</div><div class="metric-trend up">↑ vs bank rates</div></div>
+    </div>
+    <div class="quick-actions">
+      <div class="quick-action" onclick="showPage('payroll')"><div class="quick-action-icon">👥</div><div class="quick-action-label">Run Payroll</div></div>
+      <div class="quick-action" onclick="showPage('suppliers')"><div class="quick-action-icon">📦</div><div class="quick-action-label">Pay Supplier</div></div>
+      <div class="quick-action" onclick="showPage('tax')"><div class="quick-action-icon">🏛</div><div class="quick-action-label">File VAT/PAYE</div></div>
+      <div class="quick-action" onclick="showPage('pension')"><div class="quick-action-icon">🛡</div><div class="quick-action-label">Pension Payment</div></div>
+    </div>
+    <div class="card">
+      <div style="padding:16px 18px 0;"><div class="section-header"><div class="section-title">Recent transactions</div><a class="section-link" onclick="showPage('transactions')">View all →</a></div></div>
+      <div>
+        <div class="tx-item"><div class="tx-icon" style="background:#EFF6FF">👥</div><div class="tx-info"><div class="tx-name">Payroll — March 2026</div><div class="tx-meta">14 employees · Mixed GBP/EUR <span class="badge badge-success">Complete</span></div></div><div class="tx-amount"><div class="tx-value debit">−£31,400</div><div class="tx-curr">14 Mar 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#F0FDF4">📦</div><div class="tx-info"><div class="tx-name">Brennan &amp; Sons Supplies</div><div class="tx-meta">Invoice INV-2026-0412 <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−€4,200</div><div class="tx-curr">12 Mar 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#FEF9EE">🏛</div><div class="tx-info"><div class="tx-name">Revenue Commissioners — VAT</div><div class="tx-meta">Q4 2025 VAT return <span class="badge badge-success">Paid</span></div></div><div class="tx-amount"><div class="tx-value debit">−€12,840</div><div class="tx-curr">10 Mar 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#F5F3FF">⬡</div><div class="tx-info"><div class="tx-name">FGBP → GBP Convert</div><div class="tx-meta">Stablecoin redemption <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+£5,000</div><div class="tx-curr">8 Mar 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#FFF0F0">🛡</div><div class="tx-info"><div class="tx-name">Irish Life — Pension Contributions</div><div class="tx-meta">March employer contribution <span class="badge badge-pending">Pending</span></div></div><div class="tx-amount"><div class="tx-value debit">−€3,640</div><div class="tx-curr">Due 21 Mar</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-send" class="page">
+    <div class="page-header"><div><div class="page-title">Send &amp; Convert</div><div class="page-subtitle">Transfer funds or swap between currencies and stablecoins</div></div></div>
+    <div class="grid-2">
+      <div class="card" style="padding:24px;">
+        <div style="font-size:16px;font-weight:600;margin-bottom:20px;">Send Payment</div>
+        <div class="tabs"><div class="tab active" onclick="switchTab(this)">Internal</div><div class="tab" onclick="switchTab(this)">Supplier</div><div class="tab" onclick="switchTab(this)">Payroll Run</div></div>
+        <div class="form-group"><label class="form-label">From wallet</label><select class="form-input form-select"><option>🇬🇧 GBP — £48,320.00 available</option><option>🇮🇪 EUR — €31,840.50 available</option><option>⬡ FGBP — 12,500.00 available</option><option>⬡ FEUR — 8,200.00 available</option></select></div>
+        <div class="form-group"><label class="form-label">Recipient</label><input class="form-input" type="text" placeholder="Name, account or IBAN..."></div>
+        <div class="form-group"><label class="form-label">Amount</label><div class="convert-input-group"><div class="convert-currency">GBP</div><input class="convert-input-inner" type="number" placeholder="0.00" oninput="updateConvert(this.value)"></div></div>
+        <div class="rate-display" id="convert-preview">Enter an amount to see the conversion</div>
+        <div class="form-group"><label class="form-label">Payment reference</label><input class="form-input" type="text" placeholder="Invoice, payroll month, etc."></div>
+        <div class="form-group"><label class="form-label">Schedule</label><select class="form-input form-select"><option>Send now (instant)</option><option>Schedule for later</option><option>Recurring monthly</option></select></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;">Send Payment</button>
+      </div>
+      <div>
+        <div class="card" style="padding:24px;margin-bottom:16px;">
+          <div style="font-size:16px;font-weight:600;margin-bottom:20px;">Convert Currencies</div>
+          <div class="form-group"><label class="form-label">You send</label><div class="convert-input-group"><div class="convert-currency">GBP</div><input class="convert-input-inner" type="number" placeholder="10,000.00" oninput="updateConvert2(this.value)"></div></div>
+          <div style="text-align:center;margin:8px 0;"><div style="width:32px;height:32px;background:var(--bg);border:1px solid var(--bd);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto;cursor:pointer;font-size:14px;">⇅</div></div>
+          <div class="form-group"><label class="form-label">You receive</label><div class="convert-input-group"><div class="convert-currency">EUR</div><input class="convert-input-inner" type="number" id="convert-out" placeholder="11,742.00"></div></div>
+          <div style="background:var(--bg);border-radius:var(--rs);padding:12px;font-size:12.5px;color:var(--txm);margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Rate</span><span style="color:var(--tx);font-family:'DM Mono',monospace">1 GBP = 1.1742 EUR</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span>Fee</span><span style="color:var(--tx)">0.20% (£20.00)</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Arrives</span><span style="color:var(--gn);font-weight:500">Instant</span></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;">Convert Now</button>
+        </div>
+        <div class="card" style="padding:20px;">
+          <div class="section-title" style="margin-bottom:14px;font-size:13px;">Stablecoin quick actions</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint FGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem FGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint FEUR</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem FEUR</button></div>
+          <div style="height:1px;background:var(--bd);margin:16px 0;"></div>
+          <div style="font-size:11.5px;color:var(--txm);line-height:1.6;">FGBP and FEUR are fully-reserved e-money stablecoins, pegged 1:1 to GBP and EUR. Instant settlement across the border, no FX slippage.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-transactions" class="page">
+    <div class="page-header"><div><div class="page-title">Transactions</div><div class="page-subtitle">Full payment history across all wallets</div></div><button class="btn btn-ghost">Export CSV</button></div>
+    <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
+      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;"><option>All currencies</option><option>GBP</option><option>EUR</option><option>FGBP</option><option>FEUR</option></select>
+      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;"><option>All types</option><option>Payroll</option><option>Supplier</option><option>Tax</option><option>Pension</option><option>Convert</option></select>
+      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;"><option>Last 30 days</option><option>Last 90 days</option><option>This year</option></select>
+    </div>
+    <div class="card">
+      <div class="tx-item"><div class="tx-icon" style="background:#EFF6FF">👥</div><div class="tx-info"><div class="tx-name">Payroll — March 2026</div><div class="tx-meta">14 employees · Mixed GBP/EUR <span class="badge badge-success">Complete</span></div></div><div class="tx-amount"><div class="tx-value debit">−£31,400</div><div class="tx-curr">14 Mar</div></div></div>
+      <div class="tx-item"><div class="tx-icon" style="background:#F0FDF4">📦</div><div class="tx-info"><div class="tx-name">Brennan &amp; Sons Supplies</div><div class="tx-meta">INV-2026-0412 <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−€4,200</div><div class="tx-curr">12 Mar</div></div></div>
+      <div class="tx-item"><div class="tx-icon" style="background:#FEF9EE">🏛</div><div class="tx-info"><div class="tx-name">Revenue Commissioners — VAT</div><div class="tx-meta">Q4 2025 <span class="badge badge-success">Paid</span></div></div><div class="tx-amount"><div class="tx-value debit">−€12,840</div><div class="tx-curr">10 Mar</div></div></div>
+      <div class="tx-item"><div class="tx-icon" style="background:#F5F3FF">⬡</div><div class="tx-info"><div class="tx-name">FGBP → GBP Redemption</div><div class="tx-meta">Stablecoin redemption <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+£5,000</div><div class="tx-curr">8 Mar</div></div></div>
+      <div class="tx-item"><div class="tx-icon" style="background:#FFF0F0">🛡</div><div class="tx-info"><div class="tx-name">Irish Life Pension — Feb</div><div class="tx-meta">Employer contribution <span class="badge badge-success">Paid</span></div></div><div class="tx-amount"><div class="tx-value debit">−€3,640</div><div class="tx-curr">6 Mar</div></div></div>
+      <div class="tx-item"><div class="tx-icon" style="background:#EFF6FF">📦</div><div class="tx-info"><div class="tx-name">NI Supply Co. Ltd</div><div class="tx-meta">INV-2026-0389 <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−£2,100</div><div class="tx-curr">4 Mar</div></div></div>
+      <div class="tx-item"><div class="tx-icon" style="background:#F0FDF4">↓</div><div class="tx-info"><div class="tx-name">Top-up from Ulster Bank</div><div class="tx-meta">GBP wallet funding <span class="badge badge-success">Received</span></div></div><div class="tx-amount"><div class="tx-value credit">+£20,000</div><div class="tx-curr">1 Mar</div></div></div>
+      <div class="tx-item"><div class="tx-icon" style="background:#FEF9EE">🏛</div><div class="tx-info"><div class="tx-name">HMRC — PAYE/NI</div><div class="tx-meta">February 2026 <span class="badge badge-success">Paid</span></div></div><div class="tx-amount"><div class="tx-value debit">−£8,620</div><div class="tx-curr">22 Feb</div></div></div>
+    </div>
+  </div>
+
+  <div id="page-payroll" class="page">
+    <div class="page-header"><div><div class="page-title">Payroll</div><div class="page-subtitle">14 active employees · March 2026 payrun due Friday 21 March</div></div><button class="btn btn-primary">Run Payroll</button></div>
+    <div class="alert-bar info"><span>ℹ</span>March payroll scheduled for Friday 21 March. Employees in Ireland paid in EUR, Northern Ireland in GBP. Total: <strong>£31,820 + €14,440</strong></div>
+    <div class="metric-grid" style="margin-bottom:20px;">
+      <div class="metric-card"><div class="metric-label">NI Employees (GBP)</div><div class="metric-value">8</div><div class="metric-sub">Total: £31,820 gross</div></div>
+      <div class="metric-card"><div class="metric-label">IE Employees (EUR)</div><div class="metric-value">6</div><div class="metric-sub">Total: €14,440 gross</div></div>
+      <div class="metric-card"><div class="metric-label">Next payroll</div><div class="metric-value">21 Mar</div><div class="metric-sub">2 days remaining</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div style="padding:14px 16px 0;"><div class="section-title">Northern Ireland 🇬🇧</div></div>
+        <div class="payroll-row"><div class="payroll-avatar" style="background:#EFF6FF;color:#1E3A5F;">SC</div><div style="flex:1;"><div class="payroll-name">Seamus Connolly</div><div class="payroll-role">Operations Manager</div></div><div style="text-align:right;"><div class="payroll-amount">£4,200</div><div class="payroll-currency"><span class="jurisdiction-tag jurisdiction-ni">NI</span></div></div></div>
+        <div class="payroll-row"><div class="payroll-avatar" style="background:#EFF6FF;color:#1E3A5F;">RM</div><div style="flex:1;"><div class="payroll-name">Rachel Morrison</div><div class="payroll-role">Senior Developer</div></div><div style="text-align:right;"><div class="payroll-amount">£3,800</div><div class="payroll-currency"><span class="jurisdiction-tag jurisdiction-ni">NI</span></div></div></div>
+        <div class="payroll-row"><div class="payroll-avatar" style="background:#EFF6FF;color:#1E3A5F;">TH</div><div style="flex:1;"><div class="payroll-name">Thomas Hughes</div><div class="payroll-role">Logistics Lead</div></div><div style="text-align:right;"><div class="payroll-amount">£3,200</div><div class="payroll-currency"><span class="jurisdiction-tag jurisdiction-ni">NI</span></div></div></div>
+        <div class="payroll-row" style="background:rgba(0,0,0,.02);border-top:1px solid var(--bd);"><div style="flex:1;font-size:12.5px;font-weight:600;padding-left:4px;">5 more employees...</div><div style="text-align:right;"><div class="payroll-amount">£20,620</div><div class="payroll-currency">subtotal</div></div></div>
+      </div>
+      <div class="card">
+        <div style="padding:14px 16px 0;"><div class="section-title">Ireland 🇮🇪</div></div>
+        <div class="payroll-row"><div class="payroll-avatar" style="background:#F0FDF4;color:#166534;">FO</div><div style="flex:1;"><div class="payroll-name">Fiona O'Brien</div><div class="payroll-role">Finance Director</div></div><div style="text-align:right;"><div class="payroll-amount">€4,800</div><div class="payroll-currency"><span class="jurisdiction-tag jurisdiction-ie">IE</span></div></div></div>
+        <div class="payroll-row"><div class="payroll-avatar" style="background:#F0FDF4;color:#166534;">DM</div><div style="flex:1;"><div class="payroll-name">Declan Murphy</div><div class="payroll-role">Sales Manager</div></div><div style="text-align:right;"><div class="payroll-amount">€3,600</div><div class="payroll-currency"><span class="jurisdiction-tag jurisdiction-ie">IE</span></div></div></div>
+        <div class="payroll-row"><div class="payroll-avatar" style="background:#F0FDF4;color:#166534;">AN</div><div style="flex:1;"><div class="payroll-name">Aoife Ní Fhaoláin</div><div class="payroll-role">Marketing Lead</div></div><div style="text-align:right;"><div class="payroll-amount">€3,200</div><div class="payroll-currency"><span class="jurisdiction-tag jurisdiction-ie">IE</span></div></div></div>
+        <div class="payroll-row" style="background:rgba(0,0,0,.02);border-top:1px solid var(--bd);"><div style="flex:1;font-size:12.5px;font-weight:600;padding-left:4px;">3 more employees...</div><div style="text-align:right;"><div class="payroll-amount">€2,840</div><div class="payroll-currency">subtotal</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-suppliers" class="page">
+    <div class="page-header"><div><div class="page-title">Supplier Payments</div><div class="page-subtitle">Manage invoices and schedule payments across currencies</div></div><button class="btn btn-primary">+ New Payment</button></div>
+    <div class="alert-bar warning"><span>⚠</span>2 invoices overdue. 1 invoice due today. Total outstanding: <strong>€18,440 + £6,200</strong></div>
+    <div class="grid-2" style="margin-bottom:20px;">
+      <div class="card" style="padding:18px;">
+        <div class="section-title" style="margin-bottom:14px;">Outstanding invoices</div>
+        <div class="progress-row"><div class="progress-header"><span>Due today</span><span style="font-weight:600;color:var(--am)">€7,200</span></div><div class="progress-bar"><div class="progress-fill" style="width:28%;background:#F59E0B;"></div></div></div>
+        <div class="progress-row"><div class="progress-header"><span>Due this week</span><span style="font-weight:600">€8,440 + £4,100</span></div><div class="progress-bar"><div class="progress-fill" style="width:55%;background:var(--ac);"></div></div></div>
+        <div class="progress-row"><div class="progress-header"><span>Due next month</span><span style="font-weight:600">£2,100</span></div><div class="progress-bar"><div class="progress-fill" style="width:17%;background:#9CA3AF;"></div></div></div>
+      </div>
+      <div class="card" style="padding:18px;">
+        <div class="section-title" style="margin-bottom:14px;">Payment methods</div>
+        <div style="font-size:13px;color:var(--txm);line-height:1.8;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>SEPA (IE suppliers)</span><span class="badge badge-success">Active</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>Faster Payments (NI)</span><span class="badge badge-success">Active</span></div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span>FEUR on-chain transfer</span><span class="badge badge-info">Stablecoin</span></div>
+          <div style="display:flex;justify-content:space-between;"><span>FGBP on-chain transfer</span><span class="badge badge-info">Stablecoin</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="padding:14px 16px 0;"><div class="section-title">Active suppliers</div></div>
+      <div class="supplier-item"><div class="supplier-logo" style="background:#F0FDF4;color:#166534;">BS</div><div style="flex:1;"><div style="font-size:13.5px;font-weight:500;">Brennan &amp; Sons Supplies</div><div style="font-size:12px;color:var(--txm);">Dublin · SEPA · INV-0412</div></div><div style="text-align:right;margin-right:12px;"><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;">€7,200</div><span class="badge badge-pending">Due today</span></div><button class="btn btn-primary" style="padding:7px 14px;font-size:12.5px;">Pay Now</button></div>
+      <div class="supplier-item"><div class="supplier-logo" style="background:#EFF6FF;color:#1E3A5F;">NS</div><div style="flex:1;"><div style="font-size:13.5px;font-weight:500;">NI Supply Co. Ltd</div><div style="font-size:12px;color:var(--txm);">Belfast · Faster Payments · INV-0389</div></div><div style="text-align:right;margin-right:12px;"><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;">£2,100</div><span class="badge badge-success">Paid 4 Mar</span></div><button class="btn btn-ghost" style="padding:7px 14px;font-size:12.5px;">Receipt</button></div>
+      <div class="supplier-item"><div class="supplier-logo" style="background:#FFF7ED;color:#92400E;">IM</div><div style="flex:1;"><div style="font-size:13.5px;font-weight:500;">Irish Materials Group</div><div style="font-size:12px;color:var(--txm);">Cork · FEUR stablecoin · INV-0441</div></div><div style="text-align:right;margin-right:12px;"><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;">€8,440</div><span class="badge badge-pending">Due 22 Mar</span></div><button class="btn btn-ghost" style="padding:7px 14px;font-size:12.5px;">Schedule</button></div>
+      <div class="supplier-item"><div class="supplier-logo" style="background:#F5F3FF;color:#4C1D95;">MT</div><div style="flex:1;"><div style="font-size:13.5px;font-weight:500;">Mourne Tech Services</div><div style="font-size:12px;color:var(--txm);">Newry · FGBP stablecoin · INV-0455</div></div><div style="text-align:right;margin-right:12px;"><div style="font-family:'DM Mono',monospace;font-size:13px;font-weight:500;">£4,100</div><span class="badge badge-pending">Due 25 Mar</span></div><button class="btn btn-ghost" style="padding:7px 14px;font-size:12.5px;">Schedule</button></div>
+    </div>
+  </div>
+
+  <div id="page-tax" class="page">
+    <div class="page-header"><div><div class="page-title">Tax &amp; Compliance</div><div class="page-subtitle">HMRC (Northern Ireland) and Revenue Commissioners (Ireland)</div></div><button class="btn btn-ghost">Tax Calendar</button></div>
+    <div class="tax-summary">
+      <div class="tax-card ie"><div class="tax-title">🇮🇪 Ireland — Revenue</div><div class="tax-item"><span>VAT (Q1 2026)</span><span>€12,840</span></div><div class="tax-item"><span>PAYE / USC / PRSI</span><span>€6,240</span></div><div class="tax-item"><span>Corporation Tax (est.)</span><span>€8,400</span></div><div class="tax-item"><span style="color:var(--gn);">Total due</span><span>€27,480</span></div></div>
+      <div class="tax-card ni"><div class="tax-title">🇬🇧 Northern Ireland — HMRC</div><div class="tax-item"><span>PAYE / NI Contributions</span><span>£8,620</span></div><div class="tax-item"><span>VAT (Q1 2026)</span><span>£11,200</span></div><div class="tax-item"><span>Corporation Tax (est.)</span><span>£5,800</span></div><div class="tax-item"><span style="color:var(--bl);">Total due</span><span>£25,620</span></div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="padding:18px;">
+        <div class="section-title" style="margin-bottom:14px;">Upcoming deadlines</div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);"><div style="width:36px;height:36px;background:#FEF3C7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🇬🇧</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">PAYE/NI — HMRC</div><div style="font-size:11.5px;color:var(--txm);">19 April 2026</div></div><span class="badge badge-pending">£8,620</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--bd);"><div style="width:36px;height:36px;background:#DCFCE7;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🇮🇪</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">VAT Return — Revenue</div><div style="font-size:11.5px;color:var(--txm);">23 April 2026</div></div><span class="badge badge-info">€12,840</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 0;"><div style="width:36px;height:36px;background:#DBEAFE;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;">🇮🇪</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">PAYE/USC/PRSI — Revenue</div><div style="font-size:11.5px;color:var(--txm);">14 May 2026</div></div><span class="badge badge-info">€6,240</span></div>
+      </div>
+      <div class="card" style="padding:18px;">
+        <div class="section-title" style="margin-bottom:14px;">Pay tax now</div>
+        <div class="form-group"><label class="form-label">Jurisdiction</label><select class="form-input form-select"><option>🇮🇪 Revenue Commissioners (IE)</option><option>🇬🇧 HMRC (UK / NI)</option></select></div>
+        <div class="form-group"><label class="form-label">Tax type</label><select class="form-input form-select"><option>VAT</option><option>PAYE / NI</option><option>Corporation Tax</option><option>USC / PRSI</option></select></div>
+        <div class="form-group"><label class="form-label">Amount</label><div class="convert-input-group"><div class="convert-currency">EUR</div><input class="convert-input-inner" type="number" placeholder="0.00"></div></div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;">Pay Tax Authority</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="page-pension" class="page">
+    <div class="page-header"><div><div class="page-title">Pension Contributions</div><div class="page-subtitle">Employer pension management across both jurisdictions</div></div><button class="btn btn-primary">Make Contribution</button></div>
+    <div class="alert-bar success"><span>✓</span>February 2026 contributions processed successfully. March contributions due 21 March.</div>
+    <div class="metric-grid" style="margin-bottom:20px;">
+      <div class="metric-card"><div class="metric-label">IE Pension (PRSA)</div><div class="metric-value">€3,640</div><div class="metric-sub">Irish Life · 6 employees</div></div>
+      <div class="metric-card"><div class="metric-label">NI Pension (Auto-enrol)</div><div class="metric-value">£2,840</div><div class="metric-sub">NEST · 8 employees</div></div>
+      <div class="metric-card"><div class="metric-label">YTD total</div><div class="metric-value">£18,200</div><div class="metric-sub">Combined employer + employee</div></div>
+    </div>
+    <div class="grid-2">
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;">🇮🇪 Ireland — PRSA (Irish Life)</div>
+        <div class="progress-row"><div class="progress-header"><span style="font-size:12.5px;">Fiona O'Brien</span><span style="font-size:12.5px;font-family:'DM Mono',monospace;">€480/mo</span></div><div class="pension-bar"><div class="pension-fill" style="width:75%;background:#166534;"></div></div><div style="font-size:11px;color:var(--txm);margin-top:4px;">Employer 6% + Employee 5%</div></div>
+        <div class="progress-row"><div class="progress-header"><span style="font-size:12.5px;">Declan Murphy</span><span style="font-size:12.5px;font-family:'DM Mono',monospace;">€360/mo</span></div><div class="pension-bar"><div class="pension-fill" style="width:60%;background:#166534;"></div></div><div style="font-size:11px;color:var(--txm);margin-top:4px;">Employer 6% + Employee 4%</div></div>
+        <div class="progress-row"><div class="progress-header"><span style="font-size:12.5px;">Aoife Ní Fhaoláin</span><span style="font-size:12.5px;font-family:'DM Mono',monospace;">€320/mo</span></div><div class="pension-bar"><div class="pension-fill" style="width:50%;background:#166534;"></div></div><div style="font-size:11px;color:var(--txm);margin-top:4px;">Employer 5% + Employee 5%</div></div>
+        <div style="height:1px;background:var(--bd);margin:16px 0;"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;"><span>March total</span><span style="font-family:'DM Mono',monospace;">€3,640</span></div>
+      </div>
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:16px;">🇬🇧 Northern Ireland — NEST</div>
+        <div class="progress-row"><div class="progress-header"><span style="font-size:12.5px;">Seamus Connolly</span><span style="font-size:12.5px;font-family:'DM Mono',monospace;">£420/mo</span></div><div class="pension-bar"><div class="pension-fill" style="width:70%;"></div></div><div style="font-size:11px;color:var(--txm);margin-top:4px;">Employer 5% + Employee 5%</div></div>
+        <div class="progress-row"><div class="progress-header"><span style="font-size:12.5px;">Rachel Morrison</span><span style="font-size:12.5px;font-family:'DM Mono',monospace;">£380/mo</span></div><div class="pension-bar"><div class="pension-fill" style="width:62%;"></div></div><div style="font-size:11px;color:var(--txm);margin-top:4px;">Employer 5% + Employee 5%</div></div>
+        <div class="progress-row"><div class="progress-header"><span style="font-size:12.5px;">Thomas Hughes</span><span style="font-size:12.5px;font-family:'DM Mono',monospace;">£320/mo</span></div><div class="pension-bar"><div class="pension-fill" style="width:48%;"></div></div><div style="font-size:11px;color:var(--txm);margin-top:4px;">Employer 4% + Employee 4%</div></div>
+        <div style="height:1px;background:var(--bd);margin:16px 0;"></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:600;"><span>March total</span><span style="font-family:'DM Mono',monospace;">£2,840</span></div>
+      </div>
+    </div>
+    <div class="card" style="padding:18px;margin-top:16px;">
+      <div class="section-title" style="margin-bottom:12px;">Pension funding — stablecoin option</div>
+      <div style="font-size:13px;color:var(--txm);line-height:1.7;max-width:680px;">Fund pension contributions using FEUR or FGBP stablecoins for instant, borderless settlement. No FX conversion required — your stablecoin balances are redeemed 1:1 to the employee's pension currency. Contributions are reported to Irish Life and NEST automatically.</div>
+      <div style="display:flex;gap:10px;margin-top:14px;"><button class="btn btn-ghost">Fund with FEUR</button><button class="btn btn-ghost">Fund with FGBP</button></div>
+    </div>
+  </div>
+
+</main>
+<script>
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')?.includes("'"+id+"'"))n.classList.add('active')});
+}
+function switchTab(el){
+  el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+function updateConvert(val){
+  const amt=parseFloat(val);
+  const el=document.getElementById('convert-preview');
+  if(!amt||isNaN(amt)){el.textContent='Enter an amount to see the conversion';return}
+  const eur=(amt*1.1742).toFixed(2);
+  el.innerHTML=`<strong>${parseFloat(amt).toLocaleString('en-GB',{style:'currency',currency:'GBP'})} = €${parseFloat(eur).toLocaleString('en-IE',{minimumFractionDigits:2})}</strong> · Rate: 1.1742 · Fee: 0.20%`;
+}
+function updateConvert2(val){
+  const amt=parseFloat(val);
+  if(!amt||isNaN(amt))return;
+  document.getElementById('convert-out').value=(amt*1.1742).toFixed(2);
+}
+function downloadCode(){
+  const html=document.documentElement.outerHTML;
+  const blob=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='borderpay.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+</script>
+<div style="position:fixed;bottom:24px;right:24px;z-index:999;">
+  <button class="btn btn-primary" onclick="downloadCode()" style="box-shadow:var(--shm);gap:8px;">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M4 7l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 13h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    Download Code
+  </button>
+</div>
+</body>
+</html>
