@@ -10,7 +10,7 @@ const SolutionSection = () => {
             The dual-peg stablecoin layer
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            Border Pay sits between UK and Irish businesses, converting GBP and EUR into audited dual-peg stablecoins, settling across the corridor in seconds.
+            We make it easy to send money between the UK and Ireland — fast, low-cost, and without the usual bank hassle.
           </p>
         </div>
 
