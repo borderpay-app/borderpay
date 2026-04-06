@@ -68,7 +68,7 @@ const SolutionSection = () => {
             </div>
             <h3 className="font-semibold text-foreground mb-2">Instant Settlement</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Near-instant cross-border settlement via on-chain stablecoin transfers. No more waiting 2–5 days.
+              Built on Solana for near-instant cross-border settlement. No more waiting 2–5 days.
             </p>
           </div>
           <div className="bg-card border border-border rounded-xl p-6">
