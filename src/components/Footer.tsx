@@ -21,7 +21,6 @@ const Footer = () => {
             <img src={logo} alt="Border Pay" className="h-6 w-auto brightness-0 invert" />
             <span className="text-sm font-semibold">Border Pay</span>
           </div>
-          </div>
           <p className="text-xs text-primary-foreground/50">
             © {new Date().getFullYear()} Finteco Ltd. Belfast, Northern Ireland. All rights reserved.
           </p>
