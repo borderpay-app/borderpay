@@ -40,12 +40,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .btn-ghost{background:transparent;color:var(--tx);border:1px solid var(--bds)}.btn-ghost:hover{background:rgba(0,0,0,.03)}
 .card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--sh)}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-.wallets-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+.wallets-row{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
 .wallet-card{border-radius:var(--r);padding:18px 18px 16px;position:relative;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s}
 .wallet-card:hover{transform:translateY(-2px);box-shadow:var(--shm)}
 .wallet-card.gbp{background:var(--ac)}.wallet-card.eur{background:var(--ace)}
 .wallet-card.fgbp{background:linear-gradient(135deg,#2A4A1A,#3A6A22)}
 .wallet-card.feur{background:linear-gradient(135deg,#3A1A4A,#5A2A6A)}
+.wallet-card.brdg{background:linear-gradient(135deg,#1A3A4A,#2A5A3A)}
+.wallet-dual-badge{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.08));color:rgba(255,255,255,.85);font-size:9px;font-weight:600;padding:3px 7px;border-radius:20px;text-transform:uppercase;border:1px solid rgba(255,255,255,.12)}
 .wallet-flag{font-size:18px;margin-bottom:10px;display:block}
 .wallet-label{color:rgba(255,255,255,.55);font-size:10px;font-weight:500;letter-spacing:.8px;text-transform:uppercase}
 .wallet-amount{color:#fff;font-family:'DM Mono',monospace;font-size:20px;font-weight:500;letter-spacing:-.5px;margin-top:4px}
@@ -134,6 +136,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
   .page-header{flex-direction:column;gap:12px}
   .page-title{font-size:18px}
   .wallets-row{grid-template-columns:1fr 1fr;gap:10px}
+  .wallet-card.brdg .wallet-amount{font-size:17px}
   .metric-grid{grid-template-columns:1fr}
   .grid-2{grid-template-columns:1fr}
   .quick-actions{grid-template-columns:1fr 1fr}
@@ -197,6 +200,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
       <div class="fx-divider"></div>
       <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">BEUR/EUR</span><span class="fx-rate">1.0000</span><span class="fx-change pos">Pegged</span></div>
       <div class="fx-divider"></div>
+      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">BRDG/GBP</span><span class="fx-rate">1.0000</span><span class="fx-change pos">Pegged</span></div>
+      <div class="fx-divider"></div>
+      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">BRDG/EUR</span><span class="fx-rate">1.1742</span><span class="fx-change pos">Pegged</span></div>
+      <div class="fx-divider"></div>
       <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">BGBP/BEUR</span><span class="fx-rate">1.1742</span><span class="fx-change neg">−0.04%</span></div>
     </div>
     <div class="wallets-row">
@@ -204,6 +211,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
       <div class="wallet-card eur"><span class="wallet-flag">🇮🇪</span><div class="wallet-label">Fiat EUR</div><div class="wallet-amount">€31,840.50</div><div class="wallet-currency">Euro</div></div>
       <div class="wallet-card fgbp"><span class="wallet-flag">⬡</span><div class="wallet-stable-badge">Stablecoin</div><div class="wallet-label">BGBP</div><div class="wallet-amount">12,500.00</div><div class="wallet-currency">Pegged 1:1 to GBP</div></div>
       <div class="wallet-card feur"><span class="wallet-flag">⬡</span><div class="wallet-stable-badge">Stablecoin</div><div class="wallet-label">BEUR</div><div class="wallet-amount">8,200.00</div><div class="wallet-currency">Pegged 1:1 to EUR</div></div>
+      <div class="wallet-card brdg"><span class="wallet-flag">◈</span><div class="wallet-dual-badge">Dual-Peg</div><div class="wallet-label">BridgeCoin</div><div class="wallet-amount">6,750.00</div><div class="wallet-currency">Pegged to GBP &amp; EUR</div></div>
     </div>
     <div class="metric-grid">
       <div class="metric-card"><div class="metric-label">Monthly Outflow</div><div class="metric-value">£94,200</div><div class="metric-trend up">↑ 3.2% vs last month</div></div>
@@ -234,7 +242,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
       <div class="card" style="padding:24px;">
         <div style="font-size:16px;font-weight:600;margin-bottom:20px;">Send Payment</div>
         <div class="tabs"><div class="tab active" onclick="switchTab(this)">Internal</div><div class="tab" onclick="switchTab(this)">Supplier</div><div class="tab" onclick="switchTab(this)">Payroll Run</div></div>
-        <div class="form-group"><label class="form-label">From wallet</label><select class="form-input form-select"><option>🇬🇧 GBP — £48,320.00 available</option><option>🇮🇪 EUR — €31,840.50 available</option><option>⬡ BGBP — 12,500.00 available</option><option>⬡ BEUR — 8,200.00 available</option></select></div>
+        <div class="form-group"><label class="form-label">From wallet</label><select class="form-input form-select"><option>🇬🇧 GBP — £48,320.00 available</option><option>🇮🇪 EUR — €31,840.50 available</option><option>⬡ BGBP — 12,500.00 available</option><option>⬡ BEUR — 8,200.00 available</option><option>◈ BRDG — 6,750.00 available</option></select></div>
         <div class="form-group"><label class="form-label">Recipient</label><input class="form-input" type="text" placeholder="Name, account or IBAN..."></div>
         <div class="form-group"><label class="form-label">Amount</label><div class="convert-input-group"><div class="convert-currency">GBP</div><input class="convert-input-inner" type="number" placeholder="0.00" oninput="updateConvert(this.value)"></div></div>
         <div class="rate-display" id="convert-preview">Enter an amount to see the conversion</div>
@@ -257,7 +265,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
         </div>
         <div class="card" style="padding:20px;">
           <div class="section-title" style="margin-bottom:14px;font-size:13px;">Stablecoin quick actions</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint BGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem BGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint BEUR</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem BEUR</button></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint BGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem BGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint BEUR</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem BEUR</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;grid-column:span 2;border-style:dashed;">◈ Mint / Redeem BridgeCoin</button></div>
           <div style="height:1px;background:var(--bd);margin:16px 0;"></div>
           <div style="font-size:11.5px;color:var(--txm);line-height:1.6;">BGBP and BEUR are fully-reserved e-money stablecoins, pegged 1:1 to GBP and EUR. Instant settlement across the border, no FX slippage.</div>
         </div>
