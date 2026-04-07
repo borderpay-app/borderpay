@@ -37,9 +37,6 @@ const Footer = () => {
             <a href="https://www.facebook.com/people/Borderpay" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors" aria-label="Facebook">
               <Facebook size={18} />
             </a>
-            <a href="https://www.instagram.com/borderpay" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors" aria-label="Instagram">
-              <Instagram size={18} />
-            </a>
           </div>
           <p className="text-xs text-primary-foreground/50">
             © {new Date().getFullYear()} Border Pay Limited. Belfast, Northern Ireland. All rights reserved.
