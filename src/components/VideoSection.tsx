@@ -38,7 +38,7 @@ const VideoSection = () => {
               What is BDRP?
             </h3>
             <p className="mt-4 text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              BDRP (BorderPay) is a dual-pegged stablecoin backed by a basket of Euro and British Pound. 1 BDRP = £0.50 + €0.50. Its value stays stable by tracking both EUR and GBP together, reducing FX volatility between the two currencies.
+              BDRP (BorderPay) is a dual-pegged stablecoin backed by a basket of Euro and British Pound. 1 BDRP = 50% Euro + 50% British Pound (1 BDRP represents a fixed basket of €0.50 + £0.43 — adjusted to equal value at launch). Its value stays stable by tracking both EUR and GBP together, significantly reducing FX volatility and making BDRP ideal for payments and holding value across the Eurozone and the United Kingdom.
             </p>
           </div>
 
@@ -86,7 +86,7 @@ const VideoSection = () => {
 
           <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6 text-center">
             <p className="text-sm text-foreground leading-relaxed max-w-2xl mx-auto">
-              <strong>How it works:</strong> Deposit GBP or EUR to mint BDRP. Send BDRP to anyone — they redeem in whichever currency they prefer. Because 1 BDRP = £0.50 + €0.50, both parties always know exactly what they're sending and receiving, with no hidden FX markup.
+              <strong>How it works:</strong> Deposit GBP or EUR to mint BDRP. Send BDRP to anyone — they redeem in whichever currency they prefer. Each BDRP tracks both currencies together, so both parties always know exactly what they're sending and receiving, with no hidden FX markup.
             </p>
           </div>
         </div>
