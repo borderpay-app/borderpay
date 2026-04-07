@@ -47,7 +47,7 @@ const SolutionSection = () => {
             </div>
             <div>
               <div className="text-xl font-bold font-mono">BDRP</div>
-              <div className="text-xs opacity-60 mt-1">£0.50 + €0.50</div>
+              <div className="text-xs opacity-60 mt-1">€0.50 + £0.43</div>
             </div>
             <div>
               <div className="text-xl font-bold font-mono">Solana</div>

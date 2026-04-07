@@ -86,7 +86,7 @@ const VideoSection = () => {
 
           <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6 text-center">
             <p className="text-sm text-foreground leading-relaxed max-w-2xl mx-auto">
-              <strong>How it works:</strong> Deposit GBP or EUR to mint BDRP. Send BDRP to anyone — they redeem in whichever currency they prefer. Because 1 BDRP = £0.50 + €0.50, both parties always know exactly what they're sending and receiving, with no hidden FX markup.
+              <strong>How it works:</strong> Deposit GBP or EUR to mint BDRP. Send BDRP to anyone — they redeem in whichever currency they prefer. Each BDRP tracks both currencies together, so both parties always know exactly what they're sending and receiving, with no hidden FX markup.
             </p>
           </div>
         </div>
