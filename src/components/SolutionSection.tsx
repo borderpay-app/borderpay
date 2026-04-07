@@ -7,10 +7,10 @@ const SolutionSection = () => {
         <div className="text-center max-w-2xl mx-auto mb-16">
           <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">The Solution</p>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-            The dual-peg stablecoin layer
+            BDRP — the dual-pegged stablecoin
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            We make it easy to send money between the UK and Ireland: fast, low-cost, and without the usual bank hassle.
+            BDRP is backed by a basket of Euro and British Pound. 1 BDRP = £0.50 + €0.50 — reducing FX volatility and making cross-border payments fast, low-cost, and predictable.
           </p>
         </div>
 
