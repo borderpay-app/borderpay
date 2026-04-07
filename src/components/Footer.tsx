@@ -26,6 +26,8 @@ const Footer = () => {
             <Link to="/privacy" className="hover:text-primary-foreground/80 transition-colors">Privacy Policy</Link>
             <span>·</span>
             <Link to="/terms" className="hover:text-primary-foreground/80 transition-colors">Terms & Conditions</Link>
+            <span>·</span>
+            <Link to="/contact" className="hover:text-primary-foreground/80 transition-colors">Contact</Link>
           </div>
           <p className="text-xs text-primary-foreground/50">
             © {new Date().getFullYear()} Border Pay Limited. Belfast, Northern Ireland. All rights reserved.
