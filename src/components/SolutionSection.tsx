@@ -7,10 +7,10 @@ const SolutionSection = () => {
         <div className="text-center max-w-2xl mx-auto mb-16">
           <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">The Solution</p>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-            The dual-peg stablecoin layer
+            BDRP — the dual-pegged stablecoin
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            We make it easy to send money between the UK and Ireland: fast, low-cost, and without the usual bank hassle.
+            BDRP is backed by a basket of Euro and British Pound. 1 BDRP = £0.50 + €0.50 — reducing FX volatility and making cross-border payments fast, low-cost, and predictable.
           </p>
         </div>
 
@@ -19,9 +19,9 @@ const SolutionSection = () => {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-primary-foreground">
             {[
               { flag: "🇬🇧", label: "UK Business", sub: "Sends GBP" },
-              { flag: "⬡", label: "On-Ramp", sub: "GBP → BGBP" },
+              { flag: "⬡", label: "On-Ramp", sub: "GBP → BDRP" },
               { flag: "⚡", label: "Settlement", sub: "< 30 seconds" },
-              { flag: "⬡", label: "Off-Ramp", sub: "BEUR → EUR" },
+              { flag: "⬡", label: "Off-Ramp", sub: "BDRP → EUR" },
               { flag: "🇮🇪", label: "Irish Business", sub: "Receives EUR" },
             ].map((step, i) => (
               <div key={step.label} className="flex items-center gap-3 sm:gap-0 sm:flex-col text-center">
@@ -46,8 +46,8 @@ const SolutionSection = () => {
               <div className="text-xs opacity-60 mt-1">All-in fee</div>
             </div>
             <div>
-              <div className="text-xl font-bold font-mono">Dual-Peg</div>
-              <div className="text-xs opacity-60 mt-1">GBP & EUR native</div>
+              <div className="text-xl font-bold font-mono">BDRP</div>
+              <div className="text-xs opacity-60 mt-1">£0.50 + €0.50</div>
             </div>
             <div>
               <div className="text-xl font-bold font-mono">Solana</div>

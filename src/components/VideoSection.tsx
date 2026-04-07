@@ -35,10 +35,10 @@ const VideoSection = () => {
           <div className="text-center mb-10">
             <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">Our Innovation</p>
             <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              What is BRDP?
+              What is BDRP?
             </h3>
             <p className="mt-4 text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              BRDP (Border Pay) is a stablecoin pegged simultaneously to both GBP and EUR. Its value is equal to (£1.00 + €1)/2.
+              BDRP (BorderPay) is a dual-pegged stablecoin backed by a basket of Euro and British Pound. 1 BDRP = £0.50 + €0.50. Its value stays stable by tracking both EUR and GBP together, reducing FX volatility between the two currencies.
             </p>
           </div>
 
@@ -49,7 +49,7 @@ const VideoSection = () => {
               </div>
               <h4 className="text-sm font-semibold text-foreground mb-2">Zero FX Slippage</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Pay a Belfast supplier in GBP or a Dublin supplier in EUR from the same BRDP balance. The dual peg locks in both rates — no spread, no conversion fees, no surprises.
+                Pay a Belfast supplier in GBP or a Dublin supplier in EUR from the same BDRP balance. The dual peg locks in both rates — no spread, no conversion fees, no surprises.
               </p>
             </div>
 
@@ -59,7 +59,7 @@ const VideoSection = () => {
               </div>
               <h4 className="text-sm font-semibold text-foreground mb-2">Instant Settlement</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Cross-border payments settle in under 30 seconds — not 2–3 business days. BRDP moves on-chain and redeems instantly to fiat in either jurisdiction.
+                Cross-border payments settle in under 30 seconds — not 2–3 business days. BDRP moves on-chain and redeems instantly to fiat in either jurisdiction.
               </p>
             </div>
 
@@ -69,7 +69,7 @@ const VideoSection = () => {
               </div>
               <h4 className="text-sm font-semibold text-foreground mb-2">Fully Reserved</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Every BRDP in circulation is backed 1:1 by segregated GBP and EUR reserves. Transparent, auditable, and designed for regulatory compliance across both the UK and Ireland.
+                Every BDRP in circulation is backed 1:1 by a basket of segregated GBP and EUR reserves. Transparent, auditable, and designed for regulatory compliance across both the UK and Ireland.
               </p>
             </div>
 
@@ -79,14 +79,14 @@ const VideoSection = () => {
               </div>
               <h4 className="text-sm font-semibold text-foreground mb-2">One Balance, Two Economies</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Businesses operating across the border no longer need separate GBP and EUR floats. BRDP unifies your treasury into a single dual-currency instrument.
+                Businesses operating across the border no longer need separate GBP and EUR floats. BDRP unifies your treasury into a single dual-currency instrument.
               </p>
             </div>
           </div>
 
           <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6 text-center">
             <p className="text-sm text-foreground leading-relaxed max-w-2xl mx-auto">
-              <strong>How it works:</strong> Mint BRDP by depositing GBP or EUR. Spend or send BRDP to anyone — they redeem in whichever currency they prefer. The GBP/EUR exchange rate is locked at the live mid-market rate at settlement, with no hidden markup.
+              <strong>How it works:</strong> Deposit GBP or EUR to mint BDRP. Send BDRP to anyone — they redeem in whichever currency they prefer. Because 1 BDRP = £0.50 + €0.50, both parties always know exactly what they're sending and receiving, with no hidden FX markup.
             </p>
           </div>
         </div>
