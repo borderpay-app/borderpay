@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, Mail } from "lucide-react";
+import { CheckCircle2, Mail, Linkedin, Facebook, Instagram } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
