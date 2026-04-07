@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, Mail, Linkedin, Facebook, Instagram } from "lucide-react";
+import { CheckCircle2, Mail, Linkedin, Facebook, Youtube } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
@@ -65,6 +65,9 @@ const Contact = () => {
                   </a>
                   <a href="https://www.facebook.com/people/Borderpay" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors" aria-label="Facebook">
                     <Facebook size={18} />
+                  </a>
+                  <a href="https://www.youtube.com/@BorderPay" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary hover:bg-primary/20 transition-colors" aria-label="YouTube">
+                    <Youtube size={18} />
                   </a>
                 </div>
               </div>
