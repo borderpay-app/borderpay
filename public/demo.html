@@ -46,7 +46,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
 .wallet-card.gbp{background:var(--ac)}.wallet-card.eur{background:var(--ace)}
 .wallet-card.fgbp{background:linear-gradient(135deg,#2A4A1A,#3A6A22)}
 .wallet-card.feur{background:linear-gradient(135deg,#3A1A4A,#5A2A6A)}
-.wallet-card.brdg{background:linear-gradient(135deg,#1A3A4A,#2A5A3A)}
+.wallet-card.gub{background:linear-gradient(135deg,#1A3A4A,#2A5A3A)}
 .wallet-dual-badge{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(255,255,255,.08));color:rgba(255,255,255,.85);font-size:9px;font-weight:600;padding:3px 7px;border-radius:20px;text-transform:uppercase;border:1px solid rgba(255,255,255,.12)}
 .wallet-flag{font-size:18px;margin-bottom:10px;display:block}
 .wallet-label{color:rgba(255,255,255,.55);font-size:10px;font-weight:500;letter-spacing:.8px;text-transform:uppercase}
@@ -136,7 +136,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
   .page-header{flex-direction:column;gap:12px}
   .page-title{font-size:18px}
   .wallets-row{grid-template-columns:1fr 1fr;gap:10px}
-  .wallet-card.brdg .wallet-amount{font-size:17px}
+  .wallet-card.gub .wallet-amount{font-size:17px}
   .metric-grid{grid-template-columns:1fr}
   .grid-2{grid-template-columns:1fr}
   .quick-actions{grid-template-columns:1fr 1fr}
@@ -200,9 +200,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
       <div class="fx-divider"></div>
       <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">BEUR/EUR</span><span class="fx-rate">1.0000</span><span class="fx-change pos">Pegged</span></div>
       <div class="fx-divider"></div>
-      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">BRDG/GBP</span><span class="fx-rate">1.0000</span><span class="fx-change pos">Pegged</span></div>
+      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">GUB/GBP</span><span class="fx-rate">1.0000</span><span class="fx-change pos">Pegged</span></div>
       <div class="fx-divider"></div>
-      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">BRDG/EUR</span><span class="fx-rate">1.1742</span><span class="fx-change pos">Pegged</span></div>
+      <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">GUB/EUR</span><span class="fx-rate">1.1742</span><span class="fx-change pos">Pegged</span></div>
       <div class="fx-divider"></div>
       <div class="fx-pair"><span style="font-size:11px;color:var(--txm)">BGBP/BEUR</span><span class="fx-rate">1.1742</span><span class="fx-change neg">−0.04%</span></div>
     </div>
@@ -211,7 +211,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
       <div class="wallet-card eur"><span class="wallet-flag">🇮🇪</span><div class="wallet-label">Fiat EUR</div><div class="wallet-amount">€31,840.50</div><div class="wallet-currency">Euro</div></div>
       <div class="wallet-card fgbp"><span class="wallet-flag">⬡</span><div class="wallet-stable-badge">Stablecoin</div><div class="wallet-label">BGBP</div><div class="wallet-amount">12,500.00</div><div class="wallet-currency">Pegged 1:1 to GBP</div></div>
       <div class="wallet-card feur"><span class="wallet-flag">⬡</span><div class="wallet-stable-badge">Stablecoin</div><div class="wallet-label">BEUR</div><div class="wallet-amount">8,200.00</div><div class="wallet-currency">Pegged 1:1 to EUR</div></div>
-      <div class="wallet-card brdg" onclick="showPage('brdg-wallet')"><span class="wallet-flag">◈</span><div class="wallet-dual-badge">Dual-Peg</div><div class="wallet-label">BridgeCoin</div><div class="wallet-amount">6,750.00</div><div class="wallet-currency">Pegged to GBP &amp; EUR</div></div>
+      <div class="wallet-card gub" onclick="showPage('gub-wallet')"><span class="wallet-flag">◈</span><div class="wallet-dual-badge">Dual-Peg</div><div class="wallet-label">GUBCoin</div><div class="wallet-amount">6,750.00</div><div class="wallet-currency">Pegged to GBP &amp; EUR</div></div>
     </div>
     <div class="metric-grid">
       <div class="metric-card"><div class="metric-label">Monthly Outflow</div><div class="metric-value">£94,200</div><div class="metric-trend up">↑ 3.2% vs last month</div></div>
@@ -231,7 +231,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
         <div class="tx-item"><div class="tx-icon" style="background:#F0FDF4">📦</div><div class="tx-info"><div class="tx-name">Brennan &amp; Sons Supplies</div><div class="tx-meta">Invoice INV-2026-0412 <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−€4,200</div><div class="tx-curr">12 Mar 2026</div></div></div>
         <div class="tx-item"><div class="tx-icon" style="background:#FEF9EE">🏛</div><div class="tx-info"><div class="tx-name">Revenue Commissioners — VAT</div><div class="tx-meta">Q4 2025 VAT return <span class="badge badge-success">Paid</span></div></div><div class="tx-amount"><div class="tx-value debit">−€12,840</div><div class="tx-curr">10 Mar 2026</div></div></div>
         <div class="tx-item"><div class="tx-icon" style="background:#F5F3FF">⬡</div><div class="tx-info"><div class="tx-name">BGBP → GBP Convert</div><div class="tx-meta">Stablecoin redemption <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+£5,000</div><div class="tx-curr">8 Mar 2026</div></div></div>
-        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">BridgeCoin → EUR Settlement</div><div class="tx-meta">Cross-border supplier payment via BRDG <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−€2,850</div><div class="tx-curr">7 Mar 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">GUBCoin → EUR Settlement</div><div class="tx-meta">Cross-border supplier payment via GUB <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−€2,850</div><div class="tx-curr">7 Mar 2026</div></div></div>
         <div class="tx-item"><div class="tx-icon" style="background:#FFF0F0">🛡</div><div class="tx-info"><div class="tx-name">Irish Life — Pension Contributions</div><div class="tx-meta">March employer contribution <span class="badge badge-pending">Pending</span></div></div><div class="tx-amount"><div class="tx-value debit">−€3,640</div><div class="tx-curr">Due 21 Mar</div></div></div>
       </div>
     </div>
@@ -243,7 +243,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
       <div class="card" style="padding:24px;">
         <div style="font-size:16px;font-weight:600;margin-bottom:20px;">Send Payment</div>
         <div class="tabs"><div class="tab active" onclick="switchTab(this)">Internal</div><div class="tab" onclick="switchTab(this)">Supplier</div><div class="tab" onclick="switchTab(this)">Payroll Run</div></div>
-        <div class="form-group"><label class="form-label">From wallet</label><select class="form-input form-select"><option>🇬🇧 GBP — £48,320.00 available</option><option>🇮🇪 EUR — €31,840.50 available</option><option>⬡ BGBP — 12,500.00 available</option><option>⬡ BEUR — 8,200.00 available</option><option>◈ BRDG — 6,750.00 available</option></select></div>
+        <div class="form-group"><label class="form-label">From wallet</label><select class="form-input form-select"><option>🇬🇧 GBP — £48,320.00 available</option><option>🇮🇪 EUR — €31,840.50 available</option><option>⬡ BGBP — 12,500.00 available</option><option>⬡ BEUR — 8,200.00 available</option><option>◈ GUB — 6,750.00 available</option></select></div>
         <div class="form-group"><label class="form-label">Recipient</label><input class="form-input" type="text" placeholder="Name, account or IBAN..."></div>
         <div class="form-group"><label class="form-label">Amount</label><div class="convert-input-group"><div class="convert-currency">GBP</div><input class="convert-input-inner" type="number" placeholder="0.00" oninput="updateConvert(this.value)"></div></div>
         <div class="rate-display" id="convert-preview">Enter an amount to see the conversion</div>
@@ -266,7 +266,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
         </div>
         <div class="card" style="padding:20px;">
           <div class="section-title" style="margin-bottom:14px;font-size:13px;">Stablecoin quick actions</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint BGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem BGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint BEUR</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem BEUR</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;grid-column:span 2;border-style:dashed;">◈ Mint / Redeem BridgeCoin</button></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;"><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint BGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem BGBP</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Mint BEUR</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;">Redeem BEUR</button><button class="btn btn-ghost" style="justify-content:center;font-size:12.5px;grid-column:span 2;border-style:dashed;">◈ Mint / Redeem GUBCoin</button></div>
           <div style="height:1px;background:var(--bd);margin:16px 0;"></div>
           <div style="font-size:11.5px;color:var(--txm);line-height:1.6;">BGBP and BEUR are fully-reserved e-money stablecoins, pegged 1:1 to GBP and EUR. Instant settlement across the border, no FX slippage.</div>
         </div>
@@ -277,7 +277,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
   <div id="page-transactions" class="page">
     <div class="page-header"><div><div class="page-title">Transactions</div><div class="page-subtitle">Full payment history across all wallets</div></div><button class="btn btn-ghost">Export CSV</button></div>
     <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;">
-      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;"><option>All currencies</option><option>GBP</option><option>EUR</option><option>BGBP</option><option>BEUR</option><option>BRDG</option></select>
+      <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;"><option>All currencies</option><option>GBP</option><option>EUR</option><option>BGBP</option><option>BEUR</option><option>GUB</option></select>
       <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;"><option>All types</option><option>Payroll</option><option>Supplier</option><option>Tax</option><option>Pension</option><option>Convert</option></select>
       <select class="form-input" style="width:auto;padding:8px 12px;font-size:13px;"><option>Last 30 days</option><option>Last 90 days</option><option>This year</option></select>
     </div>
@@ -286,7 +286,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
       <div class="tx-item"><div class="tx-icon" style="background:#F0FDF4">📦</div><div class="tx-info"><div class="tx-name">Brennan &amp; Sons Supplies</div><div class="tx-meta">INV-2026-0412 <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−€4,200</div><div class="tx-curr">12 Mar</div></div></div>
       <div class="tx-item"><div class="tx-icon" style="background:#FEF9EE">🏛</div><div class="tx-info"><div class="tx-name">Revenue Commissioners — VAT</div><div class="tx-meta">Q4 2025 <span class="badge badge-success">Paid</span></div></div><div class="tx-amount"><div class="tx-value debit">−€12,840</div><div class="tx-curr">10 Mar</div></div></div>
       <div class="tx-item"><div class="tx-icon" style="background:#F5F3FF">⬡</div><div class="tx-info"><div class="tx-name">BGBP → GBP Redemption</div><div class="tx-meta">Stablecoin redemption <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+£5,000</div><div class="tx-curr">8 Mar</div></div></div>
-      <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">BridgeCoin → EUR Settlement</div><div class="tx-meta">Cross-border supplier payment via BRDG <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−€2,850</div><div class="tx-curr">7 Mar</div></div></div>
+      <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">GUBCoin → EUR Settlement</div><div class="tx-meta">Cross-border supplier payment via GUB <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−€2,850</div><div class="tx-curr">7 Mar</div></div></div>
       <div class="tx-item"><div class="tx-icon" style="background:#FFF0F0">🛡</div><div class="tx-info"><div class="tx-name">Irish Life Pension — Feb</div><div class="tx-meta">Employer contribution <span class="badge badge-success">Paid</span></div></div><div class="tx-amount"><div class="tx-value debit">−€3,640</div><div class="tx-curr">6 Mar</div></div></div>
       <div class="tx-item"><div class="tx-icon" style="background:#EFF6FF">📦</div><div class="tx-info"><div class="tx-name">NI Supply Co. Ltd</div><div class="tx-meta">INV-2026-0389 <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−£2,100</div><div class="tx-curr">4 Mar</div></div></div>
       <div class="tx-item"><div class="tx-icon" style="background:#F0FDF4">↓</div><div class="tx-info"><div class="tx-name">Top-up from Ulster Bank</div><div class="tx-meta">GBP wallet funding <span class="badge badge-success">Received</span></div></div><div class="tx-amount"><div class="tx-value credit">+£20,000</div><div class="tx-curr">1 Mar</div></div></div>
@@ -405,48 +405,48 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
     </div>
   </div>
 
-  <div id="page-brdg-wallet" class="page">
+  <div id="page-gub-wallet" class="page">
     <div class="page-header">
       <div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
           <div style="width:40px;height:40px;background:linear-gradient(135deg,#1A3A4A,#2A5A3A);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;">◈</div>
           <div>
-            <div class="page-title">BridgeCoin Wallet</div>
+            <div class="page-title">GUBCoin Wallet</div>
             <div class="page-subtitle">Dual-pegged stablecoin · GBP &amp; EUR</div>
           </div>
         </div>
       </div>
       <div style="display:flex;gap:8px;">
         <button class="btn btn-ghost" onclick="showPage('dashboard')">← Back</button>
-        <button class="btn btn-primary">Mint BRDG</button>
+        <button class="btn btn-primary">Mint GUB</button>
       </div>
     </div>
 
     <div class="metric-grid">
       <div class="metric-card">
-        <div class="metric-label">BRDG Balance</div>
+        <div class="metric-label">GUB Balance</div>
         <div class="metric-value">6,750.00</div>
-        <div class="metric-sub">BridgeCoin</div>
+        <div class="metric-sub">GUBCoin</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">GBP Equivalent</div>
         <div class="metric-value">£6,750.00</div>
-        <div class="metric-sub">1 BRDG = 1 GBP</div>
+        <div class="metric-sub">1 GUB = 1 GBP</div>
       </div>
       <div class="metric-card">
         <div class="metric-label">EUR Equivalent</div>
         <div class="metric-value">€7,926.00</div>
-        <div class="metric-sub">1 BRDG = 1.1742 EUR</div>
+        <div class="metric-sub">1 GUB = 1.1742 EUR</div>
       </div>
     </div>
 
     <div class="card" style="padding:20px;margin-bottom:20px;">
-      <div class="section-title" style="margin-bottom:14px;">How BridgeCoin works</div>
+      <div class="section-title" style="margin-bottom:14px;">How GUBCoin works</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
         <div style="text-align:center;padding:16px;background:var(--bg);border-radius:var(--rs);">
           <div style="font-size:24px;margin-bottom:8px;">🇬🇧</div>
           <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Peg to GBP</div>
-          <div style="font-size:11px;color:var(--txm);">1 BRDG always redeemable for £1.00</div>
+          <div style="font-size:11px;color:var(--txm);">1 GUB always redeemable for £1.00</div>
         </div>
         <div style="text-align:center;padding:16px;background:var(--bg);border-radius:var(--rs);">
           <div style="font-size:24px;margin-bottom:8px;">◈</div>
@@ -456,7 +456,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
         <div style="text-align:center;padding:16px;background:var(--bg);border-radius:var(--rs);">
           <div style="font-size:24px;margin-bottom:8px;">🇮🇪</div>
           <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Peg to EUR</div>
-          <div style="font-size:11px;color:var(--txm);">1 BRDG settles at €1.1742 (live rate)</div>
+          <div style="font-size:11px;color:var(--txm);">1 GUB settles at €1.1742 (live rate)</div>
         </div>
       </div>
     </div>
@@ -465,47 +465,47 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
       <div class="card" style="padding:20px;">
         <div class="section-title" style="margin-bottom:14px;">Quick Actions</div>
         <div style="display:grid;gap:8px;">
-          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Mint BRDG from GBP</button>
-          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Mint BRDG from EUR</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Mint GUB from GBP</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Mint GUB from EUR</button>
           <div class="divider" style="margin:4px 0;"></div>
-          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Redeem BRDG → GBP</button>
-          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Redeem BRDG → EUR</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Redeem GUB → GBP</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Redeem GUB → EUR</button>
           <div class="divider" style="margin:4px 0;"></div>
-          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="showPage('send')">Send BRDG Payment</button>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="showPage('send')">Send GUB Payment</button>
         </div>
       </div>
       <div class="card" style="padding:20px;">
         <div class="section-title" style="margin-bottom:14px;">Live Peg Rates</div>
         <div style="display:grid;gap:12px;">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--rs);">
-            <span style="font-size:12px;color:var(--txm);">BRDG / GBP</span>
+            <span style="font-size:12px;color:var(--txm);">GUB / GBP</span>
             <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;">1.0000 <span class="badge badge-success" style="margin-left:6px;">Pegged</span></span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--rs);">
-            <span style="font-size:12px;color:var(--txm);">BRDG / EUR</span>
+            <span style="font-size:12px;color:var(--txm);">GUB / EUR</span>
             <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;">1.1742 <span class="badge badge-success" style="margin-left:6px;">Pegged</span></span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--rs);">
-            <span style="font-size:12px;color:var(--txm);">BRDG / BGBP</span>
+            <span style="font-size:12px;color:var(--txm);">GUB / BGBP</span>
             <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;">1.0000</span>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--rs);">
-            <span style="font-size:12px;color:var(--txm);">BRDG / BEUR</span>
+            <span style="font-size:12px;color:var(--txm);">GUB / BEUR</span>
             <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;">1.1742</span>
           </div>
         </div>
-        <div style="margin-top:14px;font-size:11px;color:var(--txm);line-height:1.6;">BridgeCoin maintains dual reserves in GBP and EUR. The EUR peg floats with the live GBP/EUR exchange rate, ensuring seamless cross-border settlement.</div>
+        <div style="margin-top:14px;font-size:11px;color:var(--txm);line-height:1.6;">GUBCoin maintains dual reserves in GBP and EUR. The EUR peg floats with the live GBP/EUR exchange rate, ensuring seamless cross-border settlement.</div>
       </div>
     </div>
 
     <div class="card" style="margin-top:20px;">
-      <div style="padding:16px 18px 0;"><div class="section-header"><div class="section-title">BridgeCoin Transactions</div><span class="section-link">View all →</span></div></div>
+      <div style="padding:16px 18px 0;"><div class="section-header"><div class="section-title">GUBCoin Transactions</div><span class="section-link">View all →</span></div></div>
       <div>
-        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">BridgeCoin → EUR Settlement</div><div class="tx-meta">Cross-border supplier payment <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−2,850 BRDG</div><div class="tx-curr">7 Mar 2026</div></div></div>
-        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">Mint from GBP Wallet</div><div class="tx-meta">£4,000 → 4,000 BRDG <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+4,000 BRDG</div><div class="tx-curr">5 Mar 2026</div></div></div>
-        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">BridgeCoin → GBP Redeem</div><div class="tx-meta">Redeemed to fiat GBP <span class="badge badge-success">Complete</span></div></div><div class="tx-amount"><div class="tx-value debit">−1,200 BRDG</div><div class="tx-curr">28 Feb 2026</div></div></div>
-        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">Mint from EUR Wallet</div><div class="tx-meta">€7,040.52 → 5,800 BRDG <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+5,800 BRDG</div><div class="tx-curr">20 Feb 2026</div></div></div>
-        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">Cross-Border Payroll — Dublin</div><div class="tx-meta">3 employees paid via BRDG → EUR <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−1,000 BRDG</div><div class="tx-curr">14 Feb 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">GUBCoin → EUR Settlement</div><div class="tx-meta">Cross-border supplier payment <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−2,850 GUB</div><div class="tx-curr">7 Mar 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">Mint from GBP Wallet</div><div class="tx-meta">£4,000 → 4,000 GUB <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+4,000 GUB</div><div class="tx-curr">5 Mar 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">GUBCoin → GBP Redeem</div><div class="tx-meta">Redeemed to fiat GBP <span class="badge badge-success">Complete</span></div></div><div class="tx-amount"><div class="tx-value debit">−1,200 GUB</div><div class="tx-curr">28 Feb 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">Mint from EUR Wallet</div><div class="tx-meta">€7,040.52 → 5,800 GUB <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+5,800 GUB</div><div class="tx-curr">20 Feb 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">Cross-Border Payroll — Dublin</div><div class="tx-meta">3 employees paid via GUB → EUR <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−1,000 GUB</div><div class="tx-curr">14 Feb 2026</div></div></div>
       </div>
     </div>
   </div>
