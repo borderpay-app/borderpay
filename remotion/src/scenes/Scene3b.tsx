@@ -96,7 +96,7 @@ export const Scene3bStablecoinBenefits: React.FC = () => {
                 opacity: interpolate(frame, [15, 30], [0, 1], { extrapolateRight: "clamp" }),
               }}
             >
-              Stablecoin (BGBP / BEUR)
+              BDRP (BorderPay)
             </div>
           </div>
         </div>
