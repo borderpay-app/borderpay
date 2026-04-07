@@ -46,8 +46,8 @@ const SolutionSection = () => {
               <div className="text-xs opacity-60 mt-1">All-in fee</div>
             </div>
             <div>
-              <div className="text-xl font-bold font-mono">Dual-Peg</div>
-              <div className="text-xs opacity-60 mt-1">GBP & EUR native</div>
+              <div className="text-xl font-bold font-mono">BDRP</div>
+              <div className="text-xs opacity-60 mt-1">£0.50 + €0.50</div>
             </div>
             <div>
               <div className="text-xl font-bold font-mono">Solana</div>

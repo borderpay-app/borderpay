@@ -8,7 +8,7 @@ const DemoSection = () => {
             See the wallet in action
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            A multi-currency business wallet with GBP, EUR, and stablecoin wallets — cross-border payroll, supplier payments, tax compliance, and instant FX conversion.
+            A multi-currency business wallet with GBP, EUR, and BDRP balances — cross-border payroll, supplier payments, tax compliance, and instant settlement via the dual-pegged stablecoin.
           </p>
         </div>
 
