@@ -35,10 +35,10 @@ const VideoSection = () => {
           <div className="text-center mb-10">
             <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">Our Innovation</p>
             <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              What is BRDP — our dual-pegged currency?
+              What is BRDP?
             </h3>
             <p className="mt-4 text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              BRDP (Border Pay) is a stablecoin pegged simultaneously to both GBP and EUR. It holds reserves in both currencies, so 1 BRDP is always redeemable for £1 or its live EUR equivalent — eliminating FX friction for cross-border trade.
+              BRDP (Border Pay) is a stablecoin pegged simultaneously to both GBP and EUR. Its value is equal to (£1.00 + €1)/2.
             </p>
           </div>
 
