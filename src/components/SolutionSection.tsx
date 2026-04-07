@@ -10,7 +10,7 @@ const SolutionSection = () => {
             BDRP — the dual-pegged stablecoin
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            BDRP is backed by a basket of Euro and British Pound. 1 BDRP = £0.50 + €0.50 — reducing FX volatility and making cross-border payments fast, low-cost, and predictable.
+            BDRP is backed by a basket of Euro and British Pound. 1 BDRP = 50% Euro + 50% British Pound — its value stays stable by tracking both currencies together, significantly reducing FX volatility and making cross-border payments fast, low-cost, and predictable.
           </p>
         </div>
 
