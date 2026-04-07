@@ -30,6 +30,20 @@ const Footer = () => {
             <span>·</span>
             <Link to="/contact" className="hover:text-primary-foreground/80 transition-colors">Contact</Link>
           </div>
+          <div className="flex items-center gap-3">
+            <a href="https://www.linkedin.com/company/borderpay" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors" aria-label="LinkedIn">
+              <Linkedin size={18} />
+            </a>
+            <a href="https://www.facebook.com/borderpay" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors" aria-label="Facebook">
+              <Facebook size={18} />
+            </a>
+            <a href="https://www.instagram.com/borderpay" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors" aria-label="Instagram">
+              <Instagram size={18} />
+            </a>
+            <a href="https://x.com/borderpay" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors" aria-label="X">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-[18px] h-[18px]"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+          </div>
           <p className="text-xs text-primary-foreground/50">
             © {new Date().getFullYear()} Border Pay Limited. Belfast, Northern Ireland. All rights reserved.
           </p>
