@@ -405,6 +405,111 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--tx);min-h
     </div>
   </div>
 
+  <div id="page-brdg-wallet" class="page">
+    <div class="page-header">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+          <div style="width:40px;height:40px;background:linear-gradient(135deg,#1A3A4A,#2A5A3A);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;">◈</div>
+          <div>
+            <div class="page-title">BridgeCoin Wallet</div>
+            <div class="page-subtitle">Dual-pegged stablecoin · GBP &amp; EUR</div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-ghost" onclick="showPage('dashboard')">← Back</button>
+        <button class="btn btn-primary">Mint BRDG</button>
+      </div>
+    </div>
+
+    <div class="metric-grid">
+      <div class="metric-card">
+        <div class="metric-label">BRDG Balance</div>
+        <div class="metric-value">6,750.00</div>
+        <div class="metric-sub">BridgeCoin</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">GBP Equivalent</div>
+        <div class="metric-value">£6,750.00</div>
+        <div class="metric-sub">1 BRDG = 1 GBP</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">EUR Equivalent</div>
+        <div class="metric-value">€7,926.00</div>
+        <div class="metric-sub">1 BRDG = 1.1742 EUR</div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:20px;margin-bottom:20px;">
+      <div class="section-title" style="margin-bottom:14px;">How BridgeCoin works</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+        <div style="text-align:center;padding:16px;background:var(--bg);border-radius:var(--rs);">
+          <div style="font-size:24px;margin-bottom:8px;">🇬🇧</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Peg to GBP</div>
+          <div style="font-size:11px;color:var(--txm);">1 BRDG always redeemable for £1.00</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--bg);border-radius:var(--rs);">
+          <div style="font-size:24px;margin-bottom:8px;">◈</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Dual-Peg Bridge</div>
+          <div style="font-size:11px;color:var(--txm);">Settles in either currency at live FX rate</div>
+        </div>
+        <div style="text-align:center;padding:16px;background:var(--bg);border-radius:var(--rs);">
+          <div style="font-size:24px;margin-bottom:8px;">🇮🇪</div>
+          <div style="font-size:12px;font-weight:600;margin-bottom:4px;">Peg to EUR</div>
+          <div style="font-size:11px;color:var(--txm);">1 BRDG settles at €1.1742 (live rate)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:14px;">Quick Actions</div>
+        <div style="display:grid;gap:8px;">
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Mint BRDG from GBP</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Mint BRDG from EUR</button>
+          <div class="divider" style="margin:4px 0;"></div>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Redeem BRDG → GBP</button>
+          <button class="btn btn-ghost" style="width:100%;justify-content:center;">Redeem BRDG → EUR</button>
+          <div class="divider" style="margin:4px 0;"></div>
+          <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="showPage('send')">Send BRDG Payment</button>
+        </div>
+      </div>
+      <div class="card" style="padding:20px;">
+        <div class="section-title" style="margin-bottom:14px;">Live Peg Rates</div>
+        <div style="display:grid;gap:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--rs);">
+            <span style="font-size:12px;color:var(--txm);">BRDG / GBP</span>
+            <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;">1.0000 <span class="badge badge-success" style="margin-left:6px;">Pegged</span></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--rs);">
+            <span style="font-size:12px;color:var(--txm);">BRDG / EUR</span>
+            <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;">1.1742 <span class="badge badge-success" style="margin-left:6px;">Pegged</span></span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--rs);">
+            <span style="font-size:12px;color:var(--txm);">BRDG / BGBP</span>
+            <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;">1.0000</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg);border-radius:var(--rs);">
+            <span style="font-size:12px;color:var(--txm);">BRDG / BEUR</span>
+            <span style="font-family:'DM Mono',monospace;font-size:14px;font-weight:500;">1.1742</span>
+          </div>
+        </div>
+        <div style="margin-top:14px;font-size:11px;color:var(--txm);line-height:1.6;">BridgeCoin maintains dual reserves in GBP and EUR. The EUR peg floats with the live GBP/EUR exchange rate, ensuring seamless cross-border settlement.</div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:20px;">
+      <div style="padding:16px 18px 0;"><div class="section-header"><div class="section-title">BridgeCoin Transactions</div><span class="section-link">View all →</span></div></div>
+      <div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">BridgeCoin → EUR Settlement</div><div class="tx-meta">Cross-border supplier payment <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−2,850 BRDG</div><div class="tx-curr">7 Mar 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">Mint from GBP Wallet</div><div class="tx-meta">£4,000 → 4,000 BRDG <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+4,000 BRDG</div><div class="tx-curr">5 Mar 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">BridgeCoin → GBP Redeem</div><div class="tx-meta">Redeemed to fiat GBP <span class="badge badge-success">Complete</span></div></div><div class="tx-amount"><div class="tx-value debit">−1,200 BRDG</div><div class="tx-curr">28 Feb 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">Mint from EUR Wallet</div><div class="tx-meta">€7,040.52 → 5,800 BRDG <span class="badge badge-info">On-chain</span></div></div><div class="tx-amount"><div class="tx-value credit">+5,800 BRDG</div><div class="tx-curr">20 Feb 2026</div></div></div>
+        <div class="tx-item"><div class="tx-icon" style="background:#E8F5F0">◈</div><div class="tx-info"><div class="tx-name">Cross-Border Payroll — Dublin</div><div class="tx-meta">3 employees paid via BRDG → EUR <span class="badge badge-success">Settled</span></div></div><div class="tx-amount"><div class="tx-value debit">−1,000 BRDG</div><div class="tx-curr">14 Feb 2026</div></div></div>
+      </div>
+    </div>
+  </div>
+
 </main>
 <script>
 function showPage(id){
