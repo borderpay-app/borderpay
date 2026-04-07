@@ -19,9 +19,9 @@ const SolutionSection = () => {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-primary-foreground">
             {[
               { flag: "🇬🇧", label: "UK Business", sub: "Sends GBP" },
-              { flag: "⬡", label: "On-Ramp", sub: "GBP → BGBP" },
+              { flag: "⬡", label: "On-Ramp", sub: "GBP → BDRP" },
               { flag: "⚡", label: "Settlement", sub: "< 30 seconds" },
-              { flag: "⬡", label: "Off-Ramp", sub: "BEUR → EUR" },
+              { flag: "⬡", label: "Off-Ramp", sub: "BDRP → EUR" },
               { flag: "🇮🇪", label: "Irish Business", sub: "Receives EUR" },
             ].map((step, i) => (
               <div key={step.label} className="flex items-center gap-3 sm:gap-0 sm:flex-col text-center">
