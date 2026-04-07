@@ -27,7 +27,7 @@ export const Scene3Solution: React.FC = () => {
           <br /><span style={{ color: "hsl(150, 60%, 55%)" }}>stablecoin</span>
         </div>
         <div style={{ fontSize: 22, color: "hsla(40, 20%, 96%, 0.6)", marginTop: 16, maxWidth: 600 }}>
-          Backed by a basket of EUR and GBP. 1 BDRP = £0.50 + €0.50 — reducing FX volatility between the two currencies.
+          Backed by a basket of EUR and GBP. 1 BDRP = 50% Euro + 50% British Pound — reducing FX volatility across both currencies.
         </div>
       </div>
 
