@@ -23,11 +23,11 @@ export const Scene3Solution: React.FC = () => {
           THE SOLUTION
         </div>
         <div style={{ fontSize: 52, fontWeight: 700, color: "hsl(40, 20%, 96%)", lineHeight: 1.15 }}>
-          The dual-peg
-          <br /><span style={{ color: "hsl(150, 60%, 55%)" }}>stablecoin layer</span>
+          BDRP — the dual-pegged
+          <br /><span style={{ color: "hsl(150, 60%, 55%)" }}>stablecoin</span>
         </div>
         <div style={{ fontSize: 22, color: "hsla(40, 20%, 96%, 0.6)", marginTop: 16, maxWidth: 600 }}>
-          Fast, low-cost cross-border payments — without the usual bank hassle.
+          Backed by a basket of EUR and GBP. 1 BDRP = £0.50 + €0.50 — reducing FX volatility between the two currencies.
         </div>
       </div>
 

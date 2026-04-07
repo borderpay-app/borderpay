@@ -7,9 +7,9 @@ const { fontFamily: monoFamily } = loadMono("normal", { weights: ["400", "500"],
 
 const steps = [
   { emoji: "🇬🇧", label: "UK Business", sub: "Sends GBP" },
-  { emoji: "⬡", label: "On-Ramp", sub: "GBP → BGBP" },
+  { emoji: "⬡", label: "On-Ramp", sub: "GBP → BDRP" },
   { emoji: "⚡", label: "Settlement", sub: "< 30 seconds" },
-  { emoji: "⬡", label: "Off-Ramp", sub: "BEUR → EUR" },
+  { emoji: "⬡", label: "Off-Ramp", sub: "BDRP → EUR" },
   { emoji: "🇮🇪", label: "Irish Business", sub: "Receives EUR" },
 ];
 

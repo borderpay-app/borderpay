@@ -62,7 +62,7 @@ export const Scene3bStablecoinBenefits: React.FC = () => {
           WHY STABLECOINS?
         </div>
         <div style={{ fontSize: 48, fontWeight: 700, color: "hsl(40, 20%, 96%)", lineHeight: 1.15 }}>
-          BGBP & BEUR vs <span style={{ color: "hsla(40, 20%, 96%, 0.4)" }}>traditional GBP / EUR</span>
+          BDRP vs <span style={{ color: "hsla(40, 20%, 96%, 0.4)" }}>traditional GBP / EUR</span>
         </div>
       </div>
 
@@ -96,7 +96,7 @@ export const Scene3bStablecoinBenefits: React.FC = () => {
                 opacity: interpolate(frame, [15, 30], [0, 1], { extrapolateRight: "clamp" }),
               }}
             >
-              Stablecoin (BGBP / BEUR)
+              BDRP (BorderPay)
             </div>
           </div>
         </div>
