@@ -53,7 +53,7 @@ const Hero = () => {
               <div className="text-xs text-muted-foreground mt-1">All-in fees</div>
             </div>
             <div>
-              <div className="text-2xl font-bold font-mono text-foreground">£12.4B</div>
+              <div className="text-2xl font-bold font-mono text-foreground">£14.6B</div>
               <div className="text-xs text-muted-foreground mt-1">Corridor volume</div>
             </div>
           </div>
