@@ -23,7 +23,7 @@ const impacts = [
   {
     emoji: "💸",
     title: "Rising FX Costs",
-    desc: "More cross-border compliance means more currency conversions, each with bank fees and hidden spreads.",
+    desc: "More cross-border compliance means more currency conversions — and even Revolut, Wise, and Stripe charge 1–3% on business FX.",
     stat: "6.49%",
     statLabel: "avg. remittance cost",
   },
