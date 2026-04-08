@@ -6,10 +6,10 @@ const { fontFamily } = loadFont("normal", { weights: ["400", "600", "700"], subs
 const { fontFamily: monoFamily } = loadMono("normal", { weights: ["400", "500"], subsets: ["latin"] });
 
 const problems = [
-  { icon: "💸", title: "High FX Fees", stat: "3–6%", label: "average cost" },
-  { icon: "⏳", title: "Slow Settlement", stat: "2–5 days", label: "to clear" },
-  { icon: "🔀", title: "Dual-Currency Mess", stat: "2", label: "currencies" },
-  { icon: "🚧", title: "Post-Brexit Friction", stat: "6.49%", label: "remittance cost" },
+  { icon: "💸", title: "Still Expensive", stat: "1–3%", label: "Wise/Revolut markup on GBP↔EUR" },
+  { icon: "⏳", title: "Not Instant", stat: "1–2 days", label: "Wise settlement for business" },
+  { icon: "🔀", title: "No Dual-Currency Option", stat: "2", label: "separate wallets needed" },
+  { icon: "🚧", title: "Not Built for NI", stat: "0", label: "products designed for the border" },
 ];
 
 export const Scene2Problem: React.FC = () => {
@@ -26,8 +26,8 @@ export const Scene2Problem: React.FC = () => {
           THE PROBLEM
         </div>
         <div style={{ fontSize: 52, fontWeight: 700, color: "hsl(40, 20%, 96%)", lineHeight: 1.15, maxWidth: 800 }}>
-          Cross-border payments
-          <br />are <span style={{ color: "hsl(0, 70%, 60%)" }}>broken</span>
+          Revolut, Wise & Stripe
+          <br />are <span style={{ color: "hsl(0, 70%, 60%)" }}>not enough</span>
         </div>
       </div>
 

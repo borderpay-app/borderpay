@@ -8,37 +8,37 @@ const { fontFamily: monoFamily } = loadMono("normal", { weights: ["400", "500"],
 const comparisons = [
   {
     label: "Settlement Speed",
-    fiat: "2–5 business days",
+    competitor: "1–2 business days",
     stable: "< 30 seconds",
-    fiatColor: "hsl(0, 70%, 60%)",
+    competitorColor: "hsl(0, 70%, 60%)",
     stableColor: "hsl(150, 60%, 55%)",
   },
   {
-    label: "FX & Transfer Fees",
-    fiat: "3–6% spread + fees",
+    label: "Cross-Border Fees",
+    competitor: "1–3% spread + fees",
     stable: "< 0.5% all-in",
-    fiatColor: "hsl(0, 70%, 60%)",
+    competitorColor: "hsl(0, 70%, 60%)",
     stableColor: "hsl(150, 60%, 55%)",
   },
   {
-    label: "Availability",
-    fiat: "Banking hours only",
-    stable: "24/7/365",
-    fiatColor: "hsl(0, 70%, 60%)",
+    label: "Dual-Currency Peg",
+    competitor: "Not available",
+    stable: "Built-in GBP+EUR peg",
+    competitorColor: "hsl(0, 70%, 60%)",
     stableColor: "hsl(150, 60%, 55%)",
   },
   {
-    label: "Transparency",
-    fiat: "Hidden markups",
+    label: "NI–Ireland Focus",
+    competitor: "Generic global product",
+    stable: "Purpose-built for the border",
+    competitorColor: "hsl(0, 70%, 60%)",
+    stableColor: "hsl(150, 60%, 55%)",
+  },
+  {
+    label: "On-Chain Transparency",
+    competitor: "Closed-ledger",
     stable: "On-chain, auditable",
-    fiatColor: "hsl(0, 70%, 60%)",
-    stableColor: "hsl(150, 60%, 55%)",
-  },
-  {
-    label: "Volatility Risk",
-    fiat: "FX exposure in transit",
-    stable: "Pegged 1:1 — zero drift",
-    fiatColor: "hsl(0, 70%, 60%)",
+    competitorColor: "hsl(0, 70%, 60%)",
     stableColor: "hsl(150, 60%, 55%)",
   },
 ];
@@ -50,19 +50,15 @@ export const Scene3bStablecoinBenefits: React.FC = () => {
   const headingOpacity = interpolate(frame, [0, 20], [0, 1], { extrapolateRight: "clamp" });
   const headingY = interpolate(spring({ frame, fps, config: { damping: 25 } }), [0, 1], [40, 0]);
 
-  // Animated highlight bar that sweeps across the stablecoin column
-  const highlightProgress = interpolate(frame, [60, 140], [0, 1], { extrapolateRight: "clamp" });
-  const highlightHeight = highlightProgress * 100;
-
   return (
     <AbsoluteFill style={{ fontFamily, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
       {/* Heading */}
       <div style={{ textAlign: "center", opacity: headingOpacity, transform: `translateY(${headingY}px)`, marginBottom: 60 }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: "hsl(150, 60%, 55%)", letterSpacing: 4, textTransform: "uppercase", marginBottom: 12 }}>
-          WHY STABLECOINS?
+          WHY BDRP?
         </div>
         <div style={{ fontSize: 48, fontWeight: 700, color: "hsl(40, 20%, 96%)", lineHeight: 1.15 }}>
-          BDRP vs <span style={{ color: "hsla(40, 20%, 96%, 0.4)" }}>traditional GBP / EUR</span>
+          BDRP vs <span style={{ color: "hsla(40, 20%, 96%, 0.4)" }}>Revolut / Wise / Stripe</span>
         </div>
       </div>
 
@@ -82,7 +78,7 @@ export const Scene3bStablecoinBenefits: React.FC = () => {
                 opacity: interpolate(frame, [15, 30], [0, 1], { extrapolateRight: "clamp" }),
               }}
             >
-              Traditional (GBP / EUR)
+              Revolut / Wise / Stripe
             </div>
           </div>
           <div style={{ textAlign: "center" }}>
@@ -107,11 +103,9 @@ export const Scene3bStablecoinBenefits: React.FC = () => {
           const rowOpacity = interpolate(frame, [delay, delay + 12], [0, 1], { extrapolateRight: "clamp" });
           const rowX = interpolate(spring({ frame: frame - delay, fps, config: { damping: 22, stiffness: 200 } }), [0, 1], [-40, 0]);
 
-          // Stablecoin value pops in slightly after the row
           const stableDelay = delay + 8;
           const stableScale = spring({ frame: frame - stableDelay, fps, config: { damping: 12 } });
 
-          // Checkmark appears
           const checkOpacity = interpolate(frame, [stableDelay + 5, stableDelay + 12], [0, 1], { extrapolateRight: "clamp" });
 
           return (
@@ -141,7 +135,7 @@ export const Scene3bStablecoinBenefits: React.FC = () => {
                 {c.label}
               </div>
 
-              {/* Fiat value */}
+              {/* Competitor value */}
               <div
                 style={{
                   display: "flex",
@@ -153,8 +147,8 @@ export const Scene3bStablecoinBenefits: React.FC = () => {
                   marginRight: 6,
                 }}
               >
-                <span style={{ fontSize: 17, fontFamily: monoFamily, color: c.fiatColor, fontWeight: 500 }}>
-                  ✕ {c.fiat}
+                <span style={{ fontSize: 17, fontFamily: monoFamily, color: c.competitorColor, fontWeight: 500 }}>
+                  ✕ {c.competitor}
                 </span>
               </div>
 
@@ -192,7 +186,7 @@ export const Scene3bStablecoinBenefits: React.FC = () => {
             fontWeight: 400,
           }}
         >
-          Same value. Same peg. <span style={{ color: "hsl(150, 60%, 55%)", fontWeight: 600 }}>Faster, cheaper, always-on.</span>
+          They improved banking. <span style={{ color: "hsl(150, 60%, 55%)", fontWeight: 600 }}>We're replacing the rails entirely.</span>
         </div>
       </div>
     </AbsoluteFill>
