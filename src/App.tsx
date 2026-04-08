@@ -9,6 +9,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsAndConditions from "./pages/TermsAndConditions.tsx";
 import Unsubscribe from "./pages/Unsubscribe.tsx";
 import Contact from "./pages/Contact.tsx";
+import Investors from "./pages/Investors.tsx";
 
 const queryClient = new QueryClient();
 
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/terms" element={<TermsAndConditions />} />
           <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/investors" element={<Investors />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

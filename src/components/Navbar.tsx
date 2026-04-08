@@ -22,6 +22,7 @@ const Navbar = () => {
           <button onClick={() => scrollTo("problem")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">The Problem</button>
           <button onClick={() => scrollTo("solution")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Solution</button>
           <button onClick={() => scrollTo("demo")} className="text-sm text-muted-foreground hover:text-foreground transition-colors">Demo</button>
+          <a href="/investors" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Investors</a>
           <button onClick={() => scrollTo("interest")} className="bg-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
             Express Interest
           </button>
