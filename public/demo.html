@@ -526,7 +526,19 @@ function showPage(id){
   document.getElementById('page-'+id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(n=>{if(n.getAttribute('onclick')?.includes("'"+id+"'"))n.classList.add('active')});
 }
-function switchTab(el){
+function filterTx(){
+  const cur=document.getElementById('filter-currency').value;
+  const typ=document.getElementById('filter-type').value;
+  const rows=document.querySelectorAll('#tx-list .tx-item[data-currency]');
+  let visible=0;
+  rows.forEach(r=>{
+    const matchCur=!cur||r.dataset.currency===cur;
+    const matchTyp=!typ||r.dataset.type===typ;
+    r.style.display=(matchCur&&matchTyp)?'flex':'none';
+    if(matchCur&&matchTyp)visible++;
+  });
+  document.getElementById('tx-no-results').style.display=visible===0?'flex':'none';
+}
   el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
 }
