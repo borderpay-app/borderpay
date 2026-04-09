@@ -28,7 +28,7 @@ const comparisons = [
     label: "NI–Ireland Focus",
     competitor: "Generic global product",
     stable: "Purpose-built for the border",
-    how: "Designed for 30,000+ cross-border NI businesses and the Windsor Framework",
+    how: "Designed for 20,000–40,000 cross-border NI businesses and the Windsor Framework",
   },
   {
     label: "Transparency",

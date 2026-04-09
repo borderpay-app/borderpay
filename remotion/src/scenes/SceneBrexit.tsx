@@ -29,10 +29,10 @@ const impacts = [
   },
   {
     emoji: "🏭",
-    title: "30,000+ Businesses Affected",
-    desc: "Over thirty thousand NI businesses trade cross-border daily — from suppliers and payroll to invoices and tax.",
-    stat: "30K+",
-    statLabel: "daily cross-border businesses",
+    title: "20–40K Businesses Affected",
+    desc: "An estimated 20,000–40,000 NI businesses actively trading with Ireland — from suppliers and payroll to invoices and tax.",
+    stat: "20–40K",
+    statLabel: "active cross-border traders",
   },
 ];
 
