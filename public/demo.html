@@ -539,6 +539,7 @@ function filterTx(){
   });
   document.getElementById('tx-no-results').style.display=visible===0?'flex':'none';
 }
+function selectTab(el){
   el.parentNode.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   el.classList.add('active');
 }
