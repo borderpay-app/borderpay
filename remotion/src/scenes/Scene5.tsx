@@ -63,7 +63,7 @@ export const Scene5Close: React.FC = () => {
           {[
             { stat: "< 30s", label: "Settlement" },
             { stat: "< 0.5%", label: "Fees" },
-            { stat: "£14.6B", label: "Corridor" },
+            { stat: "£1.5–2B", label: "Corridor" },
           ].map((s) => (
             <div key={s.label} style={{ textAlign: "center" }}>
               <div style={{ fontSize: 36, fontWeight: 700, color: "hsl(150, 60%, 55%)" }}>{s.stat}</div>

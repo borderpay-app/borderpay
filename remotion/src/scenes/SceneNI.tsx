@@ -23,8 +23,8 @@ const points = [
   },
   {
     emoji: "📦",
-    title: "£14.6B Cross-Border Trade",
-    desc: "Over fourteen billion pounds flows across the NI–Ireland border every year — and growing.",
+    title: "20–40K Active Traders",
+    desc: "An estimated 20,000–40,000 NI businesses actively trading with Ireland — generating £1.5–2B in annual payment flows.",
   },
 ];
 
