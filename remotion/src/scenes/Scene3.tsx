@@ -23,7 +23,7 @@ export const Scene3Solution: React.FC = () => {
           THE SOLUTION
         </div>
         <div style={{ fontSize: 52, fontWeight: 700, color: "hsl(40, 20%, 96%)", lineHeight: 1.15 }}>
-          BDRP — the dual-pegged
+          BDRP is a dual-pegged
           <br /><span style={{ color: "hsl(150, 60%, 55%)" }}>stablecoin</span>
         </div>
         <div style={{ fontSize: 22, color: "hsla(40, 20%, 96%, 0.6)", marginTop: 16, maxWidth: 600 }}>
