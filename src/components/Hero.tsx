@@ -24,7 +24,7 @@ const Hero = () => {
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
-            BDRP — a dual-pegged stablecoin backed by GBP and EUR — powering fast, low-cost settlement across the NI–Ireland corridor.
+            BDRP is a dual-pegged stablecoin backed by GBP and EUR, powering fast, low-cost settlement across the NI–Ireland corridor.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4 animate-fade-up" style={{ animationDelay: "0.3s" }}>
