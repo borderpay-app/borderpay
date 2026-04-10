@@ -1,3 +1,5 @@
+import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -5,27 +7,61 @@ const corsHeaders = {
 
 const NOTIFY_EMAIL = 'hello@borderpay.app'
 
+const VALID_LOCATIONS = ['northern-ireland', 'ireland', 'uk-other', 'other'] as const
+
+const InterestSchema = z.object({
+  name: z.string().trim().min(1, 'Name is required').max(200, 'Name too long'),
+  email: z.string().trim().email('Invalid email').max(320, 'Email too long'),
+  company: z.string().trim().max(200, 'Company name too long').nullish().transform(v => v || null),
+  location: z.enum(VALID_LOCATIONS, { errorMap: () => ({ message: 'Invalid location' }) }),
+})
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
+
+const locationMap: Record<string, string> = {
+  'northern-ireland': 'Northern Ireland',
+  'ireland': 'Ireland',
+  'uk-other': 'UK (other)',
+  'other': 'Other',
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { name, email, company, location } = await req.json()
-
-    if (!name || !email || !location) {
+    let body: unknown
+    try {
+      body = await req.json()
+    } catch {
       return new Response(
-        JSON.stringify({ error: 'Missing required fields' }),
+        JSON.stringify({ error: 'Invalid JSON' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    const locationMap: Record<string, string> = {
-      'northern-ireland': 'Northern Ireland',
-      'ireland': 'Ireland',
-      'uk-other': 'UK (other)',
-      'other': 'Other',
+    const parsed = InterestSchema.safeParse(body)
+    if (!parsed.success) {
+      return new Response(
+        JSON.stringify({ error: 'Validation failed', details: parsed.error.flatten().fieldErrors }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
+
+    const { name, email, company, location } = parsed.data
+
+    const safeName = escapeHtml(name)
+    const safeEmail = escapeHtml(email)
+    const safeCompany = company ? escapeHtml(company) : '—'
+    const safeLocation = locationMap[location] || escapeHtml(location)
 
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -33,10 +69,10 @@ Deno.serve(async (req) => {
           New Interest Registration — Border Pay
         </h2>
         <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
-          <tr><td style="padding: 8px 0; color: #666; width: 120px;">Name</td><td style="padding: 8px 0; font-weight: 600;">${name}</td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">Email</td><td style="padding: 8px 0;"><a href="mailto:${email}" style="color: #1A3A2A;">${email}</a></td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">Company</td><td style="padding: 8px 0;">${company || '—'}</td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">Location</td><td style="padding: 8px 0;">${locationMap[location] || location}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666; width: 120px;">Name</td><td style="padding: 8px 0; font-weight: 600;">${safeName}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">Email</td><td style="padding: 8px 0;"><a href="mailto:${safeEmail}" style="color: #1A3A2A;">${safeEmail}</a></td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">Company</td><td style="padding: 8px 0;">${safeCompany}</td></tr>
+          <tr><td style="padding: 8px 0; color: #666;">Location</td><td style="padding: 8px 0;">${safeLocation}</td></tr>
         </table>
         <p style="margin-top: 24px; font-size: 12px; color: #999;">
           This notification was sent from the Border Pay website interest form.
@@ -44,8 +80,6 @@ Deno.serve(async (req) => {
       </div>
     `
 
-    // Use Supabase's built-in email via the auth admin API workaround
-    // Send via a simple SMTP-like approach using the Lovable API
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
     const PROJECT_ID = SUPABASE_URL?.match(/https:\/\/(.+)\.supabase\.co/)?.[1]
@@ -58,7 +92,6 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Send notification via Lovable AI
     const response = await fetch(`https://api.lovable.dev/v1/projects/${PROJECT_ID}/email/send`, {
       method: 'POST',
       headers: {
@@ -67,7 +100,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         to: NOTIFY_EMAIL,
-        subject: `New Interest: ${name}${company ? ` (${company})` : ''}`,
+        subject: `New Interest: ${safeName}${company ? ` (${escapeHtml(company)})` : ''}`,
         html,
       }),
     })
