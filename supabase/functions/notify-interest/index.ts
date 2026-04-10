@@ -1,4 +1,5 @@
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,6 +7,8 @@ const corsHeaders = {
 }
 
 const NOTIFY_EMAIL = 'hello@borderpay.app'
+const RATE_LIMIT_WINDOW_MINUTES = 10
+const MAX_REQUESTS_PER_WINDOW = 3
 
 const VALID_LOCATIONS = ['northern-ireland', 'ireland', 'uk-other', 'other'] as const
 
@@ -30,6 +33,34 @@ const locationMap: Record<string, string> = {
   'ireland': 'Ireland',
   'uk-other': 'UK (other)',
   'other': 'Other',
+}
+
+async function checkRateLimit(email: string): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
+  const supabaseAdmin = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  )
+
+  const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MINUTES * 60 * 1000).toISOString()
+
+  const { count, error } = await supabaseAdmin
+    .from('interest_registrations')
+    .select('*', { count: 'exact', head: true })
+    .eq('email', email.toLowerCase())
+    .gte('created_at', windowStart)
+
+  if (error) {
+    console.error('Rate limit check failed:', error.message)
+    // Fail open — allow the request if we can't check
+    return { allowed: true }
+  }
+
+  if ((count ?? 0) >= MAX_REQUESTS_PER_WINDOW) {
+    const retryAfterSeconds = RATE_LIMIT_WINDOW_MINUTES * 60
+    return { allowed: false, retryAfterSeconds }
+  }
+
+  return { allowed: true }
 }
 
 Deno.serve(async (req) => {
@@ -57,6 +88,22 @@ Deno.serve(async (req) => {
     }
 
     const { name, email, company, location } = parsed.data
+
+    // Rate limit check
+    const rateLimit = await checkRateLimit(email)
+    if (!rateLimit.allowed) {
+      return new Response(
+        JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+        {
+          status: 429,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+            'Retry-After': String(rateLimit.retryAfterSeconds ?? 600),
+          },
+        }
+      )
+    }
 
     const safeName = escapeHtml(name)
     const safeEmail = escapeHtml(email)
