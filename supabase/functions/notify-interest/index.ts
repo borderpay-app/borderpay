@@ -35,12 +35,14 @@ const locationMap: Record<string, string> = {
   'other': 'Other',
 }
 
-async function checkRateLimit(email: string): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
-  const supabaseAdmin = createClient(
+function getSupabaseAdmin() {
+  return createClient(
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
+}
 
+async function checkRateLimit(supabaseAdmin: ReturnType<typeof createClient>, email: string): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
   const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MINUTES * 60 * 1000).toISOString()
 
   const { count, error } = await supabaseAdmin
@@ -51,13 +53,11 @@ async function checkRateLimit(email: string): Promise<{ allowed: boolean; retryA
 
   if (error) {
     console.error('Rate limit check failed:', error.message)
-    // Fail open — allow the request if we can't check
     return { allowed: true }
   }
 
   if ((count ?? 0) >= MAX_REQUESTS_PER_WINDOW) {
-    const retryAfterSeconds = RATE_LIMIT_WINDOW_MINUTES * 60
-    return { allowed: false, retryAfterSeconds }
+    return { allowed: false, retryAfterSeconds: RATE_LIMIT_WINDOW_MINUTES * 60 }
   }
 
   return { allowed: true }
@@ -88,9 +88,10 @@ Deno.serve(async (req) => {
     }
 
     const { name, email, company, location } = parsed.data
+    const supabaseAdmin = getSupabaseAdmin()
 
     // Rate limit check
-    const rateLimit = await checkRateLimit(email)
+    const rateLimit = await checkRateLimit(supabaseAdmin, email)
     if (!rateLimit.allowed) {
       return new Response(
         JSON.stringify({ error: 'Too many requests. Please try again later.' }),
@@ -105,6 +106,32 @@ Deno.serve(async (req) => {
       )
     }
 
+    // Insert into database (service role bypasses RLS)
+    const { error: dbError } = await supabaseAdmin
+      .from('interest_registrations')
+      .insert({
+        name,
+        email: email.toLowerCase(),
+        company,
+        location,
+      })
+
+    if (dbError) {
+      // Duplicate key (already registered) — treat as success
+      if (dbError.code === '23505') {
+        return new Response(
+          JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+      console.error('DB insert failed:', dbError.message)
+      return new Response(
+        JSON.stringify({ error: 'Failed to save registration' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Send notification email
     const safeName = escapeHtml(name)
     const safeEmail = escapeHtml(email)
     const safeCompany = company ? escapeHtml(company) : '—'
@@ -131,29 +158,25 @@ Deno.serve(async (req) => {
     const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
     const PROJECT_ID = SUPABASE_URL?.match(/https:\/\/(.+)\.supabase\.co/)?.[1]
 
-    if (!LOVABLE_API_KEY || !PROJECT_ID) {
-      console.error('Missing LOVABLE_API_KEY or SUPABASE_URL')
-      return new Response(
-        JSON.stringify({ success: true, note: 'Registration saved, notification skipped' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
+    if (LOVABLE_API_KEY && PROJECT_ID) {
+      const response = await fetch(`https://api.lovable.dev/v1/projects/${PROJECT_ID}/email/send`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        },
+        body: JSON.stringify({
+          to: NOTIFY_EMAIL,
+          subject: `New Interest: ${safeName}${company ? ` (${escapeHtml(company)})` : ''}`,
+          html,
+        }),
+      })
 
-    const response = await fetch(`https://api.lovable.dev/v1/projects/${PROJECT_ID}/email/send`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-      },
-      body: JSON.stringify({
-        to: NOTIFY_EMAIL,
-        subject: `New Interest: ${safeName}${company ? ` (${escapeHtml(company)})` : ''}`,
-        html,
-      }),
-    })
-
-    if (!response.ok) {
-      console.error('Email send failed:', await response.text())
+      if (!response.ok) {
+        console.error('Email send failed:', await response.text())
+      }
+    } else {
+      console.error('Missing LOVABLE_API_KEY or SUPABASE_URL — notification skipped')
     }
 
     return new Response(
