@@ -29,18 +29,20 @@ const InterestForm = () => {
       });
 
       if (fnError) {
-        // Check for rate limiting
-        if (fnError.message?.includes("429")) {
-          setError("You've submitted too many times. Please try again later.");
+        const msg = fnError.message || "";
+        if (msg.includes("429") || msg.includes("Too many requests")) {
+          setError("You've already registered a few times recently. Please wait 10 minutes before trying again.");
           return;
         }
         throw fnError;
       }
 
-      // Check response for rate limit error (edge function returns 429)
-      if (data?.error?.includes("Too many requests")) {
-        setError("You've submitted too many times. Please try again later.");
-        return;
+      if (data?.error) {
+        if (data.error.includes("Too many requests")) {
+          setError("You've already registered a few times recently. Please wait 10 minutes before trying again.");
+          return;
+        }
+        throw new Error(data.error);
       }
 
       setSubmitted(true);
