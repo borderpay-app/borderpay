@@ -19,45 +19,34 @@ const InterestForm = () => {
     setError(null);
 
     try {
-      const id = crypto.randomUUID();
-
-      // Save to database
-      const { error: dbError } = await supabase
-        .from("interest_registrations")
-        .insert({
-          id,
+      const { data, error: fnError } = await supabase.functions.invoke("notify-interest", {
+        body: {
           name: formData.name,
           email: formData.email,
           company: formData.company || null,
           location: formData.location,
-        });
-
-      if (dbError) throw dbError;
-
-      // Send notification email via transactional email system
-      await supabase.functions.invoke("send-transactional-email", {
-        body: {
-          templateName: "interest-notification",
-          recipientEmail: "hello@borderpay.app",
-          idempotencyKey: `interest-notify-${id}`,
-          templateData: {
-            name: formData.name,
-            email: formData.email,
-            company: formData.company,
-            location: formData.location,
-          },
         },
       });
+
+      if (fnError) {
+        // Check for rate limiting
+        if (fnError.message?.includes("429")) {
+          setError("You've submitted too many times. Please try again later.");
+          return;
+        }
+        throw fnError;
+      }
+
+      // Check response for rate limit error (edge function returns 429)
+      if (data?.error?.includes("Too many requests")) {
+        setError("You've submitted too many times. Please try again later.");
+        return;
+      }
 
       setSubmitted(true);
     } catch (err: any) {
       console.error("Registration error:", err);
-      // Still show success if DB insert worked but email failed
-      if (err?.code !== "23505") {
-        setError("Something went wrong. Please try again.");
-      } else {
-        setSubmitted(true);
-      }
+      setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
