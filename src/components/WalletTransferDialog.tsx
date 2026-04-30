@@ -93,11 +93,10 @@ export const WalletTransferDialog = ({ userId, onTransferred, trigger }: Props) 
     setStep("review");
   };
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const confirmTransfer = async () => {
+    if (!approved) { toast.error("Please approve the transfer to continue"); return; }
     if (from === to) { toast.error("Choose two different wallets"); return; }
-    const parsed = amountSchema.safeParse(amount);
-    if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    if (fromMinor <= 0) { toast.error("Enter an amount"); return; }
     if (fromMinor > balances[from]) {
       toast.error("Insufficient balance", {
         description: `${CURRENCY_LABELS[from]} balance is ${formatMinor(from, balances[from])}.`,
@@ -107,6 +106,7 @@ export const WalletTransferDialog = ({ userId, onTransferred, trigger }: Props) 
 
     setBusy(true);
     try {
+
       const newFrom = balances[from] - fromMinor;
       const newTo = balances[to] + quote.toMinor;
 
