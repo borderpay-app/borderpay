@@ -3,9 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Helmet } from "react-helmet-async";
+import { toast } from "sonner";
 import { explorerTx, shortAddr } from "@/lib/solana";
 import logo from "@/assets/logo.png";
 
@@ -41,6 +44,9 @@ const AppDashboard = () => {
   const [balancePence, setBalancePence] = useState<number>(0);
   const [txs, setTxs] = useState<Tx[]>([]);
   const [preflight, setPreflight] = useState<PreflightState>({ status: "checking" });
+  const [topupGbp, setTopupGbp] = useState("");
+  const [toppingUp, setToppingUp] = useState(false);
+  const [savedWallet, setSavedWallet] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth", { replace: true });
@@ -82,17 +88,79 @@ const AppDashboard = () => {
 
   const refresh = async () => {
     if (!user) return;
-    const [bal, list] = await Promise.all([
+    const [bal, list, prof] = await Promise.all([
       supabase.from("gbp_balances").select("balance_pence").eq("user_id", user.id).maybeSingle(),
       supabase.from("transactions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
+      supabase.from("profiles").select("wallet_address").eq("user_id", user.id).maybeSingle(),
     ]);
     setBalancePence(Number(bal.data?.balance_pence ?? 0));
     setTxs((list.data ?? []) as Tx[]);
+    setSavedWallet((prof.data?.wallet_address as string | null) ?? null);
   };
 
   useEffect(() => {
     if (user) refresh();
   }, [user]);
+
+  const addFunds = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const gbp = parseFloat(topupGbp);
+    if (!gbp || gbp <= 0) {
+      toast.error("Enter a valid GBP amount");
+      return;
+    }
+    if (gbp > 100000) {
+      toast.error("Max £100,000 per top-up (demo)");
+      return;
+    }
+    setToppingUp(true);
+    try {
+      const pence = Math.round(gbp * 100);
+      const newBalance = balancePence + pence;
+      const { error: balErr } = await supabase
+        .from("gbp_balances")
+        .update({ balance_pence: newBalance, updated_at: new Date().toISOString() })
+        .eq("user_id", user!.id);
+      if (balErr) throw balErr;
+
+      const { error: txErr } = await supabase.from("transactions").insert({
+        user_id: user!.id,
+        type: "topup",
+        status: "confirmed",
+        gbp_pence: pence,
+        notes: "Demo self top-up",
+      });
+      if (txErr) throw txErr;
+
+      toast.success(`Added £${gbp.toFixed(2)} to your balance`);
+      setTopupGbp("");
+      refresh();
+    } catch (err: any) {
+      toast.error(err.message ?? "Top-up failed");
+    } finally {
+      setToppingUp(false);
+    }
+  };
+
+  const saveConnectedWallet = async () => {
+    const pk = (window as any).solana?.publicKey?.toString?.();
+    if (!pk) {
+      toast.error("Connect Phantom first", {
+        description: "Click 'Select Wallet' in the Send card and approve the connection.",
+      });
+      return;
+    }
+    const { error } = await supabase
+      .from("profiles")
+      .update({ wallet_address: pk })
+      .eq("user_id", user!.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setSavedWallet(pk);
+    toast.success("Wallet saved to your profile");
+  };
 
   if (loading || !user) return <div className="min-h-screen flex items-center justify-center">Loading…</div>;
 
@@ -126,11 +194,39 @@ const AppDashboard = () => {
             <p className="text-sm text-muted-foreground mt-2">
               Send EUR on Solana devnet using your GBP balance.
             </p>
-            {balancePence === 0 && (
-              <p className="text-xs text-muted-foreground mt-4">
-                Your account starts at £0. An admin needs to top up your balance before you can send.
+
+            <form onSubmit={addFunds} className="mt-6 space-y-3">
+              <Label htmlFor="topup">Add funds (demo)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="topup"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="100.00"
+                  value={topupGbp}
+                  onChange={(e) => setTopupGbp(e.target.value)}
+                />
+                <Button type="submit" disabled={toppingUp}>
+                  {toppingUp ? "Adding…" : "Add funds"}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Demo only — no real money is moved.
               </p>
-            )}
+            </form>
+
+            <div className="mt-6 pt-6 border-t">
+              <p className="text-sm font-medium">Your saved wallet</p>
+              {savedWallet ? (
+                <p className="text-xs font-mono text-muted-foreground mt-1 break-all">{savedWallet}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-1">No wallet saved yet.</p>
+              )}
+              <Button variant="outline" size="sm" className="mt-3" onClick={saveConnectedWallet}>
+                {savedWallet ? "Update from connected Phantom" : "Save connected Phantom address"}
+              </Button>
+            </div>
           </Card>
 
           {preflight.status === "checking" && (
