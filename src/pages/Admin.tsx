@@ -8,6 +8,9 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
 import logo from "@/assets/logo.png";
+import { MfaEnroll } from "@/components/MfaEnroll";
+import { MfaChallenge } from "@/components/MfaChallenge";
+import { ShieldCheck, ShieldAlert } from "lucide-react";
 
 interface UserRow {
   user_id: string;
@@ -17,7 +20,7 @@ interface UserRow {
 }
 
 const Admin = () => {
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { user, isAdmin, loading, signOut, currentAal, mfaEnrolled, refreshMfa } = useAuth();
   const navigate = useNavigate();
   const [rows, setRows] = useState<UserRow[]>([]);
   const [topups, setTopups] = useState<Record<string, string>>({});
@@ -87,6 +90,25 @@ const Admin = () => {
 
   if (loading || !isAdmin) return <div className="min-h-screen flex items-center justify-center">Loading…</div>;
 
+  // Admins MUST have MFA. If not enrolled, force enrolment. If enrolled but session is AAL1, prompt step-up.
+  const mfaGate = !mfaEnrolled ? (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <ShieldAlert className="w-4 h-4" />
+          Two-factor authentication is required for admin access.
+        </div>
+        <MfaEnroll onComplete={refreshMfa} />
+      </div>
+    </div>
+  ) : currentAal !== "aal2" ? (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <MfaChallenge onVerified={refreshMfa} />
+    </div>
+  ) : null;
+
+  if (mfaGate) return mfaGate;
+
   return (
     <>
       <Helmet>
@@ -100,6 +122,9 @@ const Admin = () => {
               <span className="font-semibold">Border Pay · Admin</span>
             </Link>
             <div className="flex items-center gap-3">
+              <span className="hidden sm:inline-flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                <ShieldCheck className="w-3 h-3" /> MFA verified
+              </span>
               <Link to="/app" className="text-sm text-muted-foreground hover:text-foreground">My account</Link>
               <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
             </div>
