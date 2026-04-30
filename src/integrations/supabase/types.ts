@@ -197,6 +197,69 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          amount_cents: number
+          category: Database["public"]["Enums"]["invoice_category"]
+          created_at: string
+          currency: string
+          description: string | null
+          due_date: string | null
+          id: string
+          notes: string | null
+          paid_at: string | null
+          paid_currency: string | null
+          paid_rail: Database["public"]["Enums"]["payment_rail"] | null
+          payee_id: string | null
+          payee_name: string
+          reference: string | null
+          source: Database["public"]["Enums"]["invoice_source"]
+          status: Database["public"]["Enums"]["invoice_status"]
+          updated_at: string
+          wallet_address: string | null
+        }
+        Insert: {
+          amount_cents: number
+          category: Database["public"]["Enums"]["invoice_category"]
+          created_at?: string
+          currency?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          paid_currency?: string | null
+          paid_rail?: Database["public"]["Enums"]["payment_rail"] | null
+          payee_id?: string | null
+          payee_name: string
+          reference?: string | null
+          source?: Database["public"]["Enums"]["invoice_source"]
+          status?: Database["public"]["Enums"]["invoice_status"]
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Update: {
+          amount_cents?: number
+          category?: Database["public"]["Enums"]["invoice_category"]
+          created_at?: string
+          currency?: string
+          description?: string | null
+          due_date?: string | null
+          id?: string
+          notes?: string | null
+          paid_at?: string | null
+          paid_currency?: string | null
+          paid_rail?: Database["public"]["Enums"]["payment_rail"] | null
+          payee_id?: string | null
+          payee_name?: string
+          reference?: string | null
+          source?: Database["public"]["Enums"]["invoice_source"]
+          status?: Database["public"]["Enums"]["invoice_status"]
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -353,10 +416,13 @@ export type Database = {
       transactions: {
         Row: {
           created_at: string
+          currency: string | null
           eur_cents: number | null
           gbp_pence: number | null
           id: string
+          invoice_id: string | null
           notes: string | null
+          rail: Database["public"]["Enums"]["payment_rail"] | null
           recipient_address: string | null
           solana_signature: string | null
           status: Database["public"]["Enums"]["tx_status"]
@@ -365,10 +431,13 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          currency?: string | null
           eur_cents?: number | null
           gbp_pence?: number | null
           id?: string
+          invoice_id?: string | null
           notes?: string | null
+          rail?: Database["public"]["Enums"]["payment_rail"] | null
           recipient_address?: string | null
           solana_signature?: string | null
           status?: Database["public"]["Enums"]["tx_status"]
@@ -377,17 +446,28 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          currency?: string | null
           eur_cents?: number | null
           gbp_pence?: number | null
           id?: string
+          invoice_id?: string | null
           notes?: string | null
+          rail?: Database["public"]["Enums"]["payment_rail"] | null
           recipient_address?: string | null
           solana_signature?: string | null
           status?: Database["public"]["Enums"]["tx_status"]
           type?: Database["public"]["Enums"]["tx_type"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transactions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "invoices"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {
@@ -450,6 +530,10 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      invoice_category: "supplier" | "payroll" | "tax"
+      invoice_source: "xero" | "quickbooks" | "sage" | "upload" | "manual"
+      invoice_status: "unpaid" | "paid" | "failed"
+      payment_rail: "stable" | "fiat"
       tx_status: "pending" | "confirmed" | "failed"
       tx_type: "topup" | "send"
     }
@@ -580,6 +664,10 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      invoice_category: ["supplier", "payroll", "tax"],
+      invoice_source: ["xero", "quickbooks", "sage", "upload", "manual"],
+      invoice_status: ["unpaid", "paid", "failed"],
+      payment_rail: ["stable", "fiat"],
       tx_status: ["pending", "confirmed", "failed"],
       tx_type: ["topup", "send"],
     },
