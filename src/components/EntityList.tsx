@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import PayPayeeDialog from "./PayPayeeDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
@@ -54,7 +54,6 @@ interface HistoryRow {
 
 const EntityList = ({ table, title, description, primaryField, fields }: EntityListProps) => {
   const { isAdmin } = useAuth();
-  const navigate = useNavigate();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<any | null>(null);
@@ -62,6 +61,7 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
   const [historyOf, setHistoryOf] = useState<any | null>(null);
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [paying, setPaying] = useState<any | null>(null);
 
   const refresh = async () => {
     setLoading(true);
@@ -96,15 +96,13 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
   };
 
   const payNow = (row: any) => {
-    if (!row.wallet_address) {
-      toast.error("No wallet address on file for this record");
+    if (!row.wallet_address && !row.account_number && !row.iban) {
+      toast.error("No payment details on file", {
+        description: "Add a wallet address or bank details before paying this payee.",
+      });
       return;
     }
-    sessionStorage.setItem(
-      "borderpay:prefill",
-      JSON.stringify({ address: row.wallet_address, label: row[primaryField] }),
-    );
-    navigate("/app");
+    setPaying(row);
   };
 
   const groupedFields = fields.reduce<Record<string, FieldDef[]>>((acc, f) => {
@@ -181,7 +179,7 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
                   <Button
                     size="sm"
                     onClick={() => payNow(row)}
-                    disabled={!row.wallet_address}
+                    disabled={!row.wallet_address && !row.account_number && !row.iban}
                   >
                     <Send className="mr-1" /> Pay
                   </Button>
@@ -272,6 +270,24 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
           ))}
         </div>
       )}
+
+      <PayPayeeDialog
+        open={!!paying}
+        onOpenChange={(o) => { if (!o) setPaying(null); }}
+        payee={
+          paying
+            ? {
+                id: paying.id,
+                name: paying[primaryField],
+                wallet_address: paying.wallet_address,
+                bank_name: paying.bank_name,
+                account_number: paying.account_number,
+                iban: paying.iban,
+              }
+            : null
+        }
+        onPaid={() => setPaying(null)}
+      />
     </div>
   );
 };
