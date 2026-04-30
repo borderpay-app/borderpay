@@ -54,7 +54,6 @@ interface HistoryRow {
 
 const EntityList = ({ table, title, description, primaryField, fields }: EntityListProps) => {
   const { isAdmin } = useAuth();
-  const navigate = useNavigate();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<any | null>(null);
@@ -62,6 +61,7 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
   const [historyOf, setHistoryOf] = useState<any | null>(null);
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [paying, setPaying] = useState<any | null>(null);
 
   const refresh = async () => {
     setLoading(true);
