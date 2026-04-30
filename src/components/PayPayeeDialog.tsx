@@ -303,16 +303,16 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
         .maybeSingle();
       if (freshErr) throw freshErr;
       const liveBalance = Number(freshRows?.balance_minor ?? 0);
-      if (amountCents > liveBalance) {
+      if (debitMinor > liveBalance) {
         toast.error("Insufficient balance", {
-          description: `Your ${sourceWallet} wallet holds ${formatMoney(liveBalance, sourceWallet)}.`,
+          description: `Your ${sourceWallet} wallet holds ${formatMoney(liveBalance, sourceWallet)}, but this payment needs ${formatMoney(debitMinor, sourceWallet)}.`,
         });
         setBalances((b) => ({ ...b, [sourceWallet]: liveBalance }));
         setStep("details");
         return;
       }
 
-      const newBalance = liveBalance - amountCents;
+      const newBalance = liveBalance - debitMinor;
       const { error: balErr } = await supabase
         .from("wallet_balances")
         .update({ balance_minor: newBalance, updated_at: new Date().toISOString() })
@@ -328,7 +328,10 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
           .eq("user_id", user.id);
       }
 
-      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)} (from ${sourceWallet})`;
+      const conversionNote = quote && !quote.pegged
+        ? ` · ${quote.basis}`
+        : "";
+      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)} (debited ${formatMoney(debitMinor, sourceWallet)} from ${sourceWallet})${conversionNote}`;
       const { error: txErr } = await supabase.from("transactions").insert({
         user_id: user.id,
         type: "send" as const,
