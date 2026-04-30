@@ -13,6 +13,11 @@ import Contact from "./pages/Contact.tsx";
 import Investors from "./pages/Investors.tsx";
 import Blog from "./pages/Blog.tsx";
 import BlogPost from "./pages/BlogPost.tsx";
+import Auth from "./pages/Auth.tsx";
+import AppDashboard from "./pages/AppDashboard.tsx";
+import Admin from "./pages/Admin.tsx";
+import { AuthProvider } from "@/hooks/useAuth";
+import { SolanaProvider } from "@/components/SolanaProvider";
 
 const queryClient = new QueryClient();
 
@@ -23,18 +28,25 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/privacy" element={<PrivacyPolicy />} />
-            <Route path="/terms" element={<TermsAndConditions />} />
-            <Route path="/unsubscribe" element={<Unsubscribe />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/investors" element={<Investors />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<BlogPost />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AuthProvider>
+            <SolanaProvider>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsAndConditions />} />
+                <Route path="/unsubscribe" element={<Unsubscribe />} />
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/investors" element={<Investors />} />
+                <Route path="/blog" element={<Blog />} />
+                <Route path="/blog/:slug" element={<BlogPost />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/app" element={<AppDashboard />} />
+                <Route path="/admin" element={<Admin />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </SolanaProvider>
+          </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>
     </QueryClientProvider>
