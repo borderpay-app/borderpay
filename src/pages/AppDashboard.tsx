@@ -194,11 +194,39 @@ const AppDashboard = () => {
             <p className="text-sm text-muted-foreground mt-2">
               Send EUR on Solana devnet using your GBP balance.
             </p>
-            {balancePence === 0 && (
-              <p className="text-xs text-muted-foreground mt-4">
-                Your account starts at £0. An admin needs to top up your balance before you can send.
+
+            <form onSubmit={addFunds} className="mt-6 space-y-3">
+              <Label htmlFor="topup">Add funds (demo)</Label>
+              <div className="flex gap-2">
+                <Input
+                  id="topup"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="100.00"
+                  value={topupGbp}
+                  onChange={(e) => setTopupGbp(e.target.value)}
+                />
+                <Button type="submit" disabled={toppingUp}>
+                  {toppingUp ? "Adding…" : "Add funds"}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Demo only — no real money is moved.
               </p>
-            )}
+            </form>
+
+            <div className="mt-6 pt-6 border-t">
+              <p className="text-sm font-medium">Your saved wallet</p>
+              {savedWallet ? (
+                <p className="text-xs font-mono text-muted-foreground mt-1 break-all">{savedWallet}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-1">No wallet saved yet.</p>
+              )}
+              <Button variant="outline" size="sm" className="mt-3" onClick={saveConnectedWallet}>
+                {savedWallet ? "Update from connected Phantom" : "Save connected Phantom address"}
+              </Button>
+            </div>
           </Card>
 
           {preflight.status === "checking" && (
