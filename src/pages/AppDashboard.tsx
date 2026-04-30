@@ -88,17 +88,79 @@ const AppDashboard = () => {
 
   const refresh = async () => {
     if (!user) return;
-    const [bal, list] = await Promise.all([
+    const [bal, list, prof] = await Promise.all([
       supabase.from("gbp_balances").select("balance_pence").eq("user_id", user.id).maybeSingle(),
       supabase.from("transactions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
+      supabase.from("profiles").select("wallet_address").eq("user_id", user.id).maybeSingle(),
     ]);
     setBalancePence(Number(bal.data?.balance_pence ?? 0));
     setTxs((list.data ?? []) as Tx[]);
+    setSavedWallet((prof.data?.wallet_address as string | null) ?? null);
   };
 
   useEffect(() => {
     if (user) refresh();
   }, [user]);
+
+  const addFunds = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const gbp = parseFloat(topupGbp);
+    if (!gbp || gbp <= 0) {
+      toast.error("Enter a valid GBP amount");
+      return;
+    }
+    if (gbp > 100000) {
+      toast.error("Max £100,000 per top-up (demo)");
+      return;
+    }
+    setToppingUp(true);
+    try {
+      const pence = Math.round(gbp * 100);
+      const newBalance = balancePence + pence;
+      const { error: balErr } = await supabase
+        .from("gbp_balances")
+        .update({ balance_pence: newBalance, updated_at: new Date().toISOString() })
+        .eq("user_id", user!.id);
+      if (balErr) throw balErr;
+
+      const { error: txErr } = await supabase.from("transactions").insert({
+        user_id: user!.id,
+        type: "topup",
+        status: "confirmed",
+        gbp_pence: pence,
+        notes: "Demo self top-up",
+      });
+      if (txErr) throw txErr;
+
+      toast.success(`Added £${gbp.toFixed(2)} to your balance`);
+      setTopupGbp("");
+      refresh();
+    } catch (err: any) {
+      toast.error(err.message ?? "Top-up failed");
+    } finally {
+      setToppingUp(false);
+    }
+  };
+
+  const saveConnectedWallet = async () => {
+    const pk = (window as any).solana?.publicKey?.toString?.();
+    if (!pk) {
+      toast.error("Connect Phantom first", {
+        description: "Click 'Select Wallet' in the Send card and approve the connection.",
+      });
+      return;
+    }
+    const { error } = await supabase
+      .from("profiles")
+      .update({ wallet_address: pk })
+      .eq("user_id", user!.id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    setSavedWallet(pk);
+    toast.success("Wallet saved to your profile");
+  };
 
   if (loading || !user) return <div className="min-h-screen flex items-center justify-center">Loading…</div>;
 
