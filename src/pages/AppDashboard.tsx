@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
+import { z } from "zod";
 import { explorerTx, shortAddr } from "@/lib/solana";
 import logo from "@/assets/logo.png";
 
