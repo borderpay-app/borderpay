@@ -1,27 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import {
-  PublicKey,
-  Transaction,
-} from "@solana/web3.js";
-import {
-  createTransferInstruction,
-  getAssociatedTokenAddress,
-  getAccount,
-  createAssociatedTokenAccountInstruction,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { toast } from "sonner";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Helmet } from "react-helmet-async";
-import { connection, EURC_MINT, EURC_DECIMALS, explorerTx, shortAddr } from "@/lib/solana";
+import { explorerTx, shortAddr } from "@/lib/solana";
 import logo from "@/assets/logo.png";
 
 interface Tx {
@@ -35,22 +20,65 @@ interface Tx {
   created_at: string;
 }
 
-// Mock FX: 1 GBP = 1.18 EUR
-const GBP_TO_EUR = 1.18;
+// Lazy-load the Solana-dependent panel so a missing dependency doesn't crash the page.
+const SolanaSendPanel = lazy(() => import("@/components/SolanaSendPanel"));
+
+type PreflightState =
+  | { status: "checking" }
+  | { status: "ok" }
+  | { status: "error"; missing: string[]; raw: string };
+
+const REQUIRED_MODULES = [
+  "@solana/web3.js",
+  "@solana/spl-token",
+  "@solana/wallet-adapter-react",
+  "@solana/wallet-adapter-react-ui",
+] as const;
 
 const AppDashboard = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
-  const { publicKey, sendTransaction, connected } = useWallet();
   const [balancePence, setBalancePence] = useState<number>(0);
   const [txs, setTxs] = useState<Tx[]>([]);
-  const [recipient, setRecipient] = useState("");
-  const [eurAmount, setEurAmount] = useState("");
-  const [sending, setSending] = useState(false);
+  const [preflight, setPreflight] = useState<PreflightState>({ status: "checking" });
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth", { replace: true });
   }, [user, loading, navigate]);
+
+  // Preflight: try to dynamically import each Solana module. Report any that fail.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      const missing: string[] = [];
+      const errors: string[] = [];
+      const results = await Promise.all(
+        REQUIRED_MODULES.map(async (m) => {
+          try {
+            // @vite-ignore — dynamic literal list, resolved at build time per entry below
+            switch (m) {
+              case "@solana/web3.js": await import("@solana/web3.js"); break;
+              case "@solana/spl-token": await import("@solana/spl-token"); break;
+              case "@solana/wallet-adapter-react": await import("@solana/wallet-adapter-react"); break;
+              case "@solana/wallet-adapter-react-ui": await import("@solana/wallet-adapter-react-ui"); break;
+            }
+            return { m, ok: true as const };
+          } catch (err: any) {
+            errors.push(`${m}: ${err?.message ?? String(err)}`);
+            return { m, ok: false as const };
+          }
+        })
+      );
+      if (cancelled) return;
+      results.forEach((r) => { if (!r.ok) missing.push(r.m); });
+      if (missing.length) {
+        setPreflight({ status: "error", missing, raw: errors.join("\n") });
+      } else {
+        setPreflight({ status: "ok" });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
   const refresh = async () => {
     if (!user) return;
@@ -65,121 +93,6 @@ const AppDashboard = () => {
   useEffect(() => {
     if (user) refresh();
   }, [user]);
-
-  const eurEquivalent = (balancePence / 100) * GBP_TO_EUR;
-
-  const send = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (typeof window !== "undefined" && !(window as any).solana) {
-      toast.error("Phantom wallet not detected", {
-        description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
-      });
-      return;
-    }
-    if (!publicKey || !connected) {
-      toast.error("Wallet not connected", {
-        description: "Click ‘Select Wallet’ in the header to connect Phantom (Devnet).",
-      });
-      return;
-    }
-    const amt = parseFloat(eurAmount);
-    if (!amt || amt <= 0) {
-      toast.error("Enter a valid EUR amount");
-      return;
-    }
-    if (amt > eurEquivalent) {
-      toast.error("Insufficient GBP balance");
-      return;
-    }
-    let recipientPk: PublicKey;
-    try {
-      recipientPk = new PublicKey(recipient.trim());
-    } catch {
-      toast.error("Invalid Solana address");
-      return;
-    }
-
-    setSending(true);
-    let txRowId: string | null = null;
-    try {
-      // 1. Insert pending tx
-      const gbpUsed = Math.round((amt / GBP_TO_EUR) * 100); // pence
-      const eurCents = Math.round(amt * 100);
-      const { data: txRow, error: txErr } = await supabase
-        .from("transactions")
-        .insert({
-          user_id: user!.id,
-          type: "send",
-          status: "pending",
-          gbp_pence: gbpUsed,
-          eur_cents: eurCents,
-          recipient_address: recipientPk.toBase58(),
-        })
-        .select()
-        .single();
-      if (txErr) throw txErr;
-      txRowId = txRow.id;
-
-      // 2. Build SPL transfer
-      const senderAta = await getAssociatedTokenAddress(EURC_MINT, publicKey);
-      const recipientAta = await getAssociatedTokenAddress(EURC_MINT, recipientPk);
-
-      const tx = new Transaction();
-
-      // Create recipient ATA if missing
-      try {
-        await getAccount(connection, recipientAta);
-      } catch {
-        tx.add(
-          createAssociatedTokenAccountInstruction(publicKey, recipientAta, recipientPk, EURC_MINT)
-        );
-      }
-
-      const amountUnits = BigInt(Math.round(amt * 10 ** EURC_DECIMALS));
-      tx.add(
-        createTransferInstruction(senderAta, recipientAta, publicKey, amountUnits, [], TOKEN_PROGRAM_ID)
-      );
-
-      const sig = await sendTransaction(tx, connection);
-      toast.info("Transaction submitted — confirming…");
-
-      await connection.confirmTransaction(sig, "confirmed");
-
-      // 3. Update DB
-      await supabase
-        .from("transactions")
-        .update({ status: "confirmed", solana_signature: sig })
-        .eq("id", txRowId);
-
-      // Deduct GBP balance via direct update would fail (admin-only), so we leave balance for admin reconciliation in MVP
-      toast.success("EUR sent on Solana devnet");
-      setRecipient("");
-      setEurAmount("");
-      refresh();
-    } catch (err: any) {
-      console.error(err);
-      const raw = err?.message ?? String(err);
-      let friendly = raw;
-      if (/Failed to fetch|NetworkError|fetch failed/i.test(raw)) {
-        friendly = "Network error reaching Solana devnet RPC. Check your internet connection and try again.";
-      } else if (/User rejected|rejected the request/i.test(raw)) {
-        friendly = "You rejected the transaction in Phantom.";
-      } else if (/insufficient lamports|insufficient funds/i.test(raw)) {
-        friendly = "Wallet has no SOL for fees. Airdrop devnet SOL at faucet.solana.com.";
-      } else if (/TokenAccountNotFound|could not find account|Invalid account/i.test(raw)) {
-        friendly = "Your wallet has no EURC devnet token account yet. Receive a small EURC test transfer first.";
-      } else if (/Cannot find module|is not a function|undefined is not an object/i.test(raw)) {
-        friendly = "Solana libraries failed to load. Hard-refresh the page; if it persists, contact support.";
-      }
-      toast.error("Send failed", { description: friendly });
-      if (txRowId) {
-        await supabase.from("transactions").update({ status: "failed", notes: raw }).eq("id", txRowId);
-      }
-      refresh();
-    } finally {
-      setSending(false);
-    }
-  };
 
   if (loading || !user) return <div className="min-h-screen flex items-center justify-center">Loading…</div>;
 
@@ -201,7 +114,6 @@ const AppDashboard = () => {
                   Admin
                 </Link>
               )}
-              <WalletMultiButton />
               <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
             </div>
           </div>
@@ -212,7 +124,7 @@ const AppDashboard = () => {
             <p className="text-sm text-muted-foreground">GBP Balance</p>
             <p className="text-4xl font-semibold mt-2">£{(balancePence / 100).toFixed(2)}</p>
             <p className="text-sm text-muted-foreground mt-2">
-              ≈ €{eurEquivalent.toFixed(2)} sendable (rate 1 GBP = €{GBP_TO_EUR})
+              Send EUR on Solana devnet using your GBP balance.
             </p>
             {balancePence === 0 && (
               <p className="text-xs text-muted-foreground mt-4">
@@ -221,39 +133,49 @@ const AppDashboard = () => {
             )}
           </Card>
 
-          <Card className="p-6">
-            <h2 className="font-semibold mb-1">Send EUR via Solana</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Sends EURC on Solana devnet. Connect Phantom (set to Devnet) first.
-            </p>
-            <form onSubmit={send} className="space-y-4">
-              <div>
-                <Label htmlFor="recipient">Recipient Solana address</Label>
-                <Input
-                  id="recipient"
-                  value={recipient}
-                  onChange={(e) => setRecipient(e.target.value)}
-                  placeholder="7xKX…"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="amount">Amount (EUR)</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  value={eurAmount}
-                  onChange={(e) => setEurAmount(e.target.value)}
-                  required
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={sending || !connected}>
-                {sending ? "Sending…" : connected ? "Send EUR" : "Connect wallet to send"}
-              </Button>
-            </form>
-          </Card>
+          {preflight.status === "checking" && (
+            <Card className="p-6">
+              <p className="text-sm text-muted-foreground">Checking Solana dependencies…</p>
+            </Card>
+          )}
+
+          {preflight.status === "error" && (
+            <Alert variant="destructive" className="md:col-span-1">
+              <AlertTitle>Solana wallet features unavailable</AlertTitle>
+              <AlertDescription className="space-y-2">
+                <p>
+                  These required packages failed to load:
+                </p>
+                <ul className="list-disc pl-5 text-xs font-mono">
+                  {preflight.missing.map((m) => <li key={m}>{m}</li>)}
+                </ul>
+                <p className="text-sm">
+                  Next steps:
+                </p>
+                <ol className="list-decimal pl-5 text-sm space-y-1">
+                  <li>Install the missing packages (e.g. <code className="font-mono">bun add {preflight.missing.join(" ")}</code>).</li>
+                  <li>Hard-refresh this page (Cmd/Ctrl + Shift + R).</li>
+                  <li>If the issue persists, check the browser console and contact support.</li>
+                </ol>
+                <details className="text-xs mt-2">
+                  <summary className="cursor-pointer">Technical details</summary>
+                  <pre className="whitespace-pre-wrap mt-1 opacity-80">{preflight.raw}</pre>
+                </details>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {preflight.status === "ok" && (
+            <Suspense fallback={
+              <Card className="p-6"><p className="text-sm text-muted-foreground">Loading wallet…</p></Card>
+            }>
+              <SolanaSendPanel
+                userId={user.id}
+                balancePence={balancePence}
+                onSent={refresh}
+              />
+            </Suspense>
+          )}
 
           <Card className="p-6 md:col-span-2">
             <h2 className="font-semibold mb-4">Recent activity</h2>
