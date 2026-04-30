@@ -14,6 +14,7 @@ import { explorerTx, shortAddr } from "@/lib/solana";
 import logo from "@/assets/logo.png";
 import { WalletsRow } from "@/components/WalletsRow";
 import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
+import { WalletTransferDialog } from "@/components/WalletTransferDialog";
 
 interface Tx {
   id: string;
@@ -231,10 +232,16 @@ const AppDashboard = () => {
           userId={user.id}
           refreshKey={balancePence + walletsRefresh}
           action={
-            <StablecoinMintDialog
-              userId={user.id}
-              onMinted={() => setWalletsRefresh((n) => n + 1)}
-            />
+            <div className="flex items-center gap-2">
+              <WalletTransferDialog
+                userId={user.id}
+                onTransferred={() => { setWalletsRefresh((n) => n + 1); refresh(); }}
+              />
+              <StablecoinMintDialog
+                userId={user.id}
+                onMinted={() => setWalletsRefresh((n) => n + 1)}
+              />
+            </div>
           }
         />
         <div className="grid gap-6 md:grid-cols-2">
