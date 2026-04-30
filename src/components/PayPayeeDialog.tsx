@@ -429,11 +429,11 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
               <Button
                 type="button"
                 onClick={confirmPay}
-                disabled={busy || !approved}
+                disabled={busy || !approved || insufficient || noWalletForCurrency}
                 className="gap-2"
               >
                 <ShieldCheck className="w-4 h-4" />
-                {busy ? "Paying…" : "Approve & pay"}
+                {busy ? "Paying…" : insufficient ? "Insufficient balance" : "Approve & pay"}
               </Button>
             </DialogFooter>
           </div>
