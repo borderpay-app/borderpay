@@ -147,6 +147,18 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       });
       return;
     }
+    if (noWalletForCurrency) {
+      toast.error(`No ${currency} wallet on file`, {
+        description: "Choose a different currency that maps to one of your wallets.",
+      });
+      return;
+    }
+    if (insufficient) {
+      toast.error("Insufficient balance", {
+        description: `Your ${sourceWallet} wallet holds ${formatMoney(sourceBalance ?? 0, sourceWallet!)}, but you're trying to send ${formatMoney(amountCents, currency)}.`,
+      });
+      return;
+    }
     setApproved(false);
     setStep("review");
   };
