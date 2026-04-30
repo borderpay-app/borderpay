@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -56,6 +56,18 @@ const amountSchema = z
 
 type Step = "details" | "review";
 
+type WalletCurrency = "GBP" | "EUR" | "BGBP" | "BEUR" | "BDRP";
+
+// Map payment currency → which wallet funds it.
+// Stablecoins draw from their pegged wallet (EURC↔BEUR, USDC↔BDRP basket).
+// USD has no fiat wallet, so it's intentionally unmapped.
+const SOURCE_WALLET: Partial<Record<PayCurrency, WalletCurrency>> = {
+  GBP: "GBP",
+  EUR: "EUR",
+  EURC: "BEUR",
+  USDC: "BDRP",
+};
+
 const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
   const { user } = useAuth();
   const [rail, setRail] = useState<PaymentRail>("stable");
@@ -64,12 +76,43 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
   const [step, setStep] = useState<Step>("details");
   const [approved, setApproved] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [balances, setBalances] = useState<Record<WalletCurrency, number>>({
+    GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
+  });
+  const [balancesLoading, setBalancesLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open || !user) return;
+    setBalancesLoading(true);
+    (async () => {
+      const { data } = await supabase
+        .from("wallet_balances")
+        .select("currency, balance_minor")
+        .eq("user_id", user.id);
+      const map: Record<WalletCurrency, number> = { GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0 };
+      for (const r of (data ?? []) as { currency: WalletCurrency; balance_minor: number }[]) {
+        if (r.currency in map) map[r.currency] = Number(r.balance_minor ?? 0);
+      }
+      setBalances(map);
+      setBalancesLoading(false);
+    })();
+  }, [open, user]);
+
+  const sourceWallet = SOURCE_WALLET[currency];
+  const sourceBalance = sourceWallet ? balances[sourceWallet] : null;
 
   const amountCents = useMemo(() => {
     const n = Number(amount);
     if (!Number.isFinite(n) || n <= 0) return 0;
     return Math.round(n * 100);
   }, [amount]);
+
+  const insufficient =
+    sourceWallet !== undefined &&
+    amountCents > 0 &&
+    amountCents > (sourceBalance ?? 0);
+
+  const noWalletForCurrency = sourceWallet === undefined;
 
   const reset = () => {
     setRail("stable");
@@ -104,6 +147,18 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       });
       return;
     }
+    if (noWalletForCurrency) {
+      toast.error(`No ${currency} wallet on file`, {
+        description: "Choose a different currency that maps to one of your wallets.",
+      });
+      return;
+    }
+    if (insufficient) {
+      toast.error("Insufficient balance", {
+        description: `Your ${sourceWallet} wallet holds ${formatMoney(sourceBalance ?? 0, sourceWallet!)}, but you're trying to send ${formatMoney(amountCents, currency)}.`,
+      });
+      return;
+    }
     setApproved(false);
     setStep("review");
   };
@@ -114,9 +169,47 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       toast.error("Please approve the payment to continue");
       return;
     }
+    if (noWalletForCurrency || !sourceWallet) {
+      toast.error(`No ${currency} wallet on file`);
+      return;
+    }
     setBusy(true);
     try {
-      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)}`;
+      // Re-check live balance to guard against stale UI state.
+      const { data: freshRows, error: freshErr } = await supabase
+        .from("wallet_balances")
+        .select("balance_minor")
+        .eq("user_id", user.id)
+        .eq("currency", sourceWallet)
+        .maybeSingle();
+      if (freshErr) throw freshErr;
+      const liveBalance = Number(freshRows?.balance_minor ?? 0);
+      if (amountCents > liveBalance) {
+        toast.error("Insufficient balance", {
+          description: `Your ${sourceWallet} wallet holds ${formatMoney(liveBalance, sourceWallet)}.`,
+        });
+        setBalances((b) => ({ ...b, [sourceWallet]: liveBalance }));
+        setStep("details");
+        return;
+      }
+
+      const newBalance = liveBalance - amountCents;
+      const { error: balErr } = await supabase
+        .from("wallet_balances")
+        .update({ balance_minor: newBalance, updated_at: new Date().toISOString() })
+        .eq("user_id", user.id)
+        .eq("currency", sourceWallet);
+      if (balErr) throw balErr;
+
+      // Mirror GBP into legacy gbp_balances for backward compatibility.
+      if (sourceWallet === "GBP") {
+        await supabase
+          .from("gbp_balances")
+          .update({ balance_pence: newBalance, updated_at: new Date().toISOString() })
+          .eq("user_id", user.id);
+      }
+
+      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)} (from ${sourceWallet})`;
       const { error: txErr } = await supabase.from("transactions").insert({
         user_id: user.id,
         type: "send" as const,
@@ -130,11 +223,12 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       });
       if (txErr) throw txErr;
 
+      setBalances((b) => ({ ...b, [sourceWallet]: newBalance }));
       toast.success(`Paid ${formatMoney(amountCents, currency)} to ${payee.name}`, {
         description:
           rail === "stable"
-            ? `Settled in ${currency} (simulated)`
-            : `${currency} payout (simulated)`,
+            ? `Settled in ${currency} (simulated) · ${sourceWallet} balance: ${formatMoney(newBalance, sourceWallet)}`
+            : `${currency} payout (simulated) · ${sourceWallet} balance: ${formatMoney(newBalance, sourceWallet)}`,
       });
       reset();
       onOpenChange(false);
@@ -230,13 +324,40 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                 className="mt-1"
                 required
               />
+              <div className="flex items-center justify-between mt-1.5 text-xs">
+                {noWalletForCurrency ? (
+                  <span className="text-destructive">
+                    No wallet supports {currency}. Pick another currency.
+                  </span>
+                ) : (
+                  <span className={insufficient ? "text-destructive" : "text-muted-foreground"}>
+                    {sourceWallet} wallet balance:{" "}
+                    {balancesLoading
+                      ? "loading…"
+                      : formatMoney(sourceBalance ?? 0, sourceWallet!)}
+                    {insufficient && " · insufficient"}
+                  </span>
+                )}
+                {!noWalletForCurrency && !balancesLoading && (sourceBalance ?? 0) > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setAmount(((sourceBalance ?? 0) / 100).toFixed(2))}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Use max
+                  </button>
+                )}
+              </div>
             </div>
 
             <DialogFooter>
               <Button type="button" variant="ghost" onClick={() => handleOpenChange(false)}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={amountCents <= 0}>
+              <Button
+                type="submit"
+                disabled={amountCents <= 0 || balancesLoading || noWalletForCurrency || insufficient}
+              >
                 Review payment
               </Button>
             </DialogFooter>
@@ -270,6 +391,15 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                   {formatMoney(amountCents, currency)}
                 </span>
               </div>
+              {sourceWallet && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Funded from</span>
+                  <span className={insufficient ? "text-destructive font-medium" : "font-medium"}>
+                    {sourceWallet} wallet · {formatMoney(sourceBalance ?? 0, sourceWallet)}
+                    {insufficient && " (insufficient)"}
+                  </span>
+                </div>
+              )}
             </div>
 
             <label className="flex items-start gap-2 rounded-md border bg-muted/40 p-3 text-sm cursor-pointer">
@@ -299,11 +429,11 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
               <Button
                 type="button"
                 onClick={confirmPay}
-                disabled={busy || !approved}
+                disabled={busy || !approved || insufficient || noWalletForCurrency}
                 className="gap-2"
               >
                 <ShieldCheck className="w-4 h-4" />
-                {busy ? "Paying…" : "Approve & pay"}
+                {busy ? "Paying…" : insufficient ? "Insufficient balance" : "Approve & pay"}
               </Button>
             </DialogFooter>
           </div>
