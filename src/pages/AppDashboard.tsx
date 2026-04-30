@@ -246,8 +246,10 @@ const AppDashboard = () => {
                 <Input
                   id="topup"
                   type="number"
+                  inputMode="decimal"
                   step="0.01"
-                  min="0.01"
+                  min="1"
+                  max="10000"
                   placeholder="100.00"
                   value={topupGbp}
                   onChange={(e) => setTopupGbp(e.target.value)}
@@ -257,7 +259,7 @@ const AppDashboard = () => {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground">
-                Demo only — no real money is moved.
+                Demo only — no real money is moved. Limits: £1–£10,000 per top-up, £25,000/day, £100,000 max balance.
               </p>
             </form>
 
