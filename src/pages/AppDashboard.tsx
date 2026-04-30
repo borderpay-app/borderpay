@@ -158,9 +158,22 @@ const AppDashboard = () => {
       refresh();
     } catch (err: any) {
       console.error(err);
-      toast.error(err.message ?? "Send failed");
+      const raw = err?.message ?? String(err);
+      let friendly = raw;
+      if (/Failed to fetch|NetworkError|fetch failed/i.test(raw)) {
+        friendly = "Network error reaching Solana devnet RPC. Check your internet connection and try again.";
+      } else if (/User rejected|rejected the request/i.test(raw)) {
+        friendly = "You rejected the transaction in Phantom.";
+      } else if (/insufficient lamports|insufficient funds/i.test(raw)) {
+        friendly = "Wallet has no SOL for fees. Airdrop devnet SOL at faucet.solana.com.";
+      } else if (/TokenAccountNotFound|could not find account|Invalid account/i.test(raw)) {
+        friendly = "Your wallet has no EURC devnet token account yet. Receive a small EURC test transfer first.";
+      } else if (/Cannot find module|is not a function|undefined is not an object/i.test(raw)) {
+        friendly = "Solana libraries failed to load. Hard-refresh the page; if it persists, contact support.";
+      }
+      toast.error("Send failed", { description: friendly });
       if (txRowId) {
-        await supabase.from("transactions").update({ status: "failed", notes: err.message }).eq("id", txRowId);
+        await supabase.from("transactions").update({ status: "failed", notes: raw }).eq("id", txRowId);
       }
       refresh();
     } finally {
