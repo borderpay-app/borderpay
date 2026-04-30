@@ -520,6 +520,30 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_balances: {
+        Row: {
+          balance_minor: number
+          currency: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance_minor?: number
+          currency: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance_minor?: number
+          currency?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
