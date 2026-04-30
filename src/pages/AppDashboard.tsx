@@ -44,6 +44,9 @@ const AppDashboard = () => {
   const [balancePence, setBalancePence] = useState<number>(0);
   const [txs, setTxs] = useState<Tx[]>([]);
   const [preflight, setPreflight] = useState<PreflightState>({ status: "checking" });
+  const [topupGbp, setTopupGbp] = useState("");
+  const [toppingUp, setToppingUp] = useState(false);
+  const [savedWallet, setSavedWallet] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth", { replace: true });
