@@ -13,6 +13,7 @@ import { z } from "zod";
 import { explorerTx, shortAddr } from "@/lib/solana";
 import logo from "@/assets/logo.png";
 import { WalletsRow } from "@/components/WalletsRow";
+import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
 
 interface Tx {
   id: string;
@@ -45,6 +46,7 @@ const AppDashboard = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const [balancePence, setBalancePence] = useState<number>(0);
+  const [walletsRefresh, setWalletsRefresh] = useState<number>(0);
   const [txs, setTxs] = useState<Tx[]>([]);
   const [preflight, setPreflight] = useState<PreflightState>({ status: "checking" });
   const [topupGbp, setTopupGbp] = useState("");
