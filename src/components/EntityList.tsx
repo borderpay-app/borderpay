@@ -253,7 +253,7 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
                         groupedFields={groupedFields}
                         initial={row}
                         onSubmit={async (values) => {
-                          const { error } = await supabase.from(table).update(values).eq("id", row.id);
+                          const { error } = await (supabase.from(table) as any).update(values).eq("id", row.id);
                           if (error) {
                             toast.error(error.message);
                             return false;
