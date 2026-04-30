@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import EntityList, { type FieldDef } from "@/components/EntityList";
+import InvoicesPanel from "@/components/InvoicesPanel";
 
 const fields: FieldDef[] = [
   { key: "name", label: "Name", required: true, group: "Details" },
@@ -19,6 +20,9 @@ const Suppliers = () => (
     <Helmet>
       <title>Suppliers | Border Pay</title>
     </Helmet>
+    <div className="max-w-6xl mx-auto">
+      <InvoicesPanel category="supplier" />
+    </div>
     <EntityList
       table="suppliers"
       title="Suppliers"
