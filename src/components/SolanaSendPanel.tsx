@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { connection, EURC_MINT, EURC_DECIMALS } from "@/lib/solana";
+import { reportWalletError } from "@/lib/walletDebug";
 
 // Mock FX: 1 GBP = 1.18 EUR
 const GBP_TO_EUR = 1.18;
@@ -118,6 +119,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       onSent();
     } catch (err: any) {
       console.error(err);
+      reportWalletError("send", err);
       const raw = err?.message ?? String(err);
       let friendly = raw;
       if (/Failed to fetch|NetworkError|fetch failed/i.test(raw)) {

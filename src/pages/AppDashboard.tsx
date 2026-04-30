@@ -26,6 +26,7 @@ interface Tx {
 
 // Lazy-load the Solana-dependent panel so a missing dependency doesn't crash the page.
 const SolanaSendPanel = lazy(() => import("@/components/SolanaSendPanel"));
+const WalletDebugPanel = lazy(() => import("@/components/WalletDebugPanel"));
 
 type PreflightState =
   | { status: "checking" }
@@ -317,6 +318,14 @@ const AppDashboard = () => {
                 balancePence={balancePence}
                 onSent={refresh}
               />
+            </Suspense>
+          )}
+
+          {preflight.status === "ok" && (
+            <Suspense fallback={
+              <Card className="p-6 md:col-span-2"><p className="text-sm text-muted-foreground">Loading wallet debug…</p></Card>
+            }>
+              <WalletDebugPanel />
             </Suspense>
           )}
 
