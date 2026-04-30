@@ -56,6 +56,18 @@ const amountSchema = z
 
 type Step = "details" | "review";
 
+type WalletCurrency = "GBP" | "EUR" | "BGBP" | "BEUR" | "BDRP";
+
+// Map payment currency → which wallet funds it.
+// Stablecoins draw from their pegged wallet (EURC↔BEUR, USDC↔BDRP basket).
+// USD has no fiat wallet, so it's intentionally unmapped.
+const SOURCE_WALLET: Partial<Record<PayCurrency, WalletCurrency>> = {
+  GBP: "GBP",
+  EUR: "EUR",
+  EURC: "BEUR",
+  USDC: "BDRP",
+};
+
 const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
   const { user } = useAuth();
   const [rail, setRail] = useState<PaymentRail>("stable");
@@ -64,12 +76,43 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
   const [step, setStep] = useState<Step>("details");
   const [approved, setApproved] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [balances, setBalances] = useState<Record<WalletCurrency, number>>({
+    GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
+  });
+  const [balancesLoading, setBalancesLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open || !user) return;
+    setBalancesLoading(true);
+    (async () => {
+      const { data } = await supabase
+        .from("wallet_balances")
+        .select("currency, balance_minor")
+        .eq("user_id", user.id);
+      const map: Record<WalletCurrency, number> = { GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0 };
+      for (const r of (data ?? []) as { currency: WalletCurrency; balance_minor: number }[]) {
+        if (r.currency in map) map[r.currency] = Number(r.balance_minor ?? 0);
+      }
+      setBalances(map);
+      setBalancesLoading(false);
+    })();
+  }, [open, user]);
+
+  const sourceWallet = SOURCE_WALLET[currency];
+  const sourceBalance = sourceWallet ? balances[sourceWallet] : null;
 
   const amountCents = useMemo(() => {
     const n = Number(amount);
     if (!Number.isFinite(n) || n <= 0) return 0;
     return Math.round(n * 100);
   }, [amount]);
+
+  const insufficient =
+    sourceWallet !== undefined &&
+    amountCents > 0 &&
+    amountCents > (sourceBalance ?? 0);
+
+  const noWalletForCurrency = sourceWallet === undefined;
 
   const reset = () => {
     setRail("stable");
