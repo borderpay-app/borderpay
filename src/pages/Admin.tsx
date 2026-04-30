@@ -90,6 +90,25 @@ const Admin = () => {
 
   if (loading || !isAdmin) return <div className="min-h-screen flex items-center justify-center">Loading…</div>;
 
+  // Admins MUST have MFA. If not enrolled, force enrolment. If enrolled but session is AAL1, prompt step-up.
+  const mfaGate = !mfaEnrolled ? (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <ShieldAlert className="w-4 h-4" />
+          Two-factor authentication is required for admin access.
+        </div>
+        <MfaEnroll onComplete={refreshMfa} />
+      </div>
+    </div>
+  ) : currentAal !== "aal2" ? (
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
+      <MfaChallenge onVerified={refreshMfa} />
+    </div>
+  ) : null;
+
+  if (mfaGate) return mfaGate;
+
   return (
     <>
       <Helmet>
