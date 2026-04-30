@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, Transaction } from "@solana/web3.js";
@@ -32,6 +32,22 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const [recipient, setRecipient] = useState("");
   const [eurAmount, setEurAmount] = useState("");
   const [sending, setSending] = useState(false);
+
+  // Pick up a "pay this entity" prefill written by entity list pages.
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("borderpay:prefill");
+      if (!raw) return;
+      const { address, label } = JSON.parse(raw) as { address?: string; label?: string };
+      if (address) {
+        setRecipient(address);
+        sessionStorage.removeItem("borderpay:prefill");
+        toast.info(label ? `Paying ${label}` : "Recipient prefilled");
+      }
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const eurEquivalent = (balancePence / 100) * GBP_TO_EUR;
 

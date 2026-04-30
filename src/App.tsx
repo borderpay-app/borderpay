@@ -15,6 +15,10 @@ import Blog from "./pages/Blog.tsx";
 import BlogPost from "./pages/BlogPost.tsx";
 import Auth from "./pages/Auth.tsx";
 import AppDashboard from "./pages/AppDashboard.tsx";
+import AppLayout from "./pages/AppLayout.tsx";
+import Suppliers from "./pages/Suppliers.tsx";
+import Taxes from "./pages/Taxes.tsx";
+import Payroll from "./pages/Payroll.tsx";
 import Admin from "./pages/Admin.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SolanaProvider } from "@/components/SolanaProvider";
@@ -40,7 +44,12 @@ const App = () => (
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/auth" element={<Auth />} />
-                <Route path="/app" element={<AppDashboard />} />
+                <Route path="/app" element={<AppLayout />}>
+                  <Route index element={<AppDashboard />} />
+                  <Route path="suppliers" element={<Suppliers />} />
+                  <Route path="taxes" element={<Taxes />} />
+                  <Route path="payroll" element={<Payroll />} />
+                </Route>
                 <Route path="/admin" element={<Admin />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />

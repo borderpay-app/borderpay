@@ -213,27 +213,11 @@ const AppDashboard = () => {
   return (
     <>
       <Helmet>
-        <title>Dashboard | Border Pay</title>
+        <title>Overview | Border Pay</title>
       </Helmet>
-      <div className="min-h-screen bg-background">
-        <header className="border-b">
-          <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Border Pay" className="h-10" />
-              <span className="font-semibold">Border Pay</span>
-            </Link>
-            <div className="flex items-center gap-3">
-              {isAdmin && (
-                <Link to="/admin" className="text-sm text-muted-foreground hover:text-foreground">
-                  Admin
-                </Link>
-              )}
-              <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
-            </div>
-          </div>
-        </header>
-
-        <main className="max-w-5xl mx-auto px-6 py-10 grid gap-6 md:grid-cols-2">
+      <div className="max-w-5xl mx-auto">
+        <h1 className="text-2xl font-semibold mb-6">Overview</h1>
+        <div className="grid gap-6 md:grid-cols-2">
           <Card className="p-6">
             <p className="text-sm text-muted-foreground">GBP Balance</p>
             <p className="text-4xl font-semibold mt-2">£{(balancePence / 100).toFixed(2)}</p>
@@ -463,7 +447,7 @@ const AppDashboard = () => {
               </div>
             )}
           </Card>
-        </main>
+        </div>
       </div>
     </>
   );
