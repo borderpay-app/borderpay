@@ -177,78 +177,142 @@ export const WalletTransferDialog = ({ userId, onTransferred, trigger }: Props) 
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Transfer between wallets</DialogTitle>
+          <DialogTitle>
+            {step === "details" ? "Transfer between wallets" : "Review & approve transfer"}
+          </DialogTitle>
           <DialogDescription>
-            Move funds between your fiat and stablecoin wallets. FX rates are simulated for the demo.
+            {step === "details"
+              ? "Move funds between your fiat and stablecoin wallets. FX rates are simulated for the demo."
+              : "Nothing has been moved yet. Review the details below and approve to execute the transfer."}
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={submit} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-end gap-3">
+        {step === "details" ? (
+          <form onSubmit={goToReview} className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-end gap-3">
+              <div className="space-y-2">
+                <Label htmlFor="transfer-from">From</Label>
+                <Select value={from} onValueChange={(v) => setFrom(v as Currency)}>
+                  <SelectTrigger id="transfer-from"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((c) => (
+                      <SelectItem key={c} value={c}>{CURRENCY_LABELS[c]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Balance: {formatMinor(from, balances[from])}
+                </p>
+              </div>
+
+              <Button type="button" variant="ghost" size="icon" onClick={swap} aria-label="Swap direction" className="mb-7">
+                <ArrowLeftRight className="w-4 h-4" />
+              </Button>
+
+              <div className="space-y-2">
+                <Label htmlFor="transfer-to">To</Label>
+                <Select value={to} onValueChange={(v) => setTo(v as Currency)}>
+                  <SelectTrigger id="transfer-to"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {CURRENCIES.map((c) => (
+                      <SelectItem key={c} value={c} disabled={c === from}>{CURRENCY_LABELS[c]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Balance: {formatMinor(to, balances[to])}
+                </p>
+              </div>
+            </div>
+
             <div className="space-y-2">
-              <Label htmlFor="transfer-from">From</Label>
-              <Select value={from} onValueChange={(v) => setFrom(v as Currency)}>
-                <SelectTrigger id="transfer-from"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c} value={c}>{CURRENCY_LABELS[c]}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Balance: {formatMinor(from, balances[from])}
-              </p>
+              <Label htmlFor="transfer-amount">Amount ({from})</Label>
+              <Input
+                id="transfer-amount" type="number" inputMode="decimal" step="0.01" min="0.01"
+                placeholder="100.00" value={amount}
+                onChange={(e) => setAmount(e.target.value)} required
+              />
             </div>
 
-            <Button type="button" variant="ghost" size="icon" onClick={swap} aria-label="Swap direction" className="mb-7">
-              <ArrowLeftRight className="w-4 h-4" />
-            </Button>
-
-            <div className="space-y-2">
-              <Label htmlFor="transfer-to">To</Label>
-              <Select value={to} onValueChange={(v) => setTo(v as Currency)}>
-                <SelectTrigger id="transfer-to"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c} value={c} disabled={c === from}>{CURRENCY_LABELS[c]}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                Balance: {formatMinor(to, balances[to])}
-              </p>
+            <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">You send</span>
+                <span className="font-medium">{formatMinor(from, fromMinor)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground">Recipient gets</span>
+                <span className="font-medium">{formatMinor(to, quote.toMinor)}</span>
+              </div>
+              <p className="text-xs text-muted-foreground pt-1">{quote.note}</p>
             </div>
+
+            <DialogFooter>
+              <Button type="button" variant="ghost" onClick={() => setOpen(false)} disabled={busy}>Cancel</Button>
+              <Button type="submit" disabled={from === to || fromMinor <= 0}>
+                Review transfer
+              </Button>
+            </DialogFooter>
+          </form>
+        ) : (
+          <div className="space-y-4">
+            <div className="rounded-lg border bg-card p-4 space-y-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">From wallet</span>
+                <span className="font-medium">{CURRENCY_LABELS[from]}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">To wallet</span>
+                <span className="font-medium">{CURRENCY_LABELS[to]}</span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Amount sent</span>
+                <span className="text-base font-semibold">{formatMinor(from, fromMinor)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Amount received</span>
+                <span className="text-base font-semibold">{formatMinor(to, quote.toMinor)}</span>
+              </div>
+              <Separator />
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Rate / basis</span>
+                <span className="text-right max-w-[60%]">{quote.note}</span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Balance after</span>
+                <span className="font-medium">
+                  {formatMinor(from, balances[from] - fromMinor)} · {formatMinor(to, balances[to] + quote.toMinor)}
+                </span>
+              </div>
+            </div>
+
+            <label className="flex items-start gap-2 rounded-md border bg-muted/40 p-3 text-sm cursor-pointer">
+              <input
+                type="checkbox"
+                className="mt-1 accent-primary"
+                checked={approved}
+                onChange={(e) => setApproved(e.target.checked)}
+              />
+              <span className="text-muted-foreground">
+                I have reviewed the details above and approve this transfer. Balances and the
+                transaction ledger will only be updated once I confirm.
+              </span>
+            </label>
+
+            <DialogFooter className="gap-2 sm:gap-2">
+              <Button type="button" variant="ghost" onClick={() => setStep("details")} disabled={busy} className="gap-2">
+                <ArrowLeft className="w-4 h-4" />
+                Back
+              </Button>
+              <Button type="button" onClick={confirmTransfer} disabled={busy || !approved} className="gap-2">
+                <ShieldCheck className="w-4 h-4" />
+                {busy ? "Transferring…" : "Approve & transfer"}
+              </Button>
+            </DialogFooter>
           </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="transfer-amount">Amount ({from})</Label>
-            <Input
-              id="transfer-amount" type="number" inputMode="decimal" step="0.01" min="0.01"
-              placeholder="100.00" value={amount}
-              onChange={(e) => setAmount(e.target.value)} required
-            />
-          </div>
-
-          <div className="rounded-md border bg-muted/40 p-3 text-sm space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">You send</span>
-              <span className="font-medium">{formatMinor(from, fromMinor)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Recipient gets</span>
-              <span className="font-medium">{formatMinor(to, quote.toMinor)}</span>
-            </div>
-            <p className="text-xs text-muted-foreground pt-1">{quote.note}</p>
-          </div>
-
-          <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => setOpen(false)} disabled={busy}>Cancel</Button>
-            <Button type="submit" disabled={busy || from === to || fromMinor <= 0}>
-              {busy ? "Transferring…" : "Confirm transfer"}
-            </Button>
-          </DialogFooter>
-        </form>
+        )}
       </DialogContent>
+
     </Dialog>
   );
 };
