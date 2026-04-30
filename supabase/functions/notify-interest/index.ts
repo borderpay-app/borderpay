@@ -107,27 +107,51 @@ Deno.serve(async (req) => {
     }
 
     // Insert into database (service role bypasses RLS)
+    const registrationId = crypto.randomUUID()
     const { error: dbError } = await supabaseAdmin
       .from('interest_registrations')
       .insert({
+        id: registrationId,
         name,
         email: email.toLowerCase(),
         company,
         location,
       })
 
+    let alreadyRegistered = false
     if (dbError) {
-      // Duplicate key (already registered) — treat as success
+      // Duplicate key (already registered) — still send confirmation, but don't double-notify admin
       if (dbError.code === '23505') {
+        alreadyRegistered = true
+      } else {
+        console.error('DB insert failed:', dbError.message)
         return new Response(
-          JSON.stringify({ success: true }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          JSON.stringify({ error: 'Failed to save registration' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
-      console.error('DB insert failed:', dbError.message)
+    }
+
+    // Send confirmation email to the registrant (fire-and-forget — failures don't block success)
+    try {
+      const idempotencyKey = `interest-confirm-${email.toLowerCase()}`
+      const { error: emailErr } = await supabaseAdmin.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'interest-confirmation',
+          recipientEmail: email,
+          idempotencyKey,
+          templateData: { name },
+        },
+      })
+      if (emailErr) console.error('Confirmation email failed:', emailErr.message)
+    } catch (e) {
+      console.error('Confirmation email threw:', e)
+    }
+
+    if (alreadyRegistered) {
       return new Response(
-        JSON.stringify({ error: 'Failed to save registration' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ success: true, alreadyRegistered: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
