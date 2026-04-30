@@ -104,18 +104,62 @@ const AppDashboard = () => {
 
   const addFunds = async (e: React.FormEvent) => {
     e.preventDefault();
-    const gbp = parseFloat(topupGbp);
-    if (!gbp || gbp <= 0) {
-      toast.error("Enter a valid GBP amount");
+
+    // Demo top-up limits
+    const PER_TOPUP_MIN_GBP = 1;
+    const PER_TOPUP_MAX_GBP = 10_000;
+    const DAILY_MAX_GBP = 25_000;
+    const BALANCE_CAP_GBP = 100_000;
+
+    const topupSchema = z
+      .string()
+      .trim()
+      .min(1, "Enter an amount")
+      .regex(/^\d{1,7}(\.\d{1,2})?$/, "Use a number with up to 2 decimal places")
+      .refine((s) => {
+        const n = Number(s);
+        return Number.isFinite(n) && n >= PER_TOPUP_MIN_GBP;
+      }, `Minimum top-up is £${PER_TOPUP_MIN_GBP.toFixed(2)}`)
+      .refine((s) => Number(s) <= PER_TOPUP_MAX_GBP, `Maximum per top-up is £${PER_TOPUP_MAX_GBP.toLocaleString()}`);
+
+    const parsed = topupSchema.safeParse(topupGbp);
+    if (!parsed.success) {
+      toast.error(parsed.error.issues[0].message);
       return;
     }
-    if (gbp > 100000) {
-      toast.error("Max £100,000 per top-up (demo)");
+    const gbp = Number(parsed.data);
+    const pence = Math.round(gbp * 100);
+
+    // Balance cap
+    if ((balancePence + pence) / 100 > BALANCE_CAP_GBP) {
+      toast.error(`Balance cap is £${BALANCE_CAP_GBP.toLocaleString()} (demo)`, {
+        description: `Current balance £${(balancePence / 100).toFixed(2)} — reduce the top-up amount.`,
+      });
       return;
     }
+
     setToppingUp(true);
     try {
-      const pence = Math.round(gbp * 100);
+      // Daily limit check (sum of confirmed top-ups in the last 24h)
+      const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: dayRows, error: dayErr } = await supabase
+        .from("transactions")
+        .select("gbp_pence")
+        .eq("user_id", user!.id)
+        .eq("type", "topup")
+        .eq("status", "confirmed")
+        .gte("created_at", since);
+      if (dayErr) throw dayErr;
+      const usedPence = (dayRows ?? []).reduce((sum, r: any) => sum + Number(r.gbp_pence ?? 0), 0);
+      if ((usedPence + pence) / 100 > DAILY_MAX_GBP) {
+        const remaining = Math.max(0, DAILY_MAX_GBP - usedPence / 100);
+        toast.error(`Daily top-up limit £${DAILY_MAX_GBP.toLocaleString()} reached`, {
+          description: `You can add up to £${remaining.toFixed(2)} more in the next 24h.`,
+        });
+        setToppingUp(false);
+        return;
+      }
+
       const newBalance = balancePence + pence;
       const { error: balErr } = await supabase
         .from("gbp_balances")
