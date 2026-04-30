@@ -170,6 +170,13 @@ const AppDashboard = () => {
         .eq("user_id", user!.id);
       if (balErr) throw balErr;
 
+      // Mirror into the multi-wallet GBP row so the wallet card updates too.
+      await supabase
+        .from("wallet_balances")
+        .update({ balance_minor: newBalance, updated_at: new Date().toISOString() })
+        .eq("user_id", user!.id)
+        .eq("currency", "GBP");
+
       const { error: txErr } = await supabase.from("transactions").insert({
         user_id: user!.id,
         type: "topup",
