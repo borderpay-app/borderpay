@@ -524,6 +524,60 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
               )}
             </div>
 
+            {quote && sourceWallet && (
+              <div className="rounded-lg border bg-muted/30 p-4 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">
+                    {quote.pegged ? "Peg breakdown" : "FX rate breakdown"}
+                  </span>
+                  <span className="text-xs uppercase tracking-wide text-muted-foreground">
+                    {quote.pegged ? "1:1 peg" : "simulated FX"}
+                  </span>
+                </div>
+
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">You debit</span>
+                  <span className="font-mono font-medium">
+                    {formatMoney(quote.debitMinor, sourceWallet)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Recipient receives</span>
+                  <span className="font-mono font-medium">
+                    {formatMoney(quote.payMinor, currency)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Effective rate</span>
+                  <span className="font-mono">
+                    1 {sourceWallet} ≈ {quote.rate.toFixed(4)} {currency}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Demo fee</span>
+                  <span className="font-mono">{formatMoney(0, sourceWallet)}</span>
+                </div>
+
+                {!quote.pegged && quote.steps.length > 0 && (
+                  <div className="pt-2 mt-1 border-t space-y-1">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">
+                      Conversion path
+                    </p>
+                    <ol className="space-y-0.5 text-xs font-mono text-muted-foreground">
+                      {quote.steps.map((s, i) => (
+                        <li key={i}>
+                          <span className="text-muted-foreground/70 mr-2">{i + 1}.</span>
+                          {s}
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+
+                <p className="text-xs text-muted-foreground pt-1">{quote.basis}</p>
+              </div>
+            )}
+
             <label className="flex items-start gap-2 rounded-md border bg-muted/40 p-3 text-sm cursor-pointer">
               <input
                 type="checkbox"
