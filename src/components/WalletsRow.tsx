@@ -42,7 +42,7 @@ const fmtAmount = (currency: Currency, minor: number): string => {
   return major.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 };
 
-export const WalletsRow = ({ userId, refreshKey }: { userId: string; refreshKey?: number }) => {
+export const WalletsRow = ({ userId, refreshKey, action }: { userId: string; refreshKey?: number; action?: React.ReactNode }) => {
   const [rows, setRows] = useState<Record<Currency, number>>({
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
@@ -68,7 +68,10 @@ export const WalletsRow = ({ userId, refreshKey }: { userId: string; refreshKey?
 
   return (
     <section aria-label="Wallets" className="mb-6">
-      <h2 className="text-sm font-medium text-muted-foreground mb-3 uppercase tracking-wider">Wallets</h2>
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Wallets</h2>
+        {action}
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {WALLETS.map((w) => (
           <Card
