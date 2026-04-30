@@ -39,6 +39,8 @@ export const WalletTransferDialog = ({ userId, onTransferred, trigger }: Props) 
   const [to, setTo] = useState<Currency>("BGBP");
   const [amount, setAmount] = useState("");
   const [busy, setBusy] = useState(false);
+  const [step, setStep] = useState<Step>("details");
+  const [approved, setApproved] = useState(false);
   const [balances, setBalances] = useState<Record<Currency, number>>({
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
@@ -70,9 +72,26 @@ export const WalletTransferDialog = ({ userId, onTransferred, trigger }: Props) 
     setAmount("");
     setFrom("GBP");
     setTo("BGBP");
+    setStep("details");
+    setApproved(false);
   };
 
   const swap = () => { setFrom(to); setTo(from); };
+
+  const goToReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (from === to) { toast.error("Choose two different wallets"); return; }
+    const parsed = amountSchema.safeParse(amount);
+    if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    if (fromMinor > balances[from]) {
+      toast.error("Insufficient balance", {
+        description: `${CURRENCY_LABELS[from]} balance is ${formatMinor(from, balances[from])}.`,
+      });
+      return;
+    }
+    setApproved(false);
+    setStep("review");
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
