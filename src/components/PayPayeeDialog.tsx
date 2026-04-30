@@ -558,12 +558,43 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                 </span>
               </div>
               {sourceWallet && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Funded from</span>
-                  <span className={insufficient ? "text-destructive font-medium" : "font-medium"}>
-                    {sourceWallet} wallet · {formatMoney(sourceBalance ?? 0, sourceWallet)}
-                    {insufficient && " (insufficient)"}
-                  </span>
+                <div className="pt-2 mt-1 border-t space-y-1.5">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Funded from</span>
+                    <span className="font-medium">
+                      {sourceWallet} wallet
+                      {SIMULATED_MAPPING[currency] && (
+                        <span className="ml-1.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                          simulated
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Current balance</span>
+                    <span className="font-mono">
+                      {formatMoney(sourceBalance ?? 0, sourceWallet)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-muted-foreground">Debit</span>
+                    <span className="font-mono">
+                      − {formatMoney(debitMinor, sourceWallet)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs pt-1.5 border-t">
+                    <span className="text-muted-foreground">Estimated balance after</span>
+                    <span
+                      className={
+                        insufficient
+                          ? "font-mono font-medium text-destructive"
+                          : "font-mono font-medium"
+                      }
+                    >
+                      {formatMoney((sourceBalance ?? 0) - debitMinor, sourceWallet)}
+                      {insufficient && " (insufficient)"}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
