@@ -169,9 +169,47 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       toast.error("Please approve the payment to continue");
       return;
     }
+    if (noWalletForCurrency || !sourceWallet) {
+      toast.error(`No ${currency} wallet on file`);
+      return;
+    }
     setBusy(true);
     try {
-      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)}`;
+      // Re-check live balance to guard against stale UI state.
+      const { data: freshRows, error: freshErr } = await supabase
+        .from("wallet_balances")
+        .select("balance_minor")
+        .eq("user_id", user.id)
+        .eq("currency", sourceWallet)
+        .maybeSingle();
+      if (freshErr) throw freshErr;
+      const liveBalance = Number(freshRows?.balance_minor ?? 0);
+      if (amountCents > liveBalance) {
+        toast.error("Insufficient balance", {
+          description: `Your ${sourceWallet} wallet holds ${formatMoney(liveBalance, sourceWallet)}.`,
+        });
+        setBalances((b) => ({ ...b, [sourceWallet]: liveBalance }));
+        setStep("details");
+        return;
+      }
+
+      const newBalance = liveBalance - amountCents;
+      const { error: balErr } = await supabase
+        .from("wallet_balances")
+        .update({ balance_minor: newBalance, updated_at: new Date().toISOString() })
+        .eq("user_id", user.id)
+        .eq("currency", sourceWallet);
+      if (balErr) throw balErr;
+
+      // Mirror GBP into legacy gbp_balances for backward compatibility.
+      if (sourceWallet === "GBP") {
+        await supabase
+          .from("gbp_balances")
+          .update({ balance_pence: newBalance, updated_at: new Date().toISOString() })
+          .eq("user_id", user.id);
+      }
+
+      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)} (from ${sourceWallet})`;
       const { error: txErr } = await supabase.from("transactions").insert({
         user_id: user.id,
         type: "send" as const,
@@ -185,11 +223,12 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       });
       if (txErr) throw txErr;
 
+      setBalances((b) => ({ ...b, [sourceWallet]: newBalance }));
       toast.success(`Paid ${formatMoney(amountCents, currency)} to ${payee.name}`, {
         description:
           rail === "stable"
-            ? `Settled in ${currency} (simulated)`
-            : `${currency} payout (simulated)`,
+            ? `Settled in ${currency} (simulated) · ${sourceWallet} balance: ${formatMoney(newBalance, sourceWallet)}`
+            : `${currency} payout (simulated) · ${sourceWallet} balance: ${formatMoney(newBalance, sourceWallet)}`,
       });
       reset();
       onOpenChange(false);
