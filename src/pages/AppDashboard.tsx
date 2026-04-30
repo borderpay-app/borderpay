@@ -70,8 +70,16 @@ const AppDashboard = () => {
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (typeof window !== "undefined" && !(window as any).solana) {
+      toast.error("Phantom wallet not detected", {
+        description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
+      });
+      return;
+    }
     if (!publicKey || !connected) {
-      toast.error("Connect your Phantom wallet first");
+      toast.error("Wallet not connected", {
+        description: "Click ‘Select Wallet’ in the header to connect Phantom (Devnet).",
+      });
       return;
     }
     const amt = parseFloat(eurAmount);
