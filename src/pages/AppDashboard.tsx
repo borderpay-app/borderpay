@@ -268,29 +268,43 @@ const AppDashboard = () => {
           )}
 
           {preflight.status === "error" && (
-            <Alert variant="destructive" className="md:col-span-1">
-              <AlertTitle>Solana wallet features unavailable</AlertTitle>
-              <AlertDescription className="space-y-2">
-                <p>
-                  These required packages failed to load:
-                </p>
-                <ul className="list-disc pl-5 text-xs font-mono">
-                  {preflight.missing.map((m) => <li key={m}>{m}</li>)}
-                </ul>
-                <p className="text-sm">
-                  Next steps:
-                </p>
-                <ol className="list-decimal pl-5 text-sm space-y-1">
-                  <li>Install the missing packages (e.g. <code className="font-mono">bun add {preflight.missing.join(" ")}</code>).</li>
-                  <li>Hard-refresh this page (Cmd/Ctrl + Shift + R).</li>
-                  <li>If the issue persists, check the browser console and contact support.</li>
-                </ol>
-                <details className="text-xs mt-2">
-                  <summary className="cursor-pointer">Technical details</summary>
-                  <pre className="whitespace-pre-wrap mt-1 opacity-80">{preflight.raw}</pre>
-                </details>
-              </AlertDescription>
-            </Alert>
+            <Card className="p-6 border-destructive/40">
+              <Alert variant="destructive" className="border-0 p-0 bg-transparent">
+                <AlertTitle>Solana wallet features unavailable</AlertTitle>
+                <AlertDescription className="space-y-3">
+                  <p className="text-sm">
+                    We couldn't load the Solana libraries needed to send EURC on devnet.
+                    You can still register your interest and we'll email you when wallet
+                    features are back online.
+                  </p>
+
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <Button asChild variant="default" size="sm">
+                      <Link to="/#interest">Express interest instead</Link>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => window.location.reload()}
+                    >
+                      Hard refresh
+                    </Button>
+                  </div>
+
+                  <details className="text-xs pt-2">
+                    <summary className="cursor-pointer">Technical details</summary>
+                    <p className="mt-2">Failed packages:</p>
+                    <ul className="list-disc pl-5 font-mono">
+                      {preflight.missing.map((m) => <li key={m}>{m}</li>)}
+                    </ul>
+                    <p className="mt-2">
+                      For developers: <code className="font-mono">bun add {preflight.missing.join(" ")}</code> then hard-refresh.
+                    </p>
+                    <pre className="whitespace-pre-wrap mt-2 opacity-80">{preflight.raw}</pre>
+                  </details>
+                </AlertDescription>
+              </Alert>
+            </Card>
           )}
 
           {preflight.status === "ok" && (
