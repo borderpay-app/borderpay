@@ -60,12 +60,19 @@ type WalletCurrency = "GBP" | "EUR" | "BGBP" | "BEUR" | "BDRP";
 
 // Map payment currency → which wallet funds it.
 // Stablecoins draw from their pegged wallet (EURC↔BEUR, USDC↔BDRP basket).
-// USD has no fiat wallet, so it's intentionally unmapped.
-const SOURCE_WALLET: Partial<Record<PayCurrency, WalletCurrency>> = {
+// USD has no native fiat wallet — simulated mapping to BDRP (closest USD-bearing
+// basket wallet) so demo USD payouts can be funded and validated.
+const SOURCE_WALLET: Record<PayCurrency, WalletCurrency> = {
   GBP: "GBP",
   EUR: "EUR",
+  USD: "BDRP",
   EURC: "BEUR",
   USDC: "BDRP",
+};
+
+// Currencies whose source wallet is a simulated/closest-match (not a native wallet).
+const SIMULATED_MAPPING: Partial<Record<PayCurrency, string>> = {
+  USD: "Simulated — funded from BDRP basket wallet at demo FX.",
 };
 
 // Demo FX (mid-market-ish). Mirrors src/lib/walletFx.ts.
