@@ -131,7 +131,7 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
               groupedFields={groupedFields}
               initial={{}}
               onSubmit={async (values) => {
-                const { error } = await supabase.from(table).insert(values);
+                const { error } = await (supabase.from(table) as any).insert(values);
                 if (error) {
                   toast.error(error.message);
                   return false;
