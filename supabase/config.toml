@@ -13,3 +13,7 @@ project_id = "pqjebmtxfmjvdrlvzkla"
     verify_jwt = true
   [functions.send-transactional-email]
     verify_jwt = true
+  [functions.request-mfa-recovery]
+    verify_jwt = false
+  [functions.consume-mfa-recovery]
+    verify_jwt = false
