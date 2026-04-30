@@ -8,6 +8,9 @@ import { Card } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Helmet } from "react-helmet-async";
 import logo from "@/assets/logo.png";
+import { MfaEnroll } from "@/components/MfaEnroll";
+import { MfaChallenge } from "@/components/MfaChallenge";
+import { ShieldCheck, ShieldAlert } from "lucide-react";
 
 interface UserRow {
   user_id: string;
