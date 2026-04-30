@@ -20,7 +20,7 @@ interface UserRow {
 }
 
 const Admin = () => {
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { user, isAdmin, loading, signOut, currentAal, mfaEnrolled, refreshMfa } = useAuth();
   const navigate = useNavigate();
   const [rows, setRows] = useState<UserRow[]>([]);
   const [topups, setTopups] = useState<Record<string, string>>({});
