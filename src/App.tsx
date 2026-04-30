@@ -20,6 +20,7 @@ import Suppliers from "./pages/Suppliers.tsx";
 import Taxes from "./pages/Taxes.tsx";
 import Payroll from "./pages/Payroll.tsx";
 import Admin from "./pages/Admin.tsx";
+import MfaRecovery from "./pages/MfaRecovery.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SolanaProvider } from "@/components/SolanaProvider";
 
@@ -44,6 +45,7 @@ const App = () => (
                 <Route path="/blog" element={<Blog />} />
                 <Route path="/blog/:slug" element={<BlogPost />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/auth/mfa-recovery" element={<MfaRecovery />} />
                 <Route path="/app" element={<AppLayout />}>
                   <Route index element={<AppDashboard />} />
                   <Route path="suppliers" element={<Suppliers />} />
