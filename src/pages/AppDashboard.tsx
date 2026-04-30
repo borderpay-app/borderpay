@@ -227,7 +227,16 @@ const AppDashboard = () => {
       </Helmet>
       <div className="max-w-5xl mx-auto">
         <h1 className="text-2xl font-semibold mb-6">Overview</h1>
-        <WalletsRow userId={user.id} refreshKey={balancePence} />
+        <WalletsRow
+          userId={user.id}
+          refreshKey={balancePence + walletsRefresh}
+          action={
+            <StablecoinMintDialog
+              userId={user.id}
+              onMinted={() => setWalletsRefresh((n) => n + 1)}
+            />
+          }
+        />
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="p-6">
             <p className="text-sm text-muted-foreground">GBP Balance</p>
