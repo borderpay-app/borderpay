@@ -21,7 +21,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ShieldCheck, ArrowLeft, Send } from "lucide-react";
+import { ShieldCheck, ArrowLeft, Send, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   STABLE_COINS,
   FIAT_CURRENCIES,
