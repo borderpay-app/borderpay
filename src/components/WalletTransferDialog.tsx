@@ -9,10 +9,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ArrowLeftRight } from "lucide-react";
+import { ArrowLeftRight, ArrowLeft, ShieldCheck } from "lucide-react";
 import { type Currency, CURRENCY_LABELS, formatMinor, quoteTransfer } from "@/lib/walletFx";
+
+type Step = "details" | "review";
 
 const CURRENCIES: Currency[] = ["GBP", "EUR", "BGBP", "BEUR", "BDRP"];
 
