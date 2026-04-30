@@ -454,20 +454,14 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                 required
               />
               <div className="flex items-center justify-between mt-1.5 text-xs">
-                {noWalletForCurrency ? (
-                  <span className="text-destructive">
-                    No wallet supports {currency}. Pick another currency.
-                  </span>
-                ) : (
-                  <span className={insufficient ? "text-destructive" : "text-muted-foreground"}>
-                    {sourceWallet} wallet balance:{" "}
-                    {balancesLoading
-                      ? "loading…"
-                      : formatMoney(sourceBalance ?? 0, sourceWallet!)}
-                    {insufficient && " · insufficient"}
-                  </span>
-                )}
-                {!noWalletForCurrency && !balancesLoading && (sourceBalance ?? 0) > 0 && (
+                <span className={insufficient ? "text-destructive" : "text-muted-foreground"}>
+                  {sourceWallet} wallet balance:{" "}
+                  {balancesLoading
+                    ? "loading…"
+                    : formatMoney(sourceBalance ?? 0, sourceWallet!)}
+                  {insufficient && " · insufficient"}
+                </span>
+                {!balancesLoading && (sourceBalance ?? 0) > 0 && (
                   <button
                     type="button"
                     onClick={() => setAmount(((sourceBalance ?? 0) / 100).toFixed(2))}
@@ -477,6 +471,11 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                   </button>
                 )}
               </div>
+              {SIMULATED_MAPPING[currency] && (
+                <p className="text-xs text-muted-foreground mt-1 italic">
+                  {SIMULATED_MAPPING[currency]}
+                </p>
+              )}
             </div>
 
             <DialogFooter>
