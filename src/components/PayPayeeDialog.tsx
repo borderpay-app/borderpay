@@ -391,6 +391,15 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                   {formatMoney(amountCents, currency)}
                 </span>
               </div>
+              {sourceWallet && (
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Funded from</span>
+                  <span className={insufficient ? "text-destructive font-medium" : "font-medium"}>
+                    {sourceWallet} wallet · {formatMoney(sourceBalance ?? 0, sourceWallet)}
+                    {insufficient && " (insufficient)"}
+                  </span>
+                </div>
+              )}
             </div>
 
             <label className="flex items-start gap-2 rounded-md border bg-muted/40 p-3 text-sm cursor-pointer">
