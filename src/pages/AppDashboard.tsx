@@ -320,6 +320,57 @@ const AppDashboard = () => {
             </Suspense>
           )}
 
+          {(() => {
+            const topups = txs.filter((t) => t.type === "topup");
+            const totalPence = topups
+              .filter((t) => t.status === "confirmed")
+              .reduce((s, t) => s + Number(t.gbp_pence ?? 0), 0);
+            return (
+              <Card className="p-6 md:col-span-2">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-semibold">Top-up history</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {topups.length} {topups.length === 1 ? "top-up" : "top-ups"} · Total £{(totalPence / 100).toFixed(2)}
+                  </p>
+                </div>
+                {topups.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No top-ups yet. Use “Add funds” above to get started.</p>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-sm">
+                      <thead className="text-xs uppercase text-muted-foreground">
+                        <tr className="border-b">
+                          <th className="text-left font-medium py-2">When</th>
+                          <th className="text-left font-medium py-2">Status</th>
+                          <th className="text-right font-medium py-2">Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y">
+                        {topups.map((t) => (
+                          <tr key={t.id}>
+                            <td className="py-2 text-muted-foreground">
+                              {new Date(t.created_at).toLocaleString()}
+                            </td>
+                            <td className="py-2">
+                              <span className={`text-xs px-2 py-0.5 rounded ${
+                                t.status === "confirmed" ? "bg-primary/10 text-primary" :
+                                t.status === "failed" ? "bg-destructive/10 text-destructive" :
+                                "bg-muted text-muted-foreground"
+                              }`}>{t.status}</span>
+                            </td>
+                            <td className="py-2 text-right font-medium">
+                              +£{((t.gbp_pence ?? 0) / 100).toFixed(2)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </Card>
+            );
+          })()}
+
           <Card className="p-6 md:col-span-2">
             <h2 className="font-semibold mb-4">Recent activity</h2>
             {txs.length === 0 ? (
