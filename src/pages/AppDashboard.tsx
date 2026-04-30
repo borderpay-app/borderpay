@@ -3,9 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Helmet } from "react-helmet-async";
+import { toast } from "sonner";
 import { explorerTx, shortAddr } from "@/lib/solana";
 import logo from "@/assets/logo.png";
 
