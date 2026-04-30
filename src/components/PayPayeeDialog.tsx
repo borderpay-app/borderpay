@@ -68,6 +68,118 @@ const SOURCE_WALLET: Partial<Record<PayCurrency, WalletCurrency>> = {
   USDC: "BDRP",
 };
 
+// Demo FX (mid-market-ish). Mirrors src/lib/walletFx.ts.
+const GBP_PER_EUR = 0.86;
+const USD_PER_EUR = 1.08;
+const USD_PER_GBP = USD_PER_EUR / GBP_PER_EUR;
+
+interface PaymentQuote {
+  pegged: boolean;        // true when source wallet is the same currency family as the payment currency
+  rate: number;           // units of payCurrency per 1 unit of sourceWallet
+  debitMinor: number;     // amount drawn from source wallet (minor units of sourceWallet)
+  payMinor: number;       // amount paid to recipient (minor units of payCurrency)
+  basis: string;          // human-readable rate basis
+  steps: string[];        // ordered breakdown steps
+}
+
+// Quote payment in `payCurrency` of `payMinor` minor units, funded from `sourceWallet`.
+const quotePayment = (
+  sourceWallet: WalletCurrency,
+  payCurrency: PayCurrency,
+  payMinor: number,
+): PaymentQuote => {
+  const same =
+    (sourceWallet === "GBP" && payCurrency === "GBP") ||
+    (sourceWallet === "EUR" && payCurrency === "EUR") ||
+    (sourceWallet === "BEUR" && payCurrency === "EURC");
+
+  if (same) {
+    const note =
+      sourceWallet === "BEUR"
+        ? "Pegged 1:1 — BEUR redeems to EURC at par."
+        : "Same currency — no conversion.";
+    return {
+      pegged: true,
+      rate: 1,
+      debitMinor: payMinor,
+      payMinor,
+      basis: note,
+      steps: [`1 ${sourceWallet} = 1 ${payCurrency}`],
+    };
+  }
+
+  // Cross-currency: convert via EUR as an intermediary so the math is consistent.
+  // Step 1 — express source wallet in EUR.
+  let eurMinor: number;
+  let step1: string;
+  switch (sourceWallet) {
+    case "GBP":
+      eurMinor = Math.round(payMinor / GBP_PER_EUR); // placeholder; replaced after we compute debit
+      step1 = `1 GBP = ${(1 / GBP_PER_EUR).toFixed(4)} EUR`;
+      break;
+    case "EUR":
+    case "BEUR":
+      step1 = `1 ${sourceWallet} = 1.0000 EUR`;
+      eurMinor = 0;
+      break;
+    case "BGBP":
+      step1 = `1 BGBP = ${(1 / GBP_PER_EUR).toFixed(4)} EUR`;
+      eurMinor = 0;
+      break;
+    case "BDRP":
+      // 1 BDRP basket = €0.50 + £0.43 ≈ €(0.50 + 0.43/0.86) = €1.00
+      step1 = `1 BDRP = €0.50 + £0.43 ≈ ${(0.5 + 0.43 / GBP_PER_EUR).toFixed(4)} EUR`;
+      eurMinor = 0;
+      break;
+  }
+
+  // Step 2 — express payCurrency in EUR.
+  // We want: payMinor (payCurrency) ⇒ debitMinor (sourceWallet).
+  // Compute eurPerSource and eurPerPay, then debit = pay * (eurPerPay / eurPerSource).
+  const eurPerSource: Record<WalletCurrency, number> = {
+    GBP: 1 / GBP_PER_EUR,
+    BGBP: 1 / GBP_PER_EUR,
+    EUR: 1,
+    BEUR: 1,
+    BDRP: 0.5 + 0.43 / GBP_PER_EUR,
+  };
+  const eurPerPay: Record<PayCurrency, number> = {
+    GBP: 1 / GBP_PER_EUR,
+    EUR: 1,
+    USD: 1 / USD_PER_EUR,
+    EURC: 1,
+    USDC: 1 / USD_PER_EUR,
+  };
+
+  const ratio = eurPerPay[payCurrency] / eurPerSource[sourceWallet];
+  const debitMinor = Math.round(payMinor * ratio);
+  const rate = ratio === 0 ? 0 : 1 / ratio; // payCurrency per 1 sourceWallet
+
+  // Build a friendly step list.
+  const step2 = `1 ${payCurrency} ≈ ${eurPerPay[payCurrency].toFixed(4)} EUR`;
+  const finalStep = `1 ${sourceWallet} ≈ ${rate.toFixed(4)} ${payCurrency}`;
+
+  let basis = `Demo FX · ${rate.toFixed(4)} ${payCurrency} per 1 ${sourceWallet}`;
+  if (payCurrency === "USD" || payCurrency === "USDC") {
+    basis += ` · USD/EUR ${USD_PER_EUR.toFixed(2)}`;
+  }
+  if (sourceWallet === "BDRP") {
+    basis += " · BDRP basket €0.50 + £0.43";
+  }
+
+  // Avoid unused var lint
+  void eurMinor;
+
+  return {
+    pegged: false,
+    rate,
+    debitMinor,
+    payMinor,
+    basis,
+    steps: [step1, step2, finalStep],
+  };
+};
+
 const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
   const { user } = useAuth();
   const [rail, setRail] = useState<PaymentRail>("stable");
@@ -107,10 +219,17 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
     return Math.round(n * 100);
   }, [amount]);
 
+  const quote = useMemo<PaymentQuote | null>(() => {
+    if (!sourceWallet || amountCents <= 0) return null;
+    return quotePayment(sourceWallet, currency, amountCents);
+  }, [sourceWallet, currency, amountCents]);
+
+  const debitMinor = quote?.debitMinor ?? amountCents;
+
   const insufficient =
     sourceWallet !== undefined &&
     amountCents > 0 &&
-    amountCents > (sourceBalance ?? 0);
+    debitMinor > (sourceBalance ?? 0);
 
   const noWalletForCurrency = sourceWallet === undefined;
 
