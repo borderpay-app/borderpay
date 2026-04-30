@@ -21,7 +21,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ShieldCheck, ArrowLeft, Send } from "lucide-react";
+import { ShieldCheck, ArrowLeft, Send, Info } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   STABLE_COINS,
   FIAT_CURRENCIES,
@@ -422,9 +428,34 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
             </div>
 
             <div>
-              <Label htmlFor="pay-currency">
-                {rail === "stable" ? "Stablecoin" : "Currency"}
-              </Label>
+              <div className="flex items-center gap-1.5">
+                <Label htmlFor="pay-currency">
+                  {rail === "stable" ? "Stablecoin" : "Currency"}
+                </Label>
+                {SIMULATED_MAPPING[currency] && (
+                  <TooltipProvider delayDuration={150}>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          aria-label="Why this currency uses a simulated wallet mapping"
+                          className="inline-flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        >
+                          <Info className="h-3.5 w-3.5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" className="max-w-xs text-xs">
+                        <p className="font-medium mb-1">Simulated wallet mapping</p>
+                        <p className="text-muted-foreground">
+                          {SIMULATED_MAPPING[currency]} You don't hold a native {currency} wallet,
+                          so the demo funds this payment from your {SOURCE_WALLET[currency]} wallet
+                          using a simulated FX rate.
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
               <Select value={currency} onValueChange={(v) => setCurrency(v as PayCurrency)}>
                 <SelectTrigger id="pay-currency" className="mt-1">
                   <SelectValue />
@@ -432,7 +463,14 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                 <SelectContent>
                   {(rail === "stable" ? STABLE_COINS : FIAT_CURRENCIES).map((c) => (
                     <SelectItem key={c} value={c}>
-                      {c}
+                      <span className="flex items-center gap-1.5">
+                        {c}
+                        {SIMULATED_MAPPING[c] && (
+                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                            simulated
+                          </span>
+                        )}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
