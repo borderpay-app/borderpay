@@ -122,6 +122,9 @@ const Admin = () => {
               <span className="font-semibold">Border Pay · Admin</span>
             </Link>
             <div className="flex items-center gap-3">
+              <span className="hidden sm:inline-flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded border border-emerald-200">
+                <ShieldCheck className="w-3 h-3" /> MFA verified
+              </span>
               <Link to="/app" className="text-sm text-muted-foreground hover:text-foreground">My account</Link>
               <Button variant="ghost" size="sm" onClick={signOut}>Sign out</Button>
             </div>
