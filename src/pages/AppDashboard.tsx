@@ -321,6 +321,54 @@ const AppDashboard = () => {
           )}
 
           {(() => {
+            const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+            const recent = txs
+              .filter((t) => t.type === "topup" && new Date(t.created_at).getTime() >= cutoff);
+            const recentTotalPence = recent
+              .filter((t) => t.status === "confirmed")
+              .reduce((s, t) => s + Number(t.gbp_pence ?? 0), 0);
+            const fmtRelative = (iso: string) => {
+              const diffMs = Date.now() - new Date(iso).getTime();
+              const m = Math.floor(diffMs / 60000);
+              if (m < 1) return "just now";
+              if (m < 60) return `${m}m ago`;
+              const h = Math.floor(m / 60);
+              return `${h}h ${m % 60}m ago`;
+            };
+            return (
+              <Card className="p-6 md:col-span-2">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-semibold">Top-ups · last 24 hours</h2>
+                  <p className="text-sm text-muted-foreground">
+                    {recent.length} {recent.length === 1 ? "top-up" : "top-ups"} · £{(recentTotalPence / 100).toFixed(2)} confirmed
+                  </p>
+                </div>
+                {recent.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">No top-ups in the last 24 hours.</p>
+                ) : (
+                  <ul className="divide-y">
+                    {recent.map((t) => (
+                      <li key={t.id} className="py-3 flex items-center justify-between text-sm">
+                        <div>
+                          <p className="font-medium">+£{((t.gbp_pence ?? 0) / 100).toFixed(2)}</p>
+                          <p className="text-muted-foreground text-xs mt-0.5">
+                            {new Date(t.created_at).toLocaleString()} · {fmtRelative(t.created_at)}
+                          </p>
+                        </div>
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          t.status === "confirmed" ? "bg-primary/10 text-primary" :
+                          t.status === "failed" ? "bg-destructive/10 text-destructive" :
+                          "bg-muted text-muted-foreground"
+                        }`}>{t.status}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card>
+            );
+          })()}
+
+          {(() => {
             const topups = txs.filter((t) => t.type === "topup");
             const totalPence = topups
               .filter((t) => t.status === "confirmed")
