@@ -101,6 +101,57 @@ export type Database = {
         }
         Relationships: []
       }
+      employees: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          address: string | null
+          bank_name: string | null
+          created_at: string
+          iban: string | null
+          id: string
+          name: string
+          notes: string | null
+          sort_code: string | null
+          swift: string | null
+          tax_reference: string | null
+          updated_at: string
+          wallet_address: string | null
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          address?: string | null
+          bank_name?: string | null
+          created_at?: string
+          iban?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          sort_code?: string | null
+          swift?: string | null
+          tax_reference?: string | null
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          address?: string | null
+          bank_name?: string | null
+          created_at?: string
+          iban?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          sort_code?: string | null
+          swift?: string | null
+          tax_reference?: string | null
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
       gbp_balances: {
         Row: {
           balance_pence: number
@@ -176,6 +227,54 @@ export type Database = {
         }
         Relationships: []
       }
+      suppliers: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          address: string | null
+          bank_name: string | null
+          created_at: string
+          iban: string | null
+          id: string
+          name: string
+          notes: string | null
+          sort_code: string | null
+          swift: string | null
+          updated_at: string
+          wallet_address: string | null
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          address?: string | null
+          bank_name?: string | null
+          created_at?: string
+          iban?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          sort_code?: string | null
+          swift?: string | null
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          address?: string | null
+          bank_name?: string | null
+          created_at?: string
+          iban?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          sort_code?: string | null
+          swift?: string | null
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -197,6 +296,57 @@ export type Database = {
           id?: string
           metadata?: Json | null
           reason?: string
+        }
+        Relationships: []
+      }
+      tax_offices: {
+        Row: {
+          account_name: string | null
+          account_number: string | null
+          authority_name: string
+          bank_name: string | null
+          company_tax_reference: string | null
+          country: string | null
+          created_at: string
+          iban: string | null
+          id: string
+          notes: string | null
+          sort_code: string | null
+          swift: string | null
+          updated_at: string
+          wallet_address: string | null
+        }
+        Insert: {
+          account_name?: string | null
+          account_number?: string | null
+          authority_name: string
+          bank_name?: string | null
+          company_tax_reference?: string | null
+          country?: string | null
+          created_at?: string
+          iban?: string | null
+          id?: string
+          notes?: string | null
+          sort_code?: string | null
+          swift?: string | null
+          updated_at?: string
+          wallet_address?: string | null
+        }
+        Update: {
+          account_name?: string | null
+          account_number?: string | null
+          authority_name?: string
+          bank_name?: string | null
+          company_tax_reference?: string | null
+          country?: string | null
+          created_at?: string
+          iban?: string | null
+          id?: string
+          notes?: string | null
+          sort_code?: string | null
+          swift?: string | null
+          updated_at?: string
+          wallet_address?: string | null
         }
         Relationships: []
       }
