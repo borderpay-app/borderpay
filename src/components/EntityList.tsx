@@ -270,6 +270,24 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
           ))}
         </div>
       )}
+
+      <PayPayeeDialog
+        open={!!paying}
+        onOpenChange={(o) => { if (!o) setPaying(null); }}
+        payee={
+          paying
+            ? {
+                id: paying.id,
+                name: paying[primaryField],
+                wallet_address: paying.wallet_address,
+                bank_name: paying.bank_name,
+                account_number: paying.account_number,
+                iban: paying.iban,
+              }
+            : null
+        }
+        onPaid={() => setPaying(null)}
+      />
     </div>
   );
 };
