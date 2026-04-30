@@ -76,6 +76,12 @@ export const MfaChallenge = ({ onVerified }: Props) => {
           Sign out
         </Button>
       </div>
+      <a
+        href="/auth/mfa-recovery"
+        className="block text-center text-xs text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
+      >
+        Lost your authenticator? Email me a recovery link
+      </a>
     </Card>
   );
 };
