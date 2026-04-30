@@ -96,15 +96,13 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
   };
 
   const payNow = (row: any) => {
-    if (!row.wallet_address) {
-      toast.error("No wallet address on file for this record");
+    if (!row.wallet_address && !row.account_number && !row.iban) {
+      toast.error("No payment details on file", {
+        description: "Add a wallet address or bank details before paying this payee.",
+      });
       return;
     }
-    sessionStorage.setItem(
-      "borderpay:prefill",
-      JSON.stringify({ address: row.wallet_address, label: row[primaryField] }),
-    );
-    navigate("/app");
+    setPaying(row);
   };
 
   const groupedFields = fields.reduce<Record<string, FieldDef[]>>((acc, f) => {
