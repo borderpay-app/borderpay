@@ -732,6 +732,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
               </div>
             )}
 
+            <label className="flex items-start gap-2 rounded-md border bg-muted/40 p-3 text-sm cursor-pointer">
               <input
                 type="checkbox"
                 className="mt-1 accent-primary"
