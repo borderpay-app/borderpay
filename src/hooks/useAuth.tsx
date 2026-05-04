@@ -2,20 +2,20 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 
+export type AppRole = "admin" | "creator" | "approver" | "user";
+
 interface AuthCtx {
   session: Session | null;
   user: User | null;
   isAdmin: boolean;
+  roles: AppRole[];
   loading: boolean;
-  /** Current Authentication Assurance Level: aal1 = password only, aal2 = MFA verified */
   currentAal: "aal1" | "aal2" | null;
-  /** AAL level required by the user's enrolled factors (aal2 if any verified TOTP factor exists) */
   nextAal: "aal1" | "aal2" | null;
-  /** Whether MFA is required for this user (admins must enroll MFA) */
   mfaRequired: boolean;
-  /** Whether the user has at least one verified MFA factor */
   mfaEnrolled: boolean;
   refreshMfa: () => Promise<void>;
+  refreshRoles: () => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -23,31 +23,38 @@ const AuthContext = createContext<AuthCtx>({
   session: null,
   user: null,
   isAdmin: false,
+  roles: [],
   loading: true,
   currentAal: null,
   nextAal: null,
   mfaRequired: false,
   mfaEnrolled: false,
   refreshMfa: async () => {},
+  refreshRoles: async () => {},
   signOut: async () => {},
 });
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [roles, setRoles] = useState<AppRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentAal, setCurrentAal] = useState<"aal1" | "aal2" | null>(null);
   const [nextAal, setNextAal] = useState<"aal1" | "aal2" | null>(null);
   const [mfaEnrolled, setMfaEnrolled] = useState(false);
 
-  const checkAdmin = async (userId: string) => {
+  const isAdmin = roles.includes("admin");
+
+  const fetchRoles = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    setIsAdmin(!!data);
+      .eq("user_id", userId);
+    setRoles((data ?? []).map((r) => r.role as AppRole));
+  };
+
+  const refreshRoles = async () => {
+    const uid = session?.user?.id;
+    if (uid) await fetchRoles(uid);
   };
 
   const refreshMfa = async () => {
@@ -70,11 +77,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(sess);
       if (sess?.user) {
         setTimeout(() => {
-          checkAdmin(sess.user.id);
+          fetchRoles(sess.user.id);
           refreshMfa();
         }, 0);
       } else {
-        setIsAdmin(false);
+        setRoles([]);
         setCurrentAal(null);
         setNextAal(null);
         setMfaEnrolled(false);
@@ -84,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       if (data.session?.user) {
-        checkAdmin(data.session.user.id);
+        fetchRoles(data.session.user.id);
         refreshMfa();
       }
       setLoading(false);
@@ -103,12 +110,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         session,
         user: session?.user ?? null,
         isAdmin,
+        roles,
         loading,
         currentAal,
         nextAal,
         mfaRequired: isAdmin,
         mfaEnrolled,
         refreshMfa,
+        refreshRoles,
         signOut,
       }}
     >
