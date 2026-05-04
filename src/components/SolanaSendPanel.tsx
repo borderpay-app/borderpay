@@ -154,7 +154,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       });
       return;
     }
-    const amt = parseFloat(amount);
+    const sendAmt = parseFloat(amount);
     if (!amt || amt <= 0) {
       toast.error(`Enter a valid ${sendCurrency} amount`);
       return;
