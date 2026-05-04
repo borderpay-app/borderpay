@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { explorerTx, shortAddr } from "@/lib/solana";
 import logo from "@/assets/logo.png";
-import { WalletsRow } from "@/components/WalletsRow";
+import { WalletsRow, ALL_WALLETS, fmtAmount, type Currency } from "@/components/WalletsRow";
 import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
 import { WalletTransferDialog } from "@/components/WalletTransferDialog";
 
