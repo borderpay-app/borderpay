@@ -21,7 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ShieldCheck, ArrowLeft, Send, Info } from "lucide-react";
+import { ShieldCheck, ArrowLeft, Send, Info, Zap } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -35,6 +35,14 @@ import {
   type PayCurrency,
   type PaymentRail,
 } from "@/lib/invoices";
+import {
+  bridgeGetQuote,
+  bridgeCreateTransfer,
+  bridgeCurrencyFromPayCurrency,
+  payRailToBridgeRail,
+  type BridgeQuote,
+  type BridgeTransfer,
+} from "@/lib/bridge";
 
 interface Payee {
   id: string;
