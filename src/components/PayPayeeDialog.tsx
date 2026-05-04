@@ -684,7 +684,54 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
               </div>
             )}
 
-            <label className="flex items-start gap-2 rounded-md border bg-muted/40 p-3 text-sm cursor-pointer">
+            {/* Bridge Infrastructure Panel */}
+            {bridgeQuote && (
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-primary" />
+                    <span className="font-medium">Bridge Orchestration</span>
+                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                    Powered by Bridge
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Route</span>
+                  <span className="font-mono">
+                    {bridgeQuote.source_currency.toUpperCase()} → {bridgeQuote.destination_currency.toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Bridge exchange rate</span>
+                  <span className="font-mono">{bridgeQuote.exchange_rate}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Bridge fee (0.1%)</span>
+                  <span className="font-mono">${bridgeQuote.developer_fee}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Estimated received</span>
+                  <span className="font-mono font-medium">
+                    {bridgeQuote.estimated_amount} {bridgeQuote.destination_currency.toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Settlement</span>
+                  <span className="font-mono">
+                    {rail === "stable" ? "On-chain (Solana)" : "Bank transfer"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground pt-1 border-t mt-1">
+                  Stablecoin orchestration, FX conversion, and settlement handled by{" "}
+                  <a href="https://www.bridge.xyz" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                    Bridge (by Stripe)
+                  </a>
+                  . Demo mode — no real funds move.
+                </p>
+              </div>
+            )}
+
               <input
                 type="checkbox"
                 className="mt-1 accent-primary"
