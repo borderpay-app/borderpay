@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Truck, Receipt, Users, UsersRound, ShieldAlert, FileText, History, Settings } from "lucide-react";
+import { LayoutDashboard, Truck, Receipt, Users, UsersRound, ShieldAlert, History, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
