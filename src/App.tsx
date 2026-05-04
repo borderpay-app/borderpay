@@ -22,7 +22,7 @@ import Payroll from "./pages/Payroll.tsx";
 import Team from "./pages/Team.tsx";
 import Monitoring from "./pages/Monitoring.tsx";
 import Admin from "./pages/Admin.tsx";
-import WebsiteContent from "./pages/WebsiteContent.tsx";
+
 import MfaRecovery from "./pages/MfaRecovery.tsx";
 import TransactionHistory from "./pages/TransactionHistory.tsx";
 import Settings from "./pages/Settings.tsx";
@@ -59,7 +59,7 @@ const App = () => (
                   <Route path="payroll" element={<Payroll />} />
                   <Route path="team" element={<Team />} />
                   <Route path="monitoring" element={<Monitoring />} />
-                  <Route path="website" element={<WebsiteContent />} />
+                  
                   <Route path="settings" element={<Settings />} />
                 </Route>
                 <Route path="/admin" element={<Admin />} />
