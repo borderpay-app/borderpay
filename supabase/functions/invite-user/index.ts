@@ -29,13 +29,22 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     })
 
-    const { data: { user: caller }, error: authError } = await callerClient.auth.getUser()
-    if (authError || !caller) {
+    // Verify caller identity and MFA (AAL2)
+    const token = authHeader.replace('Bearer ', '')
+    const { data: claimsData, error: claimsError } = await callerClient.auth.getClaims(token)
+    if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
+    if (claimsData.claims.aal !== 'aal2') {
+      return new Response(JSON.stringify({ error: 'MFA verification required' }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      })
+    }
+    const callerId = claimsData.claims.sub
 
     // Check caller is admin
     const adminClient = createClient(supabaseUrl, serviceRoleKey)
