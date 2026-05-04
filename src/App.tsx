@@ -24,6 +24,7 @@ import Monitoring from "./pages/Monitoring.tsx";
 import Admin from "./pages/Admin.tsx";
 import WebsiteContent from "./pages/WebsiteContent.tsx";
 import MfaRecovery from "./pages/MfaRecovery.tsx";
+import TransactionHistory from "./pages/TransactionHistory.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SolanaProvider } from "@/components/SolanaProvider";
 
@@ -51,6 +52,7 @@ const App = () => (
                 <Route path="/auth/mfa-recovery" element={<MfaRecovery />} />
                 <Route path="/app" element={<AppLayout />}>
                   <Route index element={<AppDashboard />} />
+                  <Route path="transactions" element={<TransactionHistory />} />
                   <Route path="suppliers" element={<Suppliers />} />
                   <Route path="taxes" element={<Taxes />} />
                   <Route path="payroll" element={<Payroll />} />
