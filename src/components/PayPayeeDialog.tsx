@@ -21,7 +21,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { z } from "zod";
-import { ShieldCheck, ArrowLeft, Send, Info } from "lucide-react";
+import { ShieldCheck, ArrowLeft, Send, Info, Zap } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -35,6 +35,14 @@ import {
   type PayCurrency,
   type PaymentRail,
 } from "@/lib/invoices";
+import {
+  bridgeGetQuote,
+  bridgeCreateTransfer,
+  bridgeCurrencyFromPayCurrency,
+  payRailToBridgeRail,
+  type BridgeQuote,
+  type BridgeTransfer,
+} from "@/lib/bridge";
 
 interface Payee {
   id: string;
@@ -205,6 +213,8 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
   const [balancesLoading, setBalancesLoading] = useState(false);
+  const [bridgeQuote, setBridgeQuote] = useState<BridgeQuote | null>(null);
+  const [bridgeTransfer, setBridgeTransfer] = useState<BridgeTransfer | null>(null);
 
   useEffect(() => {
     if (!open || !user) return;
@@ -252,6 +262,8 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
     setAmount("");
     setStep("details");
     setApproved(false);
+    setBridgeQuote(null);
+    setBridgeTransfer(null);
   };
 
   const onRailChange = (r: PaymentRail) => {
@@ -291,6 +303,13 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       });
       return;
     }
+    // Generate Bridge quote for the review screen
+    const bq = bridgeGetQuote(
+      bridgeCurrencyFromPayCurrency(sourceWallet!),
+      bridgeCurrencyFromPayCurrency(currency),
+      amountCents / 100,
+    );
+    setBridgeQuote(bq);
     setApproved(false);
     setStep("review");
   };
@@ -341,10 +360,22 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
           .eq("user_id", user.id);
       }
 
+      // Create a mock Bridge transfer for the payment record
+      const bt = bridgeCreateTransfer({
+        customer_id: user.id,
+        amount: amountCents / 100,
+        source_currency: bridgeCurrencyFromPayCurrency(sourceWallet),
+        destination_currency: bridgeCurrencyFromPayCurrency(currency),
+        destination_address: payee.wallet_address ?? undefined,
+        destination_payment_rail: payRailToBridgeRail(rail),
+      });
+      setBridgeTransfer(bt);
+
       const conversionNote = quote && !quote.pegged
         ? ` · ${quote.basis}`
         : "";
-      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)} (debited ${formatMoney(debitMinor, sourceWallet)} from ${sourceWallet})${conversionNote}`;
+      const bridgeRef = ` · Bridge ref: ${bt.id}`;
+      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)} (debited ${formatMoney(debitMinor, sourceWallet)} from ${sourceWallet})${conversionNote}${bridgeRef}`;
       const { error: txErr } = await supabase.from("transactions").insert({
         user_id: user.id,
         type: "send" as const,
@@ -650,6 +681,54 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                 )}
 
                 <p className="text-xs text-muted-foreground pt-1">{quote.basis}</p>
+              </div>
+            )}
+
+            {/* Bridge Infrastructure Panel */}
+            {bridgeQuote && (
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2 text-sm">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-primary" />
+                    <span className="font-medium">Bridge Orchestration</span>
+                  </div>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                    Powered by Bridge
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Route</span>
+                  <span className="font-mono">
+                    {bridgeQuote.source_currency.toUpperCase()} → {bridgeQuote.destination_currency.toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Bridge exchange rate</span>
+                  <span className="font-mono">{bridgeQuote.exchange_rate}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Bridge fee (0.1%)</span>
+                  <span className="font-mono">${bridgeQuote.developer_fee}</span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Estimated received</span>
+                  <span className="font-mono font-medium">
+                    {bridgeQuote.estimated_amount} {bridgeQuote.destination_currency.toUpperCase()}
+                  </span>
+                </div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-muted-foreground">Settlement</span>
+                  <span className="font-mono">
+                    {rail === "stable" ? "On-chain (Solana)" : "Bank transfer"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground pt-1 border-t mt-1">
+                  Stablecoin orchestration, FX conversion, and settlement handled by{" "}
+                  <a href="https://www.bridge.xyz" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                    Bridge (by Stripe)
+                  </a>
+                  . Demo mode — no real funds move.
+                </p>
               </div>
             )}
 
