@@ -329,7 +329,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
           const eurAmt = amt * eurEquiv;
           const eurFee = eurAmt * FEES.EUR.pct + FEES.EUR.fixed;
           const eurcFee = eurAmt * FEES.EURC.pct + FEES.EURC.fixed;
-          const currentFee = amt * FEES[sendCurrency].pct + FEES[sendCurrency].fixed;
+          
           const savings = eurFee - eurcFee;
           return (
             <Card className="p-3 bg-muted/50 space-y-2">
