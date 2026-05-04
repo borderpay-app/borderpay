@@ -1,5 +1,5 @@
 import { NavLink, useLocation } from "react-router-dom";
-import { LayoutDashboard, Truck, Receipt, Users } from "lucide-react";
+import { LayoutDashboard, Truck, Receipt, Users, UsersRound } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -17,6 +17,7 @@ const items = [
   { title: "Suppliers", url: "/app/suppliers", icon: Truck, end: false },
   { title: "Taxes", url: "/app/taxes", icon: Receipt, end: false },
   { title: "Payroll", url: "/app/payroll", icon: Users, end: false },
+  { title: "Team", url: "/app/team", icon: UsersRound, end: false },
 ];
 
 export function AppSidebar() {

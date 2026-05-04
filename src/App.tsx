@@ -19,6 +19,7 @@ import AppLayout from "./pages/AppLayout.tsx";
 import Suppliers from "./pages/Suppliers.tsx";
 import Taxes from "./pages/Taxes.tsx";
 import Payroll from "./pages/Payroll.tsx";
+import Team from "./pages/Team.tsx";
 import Admin from "./pages/Admin.tsx";
 import MfaRecovery from "./pages/MfaRecovery.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
@@ -51,6 +52,7 @@ const App = () => (
                   <Route path="suppliers" element={<Suppliers />} />
                   <Route path="taxes" element={<Taxes />} />
                   <Route path="payroll" element={<Payroll />} />
+                  <Route path="team" element={<Team />} />
                 </Route>
                 <Route path="/admin" element={<Admin />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
