@@ -22,6 +22,7 @@ import Payroll from "./pages/Payroll.tsx";
 import Team from "./pages/Team.tsx";
 import Monitoring from "./pages/Monitoring.tsx";
 import Admin from "./pages/Admin.tsx";
+import WebsiteContent from "./pages/WebsiteContent.tsx";
 import MfaRecovery from "./pages/MfaRecovery.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SolanaProvider } from "@/components/SolanaProvider";
@@ -55,6 +56,7 @@ const App = () => (
                   <Route path="payroll" element={<Payroll />} />
                   <Route path="team" element={<Team />} />
                   <Route path="monitoring" element={<Monitoring />} />
+                  <Route path="website" element={<WebsiteContent />} />
                 </Route>
                 <Route path="/admin" element={<Admin />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
