@@ -304,7 +304,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       return;
     }
     // Generate Bridge quote for the review screen
-    const bq = bridgeGetQuote(
+    const bq = await bridgeGetQuote(
       bridgeCurrencyFromPayCurrency(sourceWallet!),
       bridgeCurrencyFromPayCurrency(currency),
       amountCents / 100,
