@@ -326,28 +326,37 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         </div>
 
         {/* Fee comparison */}
-        {amt > 0 && (
-          <Card className="p-3 bg-muted/50 space-y-2">
-            <p className="text-xs font-medium">Fee breakdown for {currencySymbol[sendCurrency]}{amt.toFixed(2)}</p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <div className="space-y-1">
-                <p className="font-medium text-muted-foreground">As EUR (fiat)</p>
-                <p>Fee: {FEES.EUR.label}</p>
-                <p>Cost: €{(amt * eurEquiv * FEES.EUR.pct + FEES.EUR.fixed).toFixed(2)}</p>
-                <p className="font-semibold">Total: €{(amt * eurEquiv + amt * eurEquiv * FEES.EUR.pct + FEES.EUR.fixed).toFixed(2)}</p>
+        {amt > 0 && (() => {
+          const eurAmt = amt * eurEquiv;
+          const eurFee = eurAmt * FEES.EUR.pct + FEES.EUR.fixed;
+          const eurcFee = eurAmt * FEES.EURC.pct + FEES.EURC.fixed;
+          const currentFee = amt * FEES[sendCurrency].pct + FEES[sendCurrency].fixed;
+          const savings = eurFee - eurcFee;
+          return (
+            <Card className="p-3 bg-muted/50 space-y-2">
+              <p className="text-xs font-medium">Fee breakdown for {currencySymbol[sendCurrency]}{amt.toFixed(2)}</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="space-y-1 p-2 rounded border">
+                  <p className="font-medium text-muted-foreground">As EUR (fiat)</p>
+                  <p>Fee: {FEES.EUR.label}</p>
+                  <p>Fee cost: €{eurFee.toFixed(2)}</p>
+                  <p className="font-semibold">Total: €{(eurAmt + eurFee).toFixed(2)}</p>
+                </div>
+                <div className="space-y-1 p-2 rounded border border-green-600/30 bg-green-50/50">
+                  <p className="font-medium text-muted-foreground">As EURC (stablecoin)</p>
+                  <p>Fee: {FEES.EURC.label}</p>
+                  <p>Fee cost: €{eurcFee.toFixed(2)}</p>
+                  <p className="font-semibold">Total: €{(eurAmt + eurcFee).toFixed(2)}</p>
+                </div>
               </div>
-              <div className="space-y-1">
-                <p className="font-medium text-muted-foreground">As EURC (stablecoin)</p>
-                <p>Fee: {FEES.EURC.label}</p>
-                <p>Cost: €{(amt * eurEquiv * FEES.EURC.pct + FEES.EURC.fixed).toFixed(2)}</p>
-                <p className="font-semibold">Total: €{(amt * eurEquiv + amt * eurEquiv * FEES.EURC.pct + FEES.EURC.fixed).toFixed(2)}</p>
-              </div>
-            </div>
-            <p className="text-xs text-green-700 font-medium">
-              You save {currencySymbol[sendCurrency]}{((amt * FEES.EUR.pct + FEES.EUR.fixed) - (amt * FEES[sendCurrency].pct + FEES[sendCurrency].fixed)).toFixed(2)} using stablecoins vs fiat EUR
-            </p>
-          </Card>
-        )}
+              {savings > 0.01 && (
+                <p className="text-xs text-green-700 font-medium">
+                  💰 Save €{savings.toFixed(2)} by sending as stablecoin instead of fiat EUR
+                </p>
+              )}
+            </Card>
+          );
+        })()}
 
         {/* Recipient */}
         <div>
