@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      company_config: {
+        Row: {
+          address: string
+          company_name: string
+          contact_email: string
+          contact_phone: string
+          created_at: string
+          id: string
+          logo_url: string
+          updated_at: string
+          wallet_address: string
+        }
+        Insert: {
+          address?: string
+          company_name?: string
+          contact_email?: string
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          logo_url?: string
+          updated_at?: string
+          wallet_address?: string
+        }
+        Update: {
+          address?: string
+          company_name?: string
+          contact_email?: string
+          contact_phone?: string
+          created_at?: string
+          id?: string
+          logo_url?: string
+          updated_at?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       email_send_log: {
         Row: {
           created_at: string
