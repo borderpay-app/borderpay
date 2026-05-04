@@ -34,14 +34,52 @@ const FX: Record<string, number> = {
   "EUR→EUR": 1,
   "BGBP→GBP": 1,
   "BEUR→EUR": 1,
-  "BDRP→EUR": 1.0, // 1 BDRP ≈ €0.50 + £0.43 ≈ €1.00
+  "BDRP→EUR": 1.0,
   "BDRP→GBP": 0.86,
+  "GBP→EURC": 1.18,
+  "EUR→EURC": 1,
+  "BGBP→EURC": 1.18,
+  "BEUR→EURC": 1,
+  "BDRP→EURC": 1.0,
+  "GBP→USDC": 1.27,
+  "EUR→USDC": 1.08,
+  "BGBP→USDC": 1.27,
+  "BEUR→USDC": 1.08,
+  "BDRP→USDC": 1.08,
+  "GBP→USDT": 1.27,
+  "EUR→USDT": 1.08,
+  "BGBP→USDT": 1.27,
+  "BEUR→USDT": 1.08,
+  "BDRP→USDT": 1.08,
 };
 
-const SEND_CURRENCIES = ["GBP", "EUR"] as const;
+const SEND_CURRENCIES = ["GBP", "EUR", "EURC", "USDC", "USDT"] as const;
 type SendCurrency = (typeof SEND_CURRENCIES)[number];
 
-const currencySymbol: Record<SendCurrency, string> = { GBP: "£", EUR: "€" };
+const currencySymbol: Record<SendCurrency, string> = {
+  GBP: "£",
+  EUR: "€",
+  EURC: "€",
+  USDC: "$",
+  USDT: "$",
+};
+
+const currencyLabel: Record<SendCurrency, string> = {
+  GBP: "£ GBP",
+  EUR: "€ EUR",
+  EURC: "€ EURC (Stablecoin)",
+  USDC: "$ USDC (Stablecoin)",
+  USDT: "$ USDT (Stablecoin)",
+};
+
+// Fee structure: fiat rails have higher fees, stablecoins are cheaper
+const FEES: Record<SendCurrency, { pct: number; fixed: number; label: string }> = {
+  GBP: { pct: 0.015, fixed: 0.50, label: "1.5% + £0.50" },
+  EUR: { pct: 0.012, fixed: 0.40, label: "1.2% + €0.40" },
+  EURC: { pct: 0.003, fixed: 0.0, label: "0.3% + no fixed fee" },
+  USDC: { pct: 0.003, fixed: 0.0, label: "0.3% + no fixed fee" },
+  USDT: { pct: 0.003, fixed: 0.0, label: "0.3% + no fixed fee" },
+};
 
 interface Props {
   userId: string;
@@ -96,6 +134,10 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const sourceBalanceMinor = walletBalances[sourceWallet];
   const sendableAmount = (sourceBalanceMinor / 100) * fxRate;
 
+  const amt = parseFloat(amount) || 0;
+  // EUR equivalent factor: how many EUR per 1 unit of sendCurrency
+  const eurEquiv = sendCurrency === "EUR" || sendCurrency === "EURC" ? 1 : sendCurrency === "GBP" ? 1 / 1.18 : 1 / 1.08;
+
   const walletDef = ALL_WALLETS.find((w) => w.currency === sourceWallet);
 
   const send = async (e: React.FormEvent) => {
@@ -112,12 +154,12 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       });
       return;
     }
-    const amt = parseFloat(amount);
-    if (!amt || amt <= 0) {
+    const sendAmt = parseFloat(amount);
+    if (!sendAmt || sendAmt <= 0) {
       toast.error(`Enter a valid ${sendCurrency} amount`);
       return;
     }
-    if (amt > sendableAmount) {
+    if (sendAmt > sendableAmount) {
       toast.error(`Insufficient ${sourceWallet} balance`);
       return;
     }
@@ -132,8 +174,8 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
     setSending(true);
     let txRowId: string | null = null;
     try {
-      const debitMinor = Math.round((amt / fxRate) * 100);
-      const amtCents = Math.round(amt * 100);
+      const debitMinor = Math.round((sendAmt / fxRate) * 100);
+      const amtCents = Math.round(sendAmt * 100);
       const { data: txRow, error: txErr } = await supabase
         .from("transactions")
         .insert({
@@ -163,7 +205,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         );
       }
 
-      const amountUnits = BigInt(Math.round(amt * 10 ** EURC_DECIMALS));
+      const amountUnits = BigInt(Math.round(sendAmt * 10 ** EURC_DECIMALS));
       tx.add(
         createTransferInstruction(senderAta, recipientAta, publicKey, amountUnits, [], TOKEN_PROGRAM_ID)
       );
@@ -195,7 +237,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         .eq("id", txRowId);
 
       setWalletBalances((b) => ({ ...b, [sourceWallet]: newBalance }));
-      toast.success(`${currencySymbol[sendCurrency]}${amt.toFixed(2)} sent via Solana`);
+      toast.success(`${currencySymbol[sendCurrency]}${sendAmt.toFixed(2)} sent via Solana`);
       setRecipient("");
       setAmount("");
       onSent();
@@ -272,7 +314,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             <SelectContent>
               {SEND_CURRENCIES.map((c) => (
                 <SelectItem key={c} value={c}>
-                  {currencySymbol[c]} {c}
+                  {currencyLabel[c]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -281,6 +323,39 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             Sendable: ≈ {currencySymbol[sendCurrency]}{sendableAmount.toFixed(2)} (rate 1 {sourceWallet} = {currencySymbol[sendCurrency]}{fxRate.toFixed(2)})
           </p>
         </div>
+
+        {/* Fee comparison */}
+        {amt > 0 && (() => {
+          const eurAmt = amt * eurEquiv;
+          const eurFee = eurAmt * FEES.EUR.pct + FEES.EUR.fixed;
+          const eurcFee = eurAmt * FEES.EURC.pct + FEES.EURC.fixed;
+          
+          const savings = eurFee - eurcFee;
+          return (
+            <Card className="p-3 bg-muted/50 space-y-2">
+              <p className="text-xs font-medium">Fee breakdown for {currencySymbol[sendCurrency]}{amt.toFixed(2)}</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="space-y-1 p-2 rounded border">
+                  <p className="font-medium text-muted-foreground">As EUR (fiat)</p>
+                  <p>Fee: {FEES.EUR.label}</p>
+                  <p>Fee cost: €{eurFee.toFixed(2)}</p>
+                  <p className="font-semibold">Total: €{(eurAmt + eurFee).toFixed(2)}</p>
+                </div>
+                <div className="space-y-1 p-2 rounded border border-green-600/30 bg-green-50/50">
+                  <p className="font-medium text-muted-foreground">As EURC (stablecoin)</p>
+                  <p>Fee: {FEES.EURC.label}</p>
+                  <p>Fee cost: €{eurcFee.toFixed(2)}</p>
+                  <p className="font-semibold">Total: €{(eurAmt + eurcFee).toFixed(2)}</p>
+                </div>
+              </div>
+              {savings > 0.01 && (
+                <p className="text-xs text-green-700 font-medium">
+                  💰 Save €{savings.toFixed(2)} by sending as stablecoin instead of fiat EUR
+                </p>
+              )}
+            </Card>
+          );
+        })()}
 
         {/* Recipient */}
         <div>
