@@ -303,9 +303,15 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       });
       return;
     }
+    // Generate Bridge quote for the review screen
+    const bq = bridgeGetQuote(
+      bridgeCurrencyFromPayCurrency(sourceWallet!),
+      bridgeCurrencyFromPayCurrency(currency),
+      amountCents / 100,
+    );
+    setBridgeQuote(bq);
     setApproved(false);
     setStep("review");
-  };
 
   const confirmPay = async () => {
     if (!user || !payee) return;
