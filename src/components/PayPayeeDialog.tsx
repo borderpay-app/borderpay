@@ -262,6 +262,8 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
     setAmount("");
     setStep("details");
     setApproved(false);
+    setBridgeQuote(null);
+    setBridgeTransfer(null);
   };
 
   const onRailChange = (r: PaymentRail) => {
