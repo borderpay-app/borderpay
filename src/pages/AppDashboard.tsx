@@ -96,14 +96,20 @@ const AppDashboard = () => {
 
   const refresh = async () => {
     if (!user) return;
-    const [bal, list, prof] = await Promise.all([
+    const [bal, list, prof, wb] = await Promise.all([
       supabase.from("gbp_balances").select("balance_pence").eq("user_id", user.id).maybeSingle(),
       supabase.from("transactions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
       supabase.from("profiles").select("wallet_address").eq("user_id", user.id).maybeSingle(),
+      supabase.from("wallet_balances").select("currency, balance_minor").eq("user_id", user.id),
     ]);
     setBalancePence(Number(bal.data?.balance_pence ?? 0));
     setTxs((list.data ?? []) as Tx[]);
     setSavedWallet((prof.data?.wallet_address as string | null) ?? null);
+    const wbMap: Record<Currency, number> = { GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0 };
+    for (const r of (wb.data ?? []) as { currency: Currency; balance_minor: number }[]) {
+      if (r.currency in wbMap) wbMap[r.currency] = Number(r.balance_minor ?? 0);
+    }
+    setWalletBalances(wbMap);
   };
 
   useEffect(() => {
