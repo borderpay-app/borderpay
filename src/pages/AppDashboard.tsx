@@ -53,6 +53,8 @@ const AppDashboard = () => {
   const [topupGbp, setTopupGbp] = useState("");
   const [toppingUp, setToppingUp] = useState(false);
   const [savedWallet, setSavedWallet] = useState<string | null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<Currency>("GBP");
+  const [walletBalances, setWalletBalances] = useState<Record<Currency, number>>({ GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0 });
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth", { replace: true });
