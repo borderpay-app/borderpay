@@ -213,6 +213,8 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
   const [balancesLoading, setBalancesLoading] = useState(false);
+  const [bridgeQuote, setBridgeQuote] = useState<BridgeQuote | null>(null);
+  const [bridgeTransfer, setBridgeTransfer] = useState<BridgeTransfer | null>(null);
 
   useEffect(() => {
     if (!open || !user) return;
