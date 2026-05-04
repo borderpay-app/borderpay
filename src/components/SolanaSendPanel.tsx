@@ -141,6 +141,39 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
 
   const walletDef = ALL_WALLETS.find((w) => w.currency === sourceWallet);
 
+  // Validation before showing confirm screen
+  const handleReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typeof window !== "undefined" && !(window as any).solana) {
+      toast.error("Phantom wallet not detected", {
+        description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
+      });
+      return;
+    }
+    if (!publicKey || !connected) {
+      toast.error("Wallet not connected", {
+        description: "Click 'Select Wallet' to connect Phantom (Devnet).",
+      });
+      return;
+    }
+    const sendAmt = parseFloat(amount);
+    if (!sendAmt || sendAmt <= 0) {
+      toast.error(`Enter a valid ${sendCurrency} amount`);
+      return;
+    }
+    if (sendAmt > sendableAmount) {
+      toast.error(`Insufficient ${sourceWallet} balance`);
+      return;
+    }
+    try {
+      new PublicKey(recipient.trim());
+    } catch {
+      toast.error("Invalid Solana address");
+      return;
+    }
+    setShowConfirm(true);
+  };
+
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     if (typeof window !== "undefined" && !(window as any).solana) {
