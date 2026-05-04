@@ -155,11 +155,11 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       return;
     }
     const sendAmt = parseFloat(amount);
-    if (!amt || amt <= 0) {
+    if (!sendAmt || sendAmt <= 0) {
       toast.error(`Enter a valid ${sendCurrency} amount`);
       return;
     }
-    if (amt > sendableAmount) {
+    if (sendAmt > sendableAmount) {
       toast.error(`Insufficient ${sourceWallet} balance`);
       return;
     }
@@ -174,8 +174,8 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
     setSending(true);
     let txRowId: string | null = null;
     try {
-      const debitMinor = Math.round((amt / fxRate) * 100);
-      const amtCents = Math.round(amt * 100);
+      const debitMinor = Math.round((sendAmt / fxRate) * 100);
+      const amtCents = Math.round(sendAmt * 100);
       const { data: txRow, error: txErr } = await supabase
         .from("transactions")
         .insert({
@@ -205,7 +205,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         );
       }
 
-      const amountUnits = BigInt(Math.round(amt * 10 ** EURC_DECIMALS));
+      const amountUnits = BigInt(Math.round(sendAmt * 10 ** EURC_DECIMALS));
       tx.add(
         createTransferInstruction(senderAta, recipientAta, publicKey, amountUnits, [], TOKEN_PROGRAM_ID)
       );
@@ -237,7 +237,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         .eq("id", txRowId);
 
       setWalletBalances((b) => ({ ...b, [sourceWallet]: newBalance }));
-      toast.success(`${currencySymbol[sendCurrency]}${amt.toFixed(2)} sent via Solana`);
+      toast.success(`${currencySymbol[sendCurrency]}${sendAmt.toFixed(2)} sent via Solana`);
       setRecipient("");
       setAmount("");
       onSent();
