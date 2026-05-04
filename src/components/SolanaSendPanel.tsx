@@ -92,6 +92,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [sourceWallet, setSourceWallet] = useState<Currency>("GBP");
   const [sendCurrency, setSendCurrency] = useState<SendCurrency>("EUR");
   const [walletBalances, setWalletBalances] = useState<Record<Currency, number>>({
@@ -139,6 +140,39 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const eurEquiv = sendCurrency === "EUR" || sendCurrency === "EURC" ? 1 : sendCurrency === "GBP" ? 1 / 1.18 : 1 / 1.08;
 
   const walletDef = ALL_WALLETS.find((w) => w.currency === sourceWallet);
+
+  // Validation before showing confirm screen
+  const handleReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (typeof window !== "undefined" && !(window as any).solana) {
+      toast.error("Phantom wallet not detected", {
+        description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
+      });
+      return;
+    }
+    if (!publicKey || !connected) {
+      toast.error("Wallet not connected", {
+        description: "Click 'Select Wallet' to connect Phantom (Devnet).",
+      });
+      return;
+    }
+    const sendAmt = parseFloat(amount);
+    if (!sendAmt || sendAmt <= 0) {
+      toast.error(`Enter a valid ${sendCurrency} amount`);
+      return;
+    }
+    if (sendAmt > sendableAmount) {
+      toast.error(`Insufficient ${sourceWallet} balance`);
+      return;
+    }
+    try {
+      new PublicKey(recipient.trim());
+    } catch {
+      toast.error("Invalid Solana address");
+      return;
+    }
+    setShowConfirm(true);
+  };
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -240,6 +274,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       toast.success(`${currencySymbol[sendCurrency]}${sendAmt.toFixed(2)} sent via Solana`);
       setRecipient("");
       setAmount("");
+      setShowConfirm(false);
       onSent();
     } catch (err: any) {
       console.error(err);
@@ -277,115 +312,176 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         Sends tokens on Solana devnet. Connect Phantom (set to Devnet) first.
       </p>
 
-      <form onSubmit={send} className="space-y-4">
-        {/* Source Wallet */}
-        <div>
-          <Label>Source Wallet</Label>
-          <Select value={sourceWallet} onValueChange={(v) => setSourceWallet(v as Currency)}>
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ALL_WALLETS.map((w) => (
-                <SelectItem key={w.currency} value={w.currency}>
-                  <span className="flex items-center gap-2">
-                    <span>{w.flag}</span>
-                    <span>{w.label}</span>
-                    <span className="text-muted-foreground text-xs ml-1">
-                      ({fmtAmount(w.currency, walletBalances[w.currency])})
-                    </span>
-                  </span>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground mt-1">
-            Balance: {fmtAmount(sourceWallet, sourceBalanceMinor)}
-          </p>
-        </div>
+      <form onSubmit={showConfirm ? send : handleReview} className="space-y-4">
+        {!showConfirm ? (
+          <>
+            {/* Source Wallet */}
+            <div>
+              <Label>Source Wallet</Label>
+              <Select value={sourceWallet} onValueChange={(v) => setSourceWallet(v as Currency)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {ALL_WALLETS.map((w) => (
+                    <SelectItem key={w.currency} value={w.currency}>
+                      <span className="flex items-center gap-2">
+                        <span>{w.flag}</span>
+                        <span>{w.label}</span>
+                        <span className="text-muted-foreground text-xs ml-1">
+                          ({fmtAmount(w.currency, walletBalances[w.currency])})
+                        </span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Balance: {fmtAmount(sourceWallet, sourceBalanceMinor)}
+              </p>
+            </div>
 
-        {/* Send Currency */}
-        <div>
-          <Label>Send Currency</Label>
-          <Select value={sendCurrency} onValueChange={(v) => setSendCurrency(v as SendCurrency)}>
-            <SelectTrigger className="mt-1">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {SEND_CURRENCIES.map((c) => (
-                <SelectItem key={c} value={c}>
-                  {currencyLabel[c]}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-xs text-muted-foreground mt-1">
-            Sendable: ≈ {currencySymbol[sendCurrency]}{sendableAmount.toFixed(2)} (rate 1 {sourceWallet} = {currencySymbol[sendCurrency]}{fxRate.toFixed(2)})
-          </p>
-        </div>
+            {/* Send Currency */}
+            <div>
+              <Label>Send Currency</Label>
+              <Select value={sendCurrency} onValueChange={(v) => setSendCurrency(v as SendCurrency)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {SEND_CURRENCIES.map((c) => (
+                    <SelectItem key={c} value={c}>
+                      {currencyLabel[c]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Sendable: ≈ {currencySymbol[sendCurrency]}{sendableAmount.toFixed(2)} (rate 1 {sourceWallet} = {currencySymbol[sendCurrency]}{fxRate.toFixed(2)})
+              </p>
+            </div>
 
-        {/* Fee comparison */}
-        {amt > 0 && (() => {
-          const eurAmt = amt * eurEquiv;
-          const eurFee = eurAmt * FEES.EUR.pct + FEES.EUR.fixed;
-          const eurcFee = eurAmt * FEES.EURC.pct + FEES.EURC.fixed;
-          
-          const savings = eurFee - eurcFee;
-          return (
-            <Card className="p-3 bg-muted/50 space-y-2">
-              <p className="text-xs font-medium">Fee breakdown for {currencySymbol[sendCurrency]}{amt.toFixed(2)}</p>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="space-y-1 p-2 rounded border">
-                  <p className="font-medium text-muted-foreground">As EUR (fiat)</p>
-                  <p>Fee: {FEES.EUR.label}</p>
-                  <p>Fee cost: €{eurFee.toFixed(2)}</p>
-                  <p className="font-semibold">Total: €{(eurAmt + eurFee).toFixed(2)}</p>
-                </div>
-                <div className="space-y-1 p-2 rounded border border-green-600/30 bg-green-50/50">
-                  <p className="font-medium text-muted-foreground">As EURC (stablecoin)</p>
-                  <p>Fee: {FEES.EURC.label}</p>
-                  <p>Fee cost: €{eurcFee.toFixed(2)}</p>
-                  <p className="font-semibold">Total: €{(eurAmt + eurcFee).toFixed(2)}</p>
+            {/* Fee comparison */}
+            {amt > 0 && (() => {
+              const eurAmt = amt * eurEquiv;
+              const eurFee = eurAmt * FEES.EUR.pct + FEES.EUR.fixed;
+              const eurcFee = eurAmt * FEES.EURC.pct + FEES.EURC.fixed;
+              const savings = eurFee - eurcFee;
+              return (
+                <Card className="p-3 bg-muted/50 space-y-2">
+                  <p className="text-xs font-medium">Fee breakdown for {currencySymbol[sendCurrency]}{amt.toFixed(2)}</p>
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="space-y-1 p-2 rounded border">
+                      <p className="font-medium text-muted-foreground">As EUR (fiat)</p>
+                      <p>Fee: {FEES.EUR.label}</p>
+                      <p>Fee cost: €{eurFee.toFixed(2)}</p>
+                      <p className="font-semibold">Total: €{(eurAmt + eurFee).toFixed(2)}</p>
+                    </div>
+                    <div className="space-y-1 p-2 rounded border border-green-600/30 bg-green-50/50">
+                      <p className="font-medium text-muted-foreground">As EURC (stablecoin)</p>
+                      <p>Fee: {FEES.EURC.label}</p>
+                      <p>Fee cost: €{eurcFee.toFixed(2)}</p>
+                      <p className="font-semibold">Total: €{(eurAmt + eurcFee).toFixed(2)}</p>
+                    </div>
+                  </div>
+                  {savings > 0.01 && (
+                    <p className="text-xs text-green-700 font-medium">
+                      💰 Save €{savings.toFixed(2)} by sending as stablecoin instead of fiat EUR
+                    </p>
+                  )}
+                </Card>
+              );
+            })()}
+
+            {/* Recipient */}
+            <div>
+              <Label htmlFor="recipient">Recipient Solana address</Label>
+              <Input
+                id="recipient"
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                placeholder="7xKX…"
+                required
+              />
+            </div>
+
+            {/* Amount */}
+            <div>
+              <Label htmlFor="amount">Amount ({sendCurrency})</Label>
+              <Input
+                id="amount"
+                type="number"
+                step="0.01"
+                min="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                required
+              />
+            </div>
+
+            <Button type="submit" className="w-full" disabled={!connected}>
+              {connected ? "Review & Confirm" : "Connect wallet to send"}
+            </Button>
+          </>
+        ) : (
+          /* ── Confirmation Screen ── */
+          (() => {
+            const confirmAmt = parseFloat(amount) || 0;
+            const eurAmt = confirmAmt * eurEquiv;
+            const fee = FEES[sendCurrency];
+            const feeCost = confirmAmt * fee.pct + fee.fixed;
+            const feeCostEur = eurAmt * fee.pct + fee.fixed;
+            const totalSend = confirmAmt + feeCost;
+            const totalEur = eurAmt + feeCostEur;
+            const isStablecoin = ["EURC", "USDC", "USDT"].includes(sendCurrency);
+            const eurFiatFee = eurAmt * FEES.EUR.pct + FEES.EUR.fixed;
+            const savings = eurFiatFee - feeCostEur;
+
+            return (
+              <div className="space-y-4">
+                <Card className="p-4 space-y-3 border-2 border-primary/30">
+                  <p className="text-sm font-semibold">Confirm Transaction</p>
+
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
+                    <span className="text-muted-foreground">Send amount</span>
+                    <span className="text-right font-medium">{currencySymbol[sendCurrency]}{confirmAmt.toFixed(2)} {sendCurrency}</span>
+
+                    <span className="text-muted-foreground">FX rate</span>
+                    <span className="text-right">1 {sourceWallet} = {currencySymbol[sendCurrency]}{fxRate.toFixed(4)}</span>
+
+                    <span className="text-muted-foreground">Debit from {sourceWallet}</span>
+                    <span className="text-right">{fmtAmount(sourceWallet, Math.round((confirmAmt / fxRate) * 100))}</span>
+
+                    <span className="text-muted-foreground">Fee ({fee.label})</span>
+                    <span className="text-right">{currencySymbol[sendCurrency]}{feeCost.toFixed(2)}</span>
+
+                    <span className="text-muted-foreground font-medium border-t pt-1">Total cost (EUR)</span>
+                    <span className="text-right font-semibold border-t pt-1">€{totalEur.toFixed(2)}</span>
+                  </div>
+
+                  {isStablecoin && savings > 0.01 && (
+                    <p className="text-xs text-green-700 font-medium">
+                      💰 Saving €{savings.toFixed(2)} vs fiat EUR rails
+                    </p>
+                  )}
+
+                  <div className="text-xs text-muted-foreground break-all">
+                    <span className="font-medium">To:</span> {recipient}
+                  </div>
+                </Card>
+
+                <div className="flex gap-2">
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => setShowConfirm(false)} disabled={sending}>
+                    ← Edit
+                  </Button>
+                  <Button type="submit" className="flex-1" disabled={sending}>
+                    {sending ? "Sending…" : `Confirm & Send ${sendCurrency}`}
+                  </Button>
                 </div>
               </div>
-              {savings > 0.01 && (
-                <p className="text-xs text-green-700 font-medium">
-                  💰 Save €{savings.toFixed(2)} by sending as stablecoin instead of fiat EUR
-                </p>
-              )}
-            </Card>
-          );
-        })()}
-
-        {/* Recipient */}
-        <div>
-          <Label htmlFor="recipient">Recipient Solana address</Label>
-          <Input
-            id="recipient"
-            value={recipient}
-            onChange={(e) => setRecipient(e.target.value)}
-            placeholder="7xKX…"
-            required
-          />
-        </div>
-
-        {/* Amount */}
-        <div>
-          <Label htmlFor="amount">Amount ({sendCurrency})</Label>
-          <Input
-            id="amount"
-            type="number"
-            step="0.01"
-            min="0.01"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-          />
-        </div>
-
-        <Button type="submit" className="w-full" disabled={sending || !connected}>
-          {sending ? "Sending…" : connected ? `Send ${sendCurrency}` : "Connect wallet to send"}
-        </Button>
+            );
+          })()
+        )}
       </form>
     </Card>
   );
