@@ -361,7 +361,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       }
 
       // Create a mock Bridge transfer for the payment record
-      const bt = bridgeCreateTransfer({
+      const bt = await bridgeCreateTransfer({
         customer_id: user.id,
         amount: amountCents / 100,
         source_currency: bridgeCurrencyFromPayCurrency(sourceWallet),
