@@ -25,6 +25,7 @@ import Admin from "./pages/Admin.tsx";
 import WebsiteContent from "./pages/WebsiteContent.tsx";
 import MfaRecovery from "./pages/MfaRecovery.tsx";
 import TransactionHistory from "./pages/TransactionHistory.tsx";
+import Settings from "./pages/Settings.tsx";
 import { AuthProvider } from "@/hooks/useAuth";
 import { SolanaProvider } from "@/components/SolanaProvider";
 
@@ -59,6 +60,7 @@ const App = () => (
                   <Route path="team" element={<Team />} />
                   <Route path="monitoring" element={<Monitoring />} />
                   <Route path="website" element={<WebsiteContent />} />
+                  <Route path="settings" element={<Settings />} />
                 </Route>
                 <Route path="/admin" element={<Admin />} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
