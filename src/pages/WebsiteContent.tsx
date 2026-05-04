@@ -122,7 +122,7 @@ function SectionEditor({
   sectionKey: string;
   saving: string | null;
   onSave: (key: string, content: any) => void;
-  initialContent: Record<string, string>;
+  initialContent: Record<string, any>;
   fields: FieldDef[];
 }) {
   const [values, setValues] = useState<Record<string, string>>({ ...initialContent });
