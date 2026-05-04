@@ -312,6 +312,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
     setBridgeQuote(bq);
     setApproved(false);
     setStep("review");
+  };
 
   const confirmPay = async () => {
     if (!user || !payee) return;
