@@ -20,7 +20,7 @@ const items = [
   { title: "Payroll", url: "/app/payroll", icon: Users, end: false },
   { title: "Team", url: "/app/team", icon: UsersRound, end: false },
   { title: "Monitoring", url: "/app/monitoring", icon: ShieldAlert, end: false },
-  { title: "Website Content", url: "/app/website", icon: FileText, end: false },
+  { title: "Settings", url: "/app/settings", icon: Settings, end: false },
   { title: "Settings", url: "/app/settings", icon: Settings, end: false },
 ];
 
