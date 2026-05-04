@@ -360,10 +360,22 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
           .eq("user_id", user.id);
       }
 
+      // Create a mock Bridge transfer for the payment record
+      const bt = bridgeCreateTransfer({
+        customer_id: user.id,
+        amount: amountCents / 100,
+        source_currency: bridgeCurrencyFromPayCurrency(sourceWallet),
+        destination_currency: bridgeCurrencyFromPayCurrency(currency),
+        destination_address: payee.wallet_address ?? undefined,
+        destination_payment_rail: payRailToBridgeRail(rail),
+      });
+      setBridgeTransfer(bt);
+
       const conversionNote = quote && !quote.pegged
         ? ` · ${quote.basis}`
         : "";
-      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)} (debited ${formatMoney(debitMinor, sourceWallet)} from ${sourceWallet})${conversionNote}`;
+      const bridgeRef = ` · Bridge ref: ${bt.id}`;
+      const note = `Simulated ${rail} payment · ${payee.name} · ${formatMoney(amountCents, currency)} (debited ${formatMoney(debitMinor, sourceWallet)} from ${sourceWallet})${conversionNote}${bridgeRef}`;
       const { error: txErr } = await supabase.from("transactions").insert({
         user_id: user.id,
         type: "send" as const,
