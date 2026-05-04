@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { PublicKey, Transaction } from "@solana/web3.js";
@@ -93,6 +94,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [disclaimerAcked, setDisclaimerAcked] = useState(false);
   const [sourceWallet, setSourceWallet] = useState<Currency>("GBP");
   const [sendCurrency, setSendCurrency] = useState<SendCurrency>("EUR");
   const [walletBalances, setWalletBalances] = useState<Record<Currency, number>>({
@@ -470,11 +472,22 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                   </div>
                 </Card>
 
+                <label className="flex items-start gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={disclaimerAcked}
+                    onCheckedChange={(v) => setDisclaimerAcked(v === true)}
+                    className="mt-0.5"
+                  />
+                  <span className="text-xs text-muted-foreground leading-snug">
+                    I understand that Border Pay is not yet authorised by any financial regulator and that this action only expresses my interest in using the platform. No real funds will be transferred.
+                  </span>
+                </label>
+
                 <div className="flex gap-2">
-                  <Button type="button" variant="outline" className="flex-1" onClick={() => setShowConfirm(false)} disabled={sending}>
+                  <Button type="button" variant="outline" className="flex-1" onClick={() => { setShowConfirm(false); setDisclaimerAcked(false); }} disabled={sending}>
                     ← Edit
                   </Button>
-                  <Button type="submit" className="flex-1" disabled={sending}>
+                  <Button type="submit" className="flex-1" disabled={sending || !disclaimerAcked}>
                     {sending ? "Sending…" : `Confirm & Send ${sendCurrency}`}
                   </Button>
                 </div>
