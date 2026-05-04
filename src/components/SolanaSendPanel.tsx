@@ -135,8 +135,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const sendableAmount = (sourceBalanceMinor / 100) * fxRate;
 
   const amt = parseFloat(amount) || 0;
-  // EUR equivalent of the entered amount for fee comparison
-  const eurFxKey = `${sendCurrency === "EUR" || sendCurrency === "EURC" ? 1 : sendCurrency === "GBP" ? 1.18 : 1.08}`;
+  // EUR equivalent factor: how many EUR per 1 unit of sendCurrency
   const eurEquiv = sendCurrency === "EUR" || sendCurrency === "EURC" ? 1 : sendCurrency === "GBP" ? 1 / 1.18 : 1 / 1.08;
 
   const walletDef = ALL_WALLETS.find((w) => w.currency === sourceWallet);
