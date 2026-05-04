@@ -148,7 +148,12 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
   return (
     <section aria-label="Wallets" className="mb-6">
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Wallets</h2>
+        <div className="flex items-center gap-2">
+          <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Wallets</h2>
+          <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
+            Bridge
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <Button
             variant={managing ? "default" : "ghost"}
