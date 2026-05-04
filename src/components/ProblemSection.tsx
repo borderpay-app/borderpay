@@ -1,4 +1,5 @@
 import { DollarSign, Clock, Shuffle, AlertTriangle } from "lucide-react";
+import { useWebsiteContent, type ProblemContent } from "@/hooks/useWebsiteContent";
 
 const problems = [
   {
@@ -32,16 +33,18 @@ const problems = [
 ];
 
 const ProblemSection = () => {
+  const { content: c } = useWebsiteContent<ProblemContent>("problem");
+
   return (
     <section id="problem" className="py-24 bg-card">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">The Problem</p>
+          <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">{c.tagline}</p>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-            Cross-border payments are broken
+            {c.headline}
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            Northern Ireland SMEs trading with Ireland bear a disproportionate cost burden — despite operating across the world's most integrated cross-border corridor.
+            {c.subtitle}
           </p>
         </div>
 

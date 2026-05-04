@@ -1,30 +1,31 @@
 import { ArrowDown } from "lucide-react";
+import { useWebsiteContent, type HeroContent } from "@/hooks/useWebsiteContent";
 
 const Hero = () => {
+  const { content: c } = useWebsiteContent<HeroContent>("hero");
+
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <section className="relative min-h-[90vh] flex items-center pt-16 overflow-hidden">
-      {/* Background accent */}
       <div className="absolute top-0 right-0 w-1/2 h-full bg-forest-light/50 rounded-bl-[80px] -z-10 hidden lg:block" />
 
       <div className="max-w-6xl mx-auto px-6 py-20 w-full">
         <div className="max-w-2xl">
-          {/* Regulatory notice badge */}
           <div className="inline-flex items-center gap-2 bg-warning-bg text-warning rounded-full px-4 py-1.5 text-xs font-medium mb-8 animate-fade-up">
             <span className="w-1.5 h-1.5 bg-warning rounded-full" />
-            Pre-launch — Express your interest today
+            {c.badge}
           </div>
 
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-foreground leading-[1.1] animate-fade-up" style={{ animationDelay: "0.1s" }}>
-            Cross-border payments,{" "}
-            <span className="text-primary">simplified.</span>
+            {c.headline}{" "}
+            <span className="text-primary">{c.headlineAccent}</span>
           </h1>
 
           <p className="mt-6 text-lg text-muted-foreground leading-relaxed max-w-xl animate-fade-up" style={{ animationDelay: "0.2s" }}>
-            BDRP is a dual-pegged stablecoin backed by GBP and EUR, powering fast, low-cost settlement across the NI–Ireland corridor.
+            {c.subtitle}
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4 animate-fade-up" style={{ animationDelay: "0.3s" }}>
@@ -42,25 +43,23 @@ const Hero = () => {
             </button>
           </div>
 
-          {/* Key stats */}
           <div className="mt-16 grid grid-cols-3 gap-8 max-w-md animate-fade-up" style={{ animationDelay: "0.4s" }}>
             <div>
-              <div className="text-2xl font-bold font-mono text-foreground">&lt;30s</div>
-              <div className="text-xs text-muted-foreground mt-1">Settlement time</div>
+              <div className="text-2xl font-bold font-mono text-foreground">{c.stat1Value}</div>
+              <div className="text-xs text-muted-foreground mt-1">{c.stat1Label}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold font-mono text-foreground">&lt;0.5%</div>
-              <div className="text-xs text-muted-foreground mt-1">All-in fees</div>
+              <div className="text-2xl font-bold font-mono text-foreground">{c.stat2Value}</div>
+              <div className="text-xs text-muted-foreground mt-1">{c.stat2Label}</div>
             </div>
             <div>
-              <div className="text-2xl font-bold font-mono text-foreground">£1.5–2B</div>
-              <div className="text-xs text-muted-foreground mt-1">Corridor volume</div>
+              <div className="text-2xl font-bold font-mono text-foreground">{c.stat3Value}</div>
+              <div className="text-xs text-muted-foreground mt-1">{c.stat3Label}</div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
       <button
         onClick={() => scrollTo("problem")}
         className="absolute bottom-8 left-1/2 -translate-x-1/2 text-muted-foreground animate-bounce"

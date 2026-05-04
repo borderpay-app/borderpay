@@ -1,16 +1,19 @@
 import { Zap, Shield, ArrowRight } from "lucide-react";
+import { useWebsiteContent, type SolutionContent } from "@/hooks/useWebsiteContent";
 
 const SolutionSection = () => {
+  const { content: c } = useWebsiteContent<SolutionContent>("solution");
+
   return (
     <section id="solution" className="py-24">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center max-w-2xl mx-auto mb-16">
-          <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">The Solution</p>
+          <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">{c.tagline}</p>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-foreground">
-            BDRP — the dual-pegged stablecoin
+            {c.headline}
           </h2>
           <p className="mt-4 text-muted-foreground leading-relaxed">
-            BDRP is backed by a basket of Euro and British Pound. 1 BDRP = 50% Euro + 50% British Pound — its value stays stable by tracking both currencies together, significantly reducing FX volatility and making cross-border payments fast, low-cost, and predictable.
+            {c.subtitle}
           </p>
         </div>
 
