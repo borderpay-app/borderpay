@@ -14,12 +14,34 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { connection, EURC_MINT, EURC_DECIMALS } from "@/lib/solana";
 import { reportWalletError } from "@/lib/walletDebug";
+import { ALL_WALLETS, type Currency, fmtAmount } from "@/components/WalletsRow";
 
-// Mock FX: 1 GBP = 1.18 EUR
-const GBP_TO_EUR = 1.18;
+// Demo FX rates
+const FX: Record<string, number> = {
+  "GBP→EUR": 1.18,
+  "EUR→GBP": 0.86,
+  "GBP→GBP": 1,
+  "EUR→EUR": 1,
+  "BGBP→GBP": 1,
+  "BEUR→EUR": 1,
+  "BDRP→EUR": 1.0, // 1 BDRP ≈ €0.50 + £0.43 ≈ €1.00
+  "BDRP→GBP": 0.86,
+};
+
+const SEND_CURRENCIES = ["GBP", "EUR"] as const;
+type SendCurrency = (typeof SEND_CURRENCIES)[number];
+
+const currencySymbol: Record<SendCurrency, string> = { GBP: "£", EUR: "€" };
 
 interface Props {
   userId: string;
@@ -30,10 +52,30 @@ interface Props {
 const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const { publicKey, sendTransaction, connected } = useWallet();
   const [recipient, setRecipient] = useState("");
-  const [eurAmount, setEurAmount] = useState("");
+  const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
+  const [sourceWallet, setSourceWallet] = useState<Currency>("GBP");
+  const [sendCurrency, setSendCurrency] = useState<SendCurrency>("EUR");
+  const [walletBalances, setWalletBalances] = useState<Record<Currency, number>>({
+    GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
+  });
 
-  // Pick up a "pay this entity" prefill written by entity list pages.
+  // Load wallet balances
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from("wallet_balances")
+        .select("currency, balance_minor")
+        .eq("user_id", userId);
+      const map: Record<Currency, number> = { GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0 };
+      for (const r of (data ?? []) as { currency: Currency; balance_minor: number }[]) {
+        if (r.currency in map) map[r.currency] = Number(r.balance_minor ?? 0);
+      }
+      setWalletBalances(map);
+    })();
+  }, [userId]);
+
+  // Pick up a "pay this entity" prefill
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("borderpay:prefill");
@@ -49,7 +91,12 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
     }
   }, []);
 
-  const eurEquivalent = (balancePence / 100) * GBP_TO_EUR;
+  const fxKey = `${sourceWallet}→${sendCurrency}`;
+  const fxRate = FX[fxKey] ?? 1;
+  const sourceBalanceMinor = walletBalances[sourceWallet];
+  const sendableAmount = (sourceBalanceMinor / 100) * fxRate;
+
+  const walletDef = ALL_WALLETS.find((w) => w.currency === sourceWallet);
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,17 +108,17 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
     }
     if (!publicKey || !connected) {
       toast.error("Wallet not connected", {
-        description: "Click ‘Select Wallet’ to connect Phantom (Devnet).",
+        description: "Click 'Select Wallet' to connect Phantom (Devnet).",
       });
       return;
     }
-    const amt = parseFloat(eurAmount);
+    const amt = parseFloat(amount);
     if (!amt || amt <= 0) {
-      toast.error("Enter a valid EUR amount");
+      toast.error(`Enter a valid ${sendCurrency} amount`);
       return;
     }
-    if (amt > eurEquivalent) {
-      toast.error("Insufficient GBP balance");
+    if (amt > sendableAmount) {
+      toast.error(`Insufficient ${sourceWallet} balance`);
       return;
     }
     let recipientPk: PublicKey;
@@ -85,17 +132,19 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
     setSending(true);
     let txRowId: string | null = null;
     try {
-      const gbpUsed = Math.round((amt / GBP_TO_EUR) * 100);
-      const eurCents = Math.round(amt * 100);
+      const debitMinor = Math.round((amt / fxRate) * 100);
+      const amtCents = Math.round(amt * 100);
       const { data: txRow, error: txErr } = await supabase
         .from("transactions")
         .insert({
           user_id: userId,
           type: "send",
           status: "pending",
-          gbp_pence: gbpUsed,
-          eur_cents: eurCents,
+          currency: sendCurrency,
+          gbp_pence: sendCurrency === "GBP" ? amtCents : null,
+          eur_cents: sendCurrency === "EUR" ? amtCents : null,
           recipient_address: recipientPk.toBase58(),
+          notes: `Via ${sourceWallet} wallet · FX ${fxRate.toFixed(4)}`,
         })
         .select()
         .single();
@@ -124,14 +173,31 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
 
       await connection.confirmTransaction(sig, "confirmed");
 
+      // Deduct from source wallet
+      const newBalance = sourceBalanceMinor - debitMinor;
+      await supabase
+        .from("wallet_balances")
+        .update({ balance_minor: newBalance })
+        .eq("user_id", userId)
+        .eq("currency", sourceWallet);
+
+      // Sync legacy gbp_balances if GBP wallet
+      if (sourceWallet === "GBP") {
+        await supabase
+          .from("gbp_balances")
+          .update({ balance_pence: newBalance })
+          .eq("user_id", userId);
+      }
+
       await supabase
         .from("transactions")
         .update({ status: "confirmed", solana_signature: sig })
         .eq("id", txRowId);
 
-      toast.success("EUR sent on Solana devnet");
+      setWalletBalances((b) => ({ ...b, [sourceWallet]: newBalance }));
+      toast.success(`${currencySymbol[sendCurrency]}${amt.toFixed(2)} sent via Solana`);
       setRecipient("");
-      setEurAmount("");
+      setAmount("");
       onSent();
     } catch (err: any) {
       console.error(err);
@@ -162,16 +228,61 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-1">
-        <h2 className="font-semibold">Send EUR via Solana</h2>
+        <h2 className="font-semibold">Send Funds via Solana</h2>
         <WalletMultiButton />
       </div>
       <p className="text-sm text-muted-foreground mb-4">
-        Sends EURC on Solana devnet. Connect Phantom (set to Devnet) first.
+        Sends tokens on Solana devnet. Connect Phantom (set to Devnet) first.
       </p>
-      <p className="text-xs text-muted-foreground mb-4">
-        Sendable: ≈ €{eurEquivalent.toFixed(2)} (rate 1 GBP = €{GBP_TO_EUR})
-      </p>
+
       <form onSubmit={send} className="space-y-4">
+        {/* Source Wallet */}
+        <div>
+          <Label>Source Wallet</Label>
+          <Select value={sourceWallet} onValueChange={(v) => setSourceWallet(v as Currency)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ALL_WALLETS.map((w) => (
+                <SelectItem key={w.currency} value={w.currency}>
+                  <span className="flex items-center gap-2">
+                    <span>{w.flag}</span>
+                    <span>{w.label}</span>
+                    <span className="text-muted-foreground text-xs ml-1">
+                      ({fmtAmount(w.currency, walletBalances[w.currency])})
+                    </span>
+                  </span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground mt-1">
+            Balance: {fmtAmount(sourceWallet, sourceBalanceMinor)}
+          </p>
+        </div>
+
+        {/* Send Currency */}
+        <div>
+          <Label>Send Currency</Label>
+          <Select value={sendCurrency} onValueChange={(v) => setSendCurrency(v as SendCurrency)}>
+            <SelectTrigger className="mt-1">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {SEND_CURRENCIES.map((c) => (
+                <SelectItem key={c} value={c}>
+                  {currencySymbol[c]} {c}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground mt-1">
+            Sendable: ≈ {currencySymbol[sendCurrency]}{sendableAmount.toFixed(2)} (rate 1 {sourceWallet} = {currencySymbol[sendCurrency]}{fxRate.toFixed(2)})
+          </p>
+        </div>
+
+        {/* Recipient */}
         <div>
           <Label htmlFor="recipient">Recipient Solana address</Label>
           <Input
@@ -182,20 +293,23 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             required
           />
         </div>
+
+        {/* Amount */}
         <div>
-          <Label htmlFor="amount">Amount (EUR)</Label>
+          <Label htmlFor="amount">Amount ({sendCurrency})</Label>
           <Input
             id="amount"
             type="number"
             step="0.01"
             min="0.01"
-            value={eurAmount}
-            onChange={(e) => setEurAmount(e.target.value)}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
             required
           />
         </div>
+
         <Button type="submit" className="w-full" disabled={sending || !connected}>
-          {sending ? "Sending…" : connected ? "Send EUR" : "Connect wallet to send"}
+          {sending ? "Sending…" : connected ? `Send ${sendCurrency}` : "Connect wallet to send"}
         </Button>
       </form>
     </Card>
