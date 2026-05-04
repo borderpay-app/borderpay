@@ -250,7 +250,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                     <span>{w.flag}</span>
                     <span>{w.label}</span>
                     <span className="text-muted-foreground text-xs ml-1">
-                      ({fmtAmount(walletBalances[w.currency], w.currency)})
+                      ({fmtAmount(w.currency, walletBalances[w.currency])})
                     </span>
                   </span>
                 </SelectItem>
@@ -258,7 +258,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             </SelectContent>
           </Select>
           <p className="text-xs text-muted-foreground mt-1">
-            Balance: {fmtAmount(sourceBalanceMinor, sourceWallet)}
+            Balance: {fmtAmount(sourceWallet, sourceBalanceMinor)}
           </p>
         </div>
 
