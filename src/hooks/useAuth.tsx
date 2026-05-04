@@ -114,7 +114,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         loading,
         currentAal,
         nextAal,
-        mfaRequired: isAdmin,
+        mfaRequired: true,
         mfaEnrolled,
         refreshMfa,
         refreshRoles,

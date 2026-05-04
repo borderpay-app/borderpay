@@ -5,10 +5,12 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { MfaEnroll } from "@/components/MfaEnroll";
+import { MfaChallenge } from "@/components/MfaChallenge";
 import logo from "@/assets/logo.png";
 
 const AppLayout = () => {
-  const { user, isAdmin, loading, signOut } = useAuth();
+  const { user, isAdmin, loading, signOut, mfaEnrolled, currentAal, refreshMfa } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +19,27 @@ const AppLayout = () => {
 
   if (loading || !user) {
     return <div className="min-h-screen flex items-center justify-center">Loading…</div>;
+  }
+
+  // MFA not yet set up — force enrolment
+  if (!mfaEnrolled) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-6 bg-background">
+        <MfaEnroll onComplete={() => refreshMfa()} />
+        <Button variant="ghost" size="sm" onClick={signOut}>
+          Sign out
+        </Button>
+      </div>
+    );
+  }
+
+  // MFA enrolled but session not yet elevated to AAL2
+  if (currentAal !== "aal2") {
+    return (
+      <div className="min-h-screen flex items-center justify-center px-6 bg-background">
+        <MfaChallenge onVerified={() => refreshMfa()} />
+      </div>
+    );
   }
 
   return (
