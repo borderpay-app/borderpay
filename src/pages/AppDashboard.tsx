@@ -239,6 +239,8 @@ const AppDashboard = () => {
         <WalletsRow
           userId={user.id}
           refreshKey={balancePence + walletsRefresh}
+          selectedCurrency={selectedWallet}
+          onSelectCurrency={setSelectedWallet}
           action={
             <div className="flex items-center gap-2">
               <WalletTransferDialog
@@ -254,10 +256,14 @@ const AppDashboard = () => {
         />
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="p-6">
-            <p className="text-sm text-muted-foreground">GBP Balance</p>
-            <p className="text-4xl font-semibold mt-2">£{(balancePence / 100).toFixed(2)}</p>
+            <p className="text-sm text-muted-foreground">
+              {ALL_WALLETS.find((w) => w.currency === selectedWallet)?.label ?? selectedWallet} Balance
+            </p>
+            <p className="text-4xl font-semibold mt-2">
+              {fmtAmount(selectedWallet, walletBalances[selectedWallet])}
+            </p>
             <p className="text-sm text-muted-foreground mt-2">
-              Send EUR on Solana devnet using your GBP balance.
+              {ALL_WALLETS.find((w) => w.currency === selectedWallet)?.sub ?? ""}
             </p>
 
             <form onSubmit={addFunds} className="mt-6 space-y-3">
