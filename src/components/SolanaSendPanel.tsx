@@ -310,7 +310,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             <SelectContent>
               {SEND_CURRENCIES.map((c) => (
                 <SelectItem key={c} value={c}>
-                  {currencySymbol[c]} {c}
+                  {currencyLabel[c]}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -319,6 +319,30 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             Sendable: ≈ {currencySymbol[sendCurrency]}{sendableAmount.toFixed(2)} (rate 1 {sourceWallet} = {currencySymbol[sendCurrency]}{fxRate.toFixed(2)})
           </p>
         </div>
+
+        {/* Fee comparison */}
+        {amt > 0 && (
+          <Card className="p-3 bg-muted/50 space-y-2">
+            <p className="text-xs font-medium">Fee breakdown for {currencySymbol[sendCurrency]}{amt.toFixed(2)}</p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="space-y-1">
+                <p className="font-medium text-muted-foreground">As EUR (fiat)</p>
+                <p>Fee: {FEES.EUR.label}</p>
+                <p>Cost: €{(amt * eurEquiv * FEES.EUR.pct + FEES.EUR.fixed).toFixed(2)}</p>
+                <p className="font-semibold">Total: €{(amt * eurEquiv + amt * eurEquiv * FEES.EUR.pct + FEES.EUR.fixed).toFixed(2)}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="font-medium text-muted-foreground">As EURC (stablecoin)</p>
+                <p>Fee: {FEES.EURC.label}</p>
+                <p>Cost: €{(amt * eurEquiv * FEES.EURC.pct + FEES.EURC.fixed).toFixed(2)}</p>
+                <p className="font-semibold">Total: €{(amt * eurEquiv + amt * eurEquiv * FEES.EURC.pct + FEES.EURC.fixed).toFixed(2)}</p>
+              </div>
+            </div>
+            <p className="text-xs text-green-700 font-medium">
+              You save {currencySymbol[sendCurrency]}{((amt * FEES.EUR.pct + FEES.EUR.fixed) - (amt * FEES[sendCurrency].pct + FEES[sendCurrency].fixed)).toFixed(2)} using stablecoins vs fiat EUR
+            </p>
+          </Card>
+        )}
 
         {/* Recipient */}
         <div>
