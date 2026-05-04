@@ -295,7 +295,7 @@ const Team = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancel</Button>
             <Button onClick={handleInvite} disabled={inviting}>
-              {inviting ? "Assigning…" : "Assign role"}
+              {inviting ? "Sending…" : "Send Invite"}
             </Button>
           </DialogFooter>
         </DialogContent>
