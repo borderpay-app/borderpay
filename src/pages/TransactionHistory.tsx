@@ -12,7 +12,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowUpRight, ArrowDownLeft, Search } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Search, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface Tx {
   id: string;
@@ -130,13 +131,48 @@ const TransactionHistory = () => {
     return Array.from(set).sort();
   }, [txs]);
 
+  const exportCsv = () => {
+    const headers = ["Date", "Type", "Status", "Amount", "Currency", "Recipient", "Rail", "Solana Signature", "Notes"];
+    const rows = filtered.map((tx) => {
+      const amount = tx.currency
+        ? ((tx.currency === "GBP" ? tx.gbp_pence : tx.eur_cents) ?? 0) / 100
+        : (tx.gbp_pence ?? tx.eur_cents ?? 0) / 100;
+      const currency = tx.currency ?? (tx.gbp_pence != null ? "GBP" : tx.eur_cents != null ? "EUR" : "");
+      return [
+        new Date(tx.created_at).toISOString(),
+        tx.type,
+        tx.status,
+        amount.toFixed(2),
+        currency,
+        tx.recipient_address ?? "",
+        tx.rail ?? "",
+        tx.solana_signature ?? "",
+        (tx.notes ?? "").replace(/"/g, '""'),
+      ].map((v) => `"${v}"`).join(",");
+    });
+    const csv = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `transactions_${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (loading) return <div className="py-10 text-center text-muted-foreground">Loading…</div>;
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-foreground">Transaction History</h1>
-        <p className="text-sm text-muted-foreground mt-1">{txs.length} total transactions</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Transaction History</h1>
+          <p className="text-sm text-muted-foreground mt-1">{filtered.length} of {txs.length} transactions</p>
+        </div>
+        <Button variant="outline" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
+          <Download className="h-4 w-4 mr-1" />
+          Export CSV
+        </Button>
       </div>
 
       {/* Search & Filters */}
