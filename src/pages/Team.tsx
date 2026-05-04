@@ -29,6 +29,7 @@ import { z } from "zod";
 const ASSIGNABLE_ROLES: { value: AppRole; label: string; desc: string }[] = [
   { value: "creator", label: "Creator", desc: "Can create/modify payruns but cannot approve" },
   { value: "approver", label: "Approver", desc: "Can create payruns and approve others' (not own)" },
+  { value: "readonly", label: "Read Only", desc: "Can view payruns but cannot create or approve" },
   { value: "admin", label: "Admin", desc: "Full access, invite users, assign roles" },
 ];
 
@@ -45,6 +46,7 @@ const ROLE_COLORS: Record<AppRole, string> = {
   admin: "bg-primary/10 text-primary border-primary/20",
   approver: "bg-amber-100 text-amber-800 border-amber-200",
   creator: "bg-blue-100 text-blue-800 border-blue-200",
+  readonly: "bg-slate-100 text-slate-700 border-slate-200",
   user: "bg-muted text-muted-foreground border-border",
 };
 
