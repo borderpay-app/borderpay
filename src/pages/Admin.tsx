@@ -368,6 +368,13 @@ const Admin = () => {
                 </Button>
               </Card>
             </TabsContent>
+
+            {/* Website Content Tab */}
+            <TabsContent value="website">
+              <Suspense fallback={<p className="text-sm text-muted-foreground">Loading…</p>}>
+                <WebsiteContent />
+              </Suspense>
+            </TabsContent>
           </Tabs>
         </main>
       </div>
