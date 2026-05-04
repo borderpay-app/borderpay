@@ -57,7 +57,7 @@ export const MfaChallenge = ({ onVerified }: Props) => {
       <div>
         <h2 className="text-xl font-semibold">Two-factor verification</h2>
         <p className="text-sm text-muted-foreground mt-1">
-          Enter the 6-digit code from your authenticator app to access admin tools.
+          Enter the 6-digit code from your authenticator app to continue.
         </p>
       </div>
       <Input
