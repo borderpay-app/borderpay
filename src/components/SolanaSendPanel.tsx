@@ -94,6 +94,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [disclaimerAcked, setDisclaimerAcked] = useState(false);
   const [sourceWallet, setSourceWallet] = useState<Currency>("GBP");
   const [sendCurrency, setSendCurrency] = useState<SendCurrency>("EUR");
   const [walletBalances, setWalletBalances] = useState<Record<Currency, number>>({
