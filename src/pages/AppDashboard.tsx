@@ -417,6 +417,7 @@ const AppDashboard = () => {
             </div>
           </Card>
 
+          {(() => {
             const cutoff = Date.now() - 24 * 60 * 60 * 1000;
             const recent = txs
               .filter((t) => t.type === "topup" && new Date(t.created_at).getTime() >= cutoff);
