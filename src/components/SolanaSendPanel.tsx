@@ -274,6 +274,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       toast.success(`${currencySymbol[sendCurrency]}${sendAmt.toFixed(2)} sent via Solana`);
       setRecipient("");
       setAmount("");
+      setShowConfirm(false);
       onSent();
     } catch (err: any) {
       console.error(err);
