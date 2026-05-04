@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import { explorerTx, shortAddr } from "@/lib/solana";
 import logo from "@/assets/logo.png";
-import { WalletsRow } from "@/components/WalletsRow";
+import { WalletsRow, ALL_WALLETS, fmtAmount, type Currency } from "@/components/WalletsRow";
 import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
 import { WalletTransferDialog } from "@/components/WalletTransferDialog";
 
@@ -53,6 +53,8 @@ const AppDashboard = () => {
   const [topupGbp, setTopupGbp] = useState("");
   const [toppingUp, setToppingUp] = useState(false);
   const [savedWallet, setSavedWallet] = useState<string | null>(null);
+  const [selectedWallet, setSelectedWallet] = useState<Currency>("GBP");
+  const [walletBalances, setWalletBalances] = useState<Record<Currency, number>>({ GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0 });
 
   useEffect(() => {
     if (!loading && !user) navigate("/auth", { replace: true });
@@ -94,14 +96,20 @@ const AppDashboard = () => {
 
   const refresh = async () => {
     if (!user) return;
-    const [bal, list, prof] = await Promise.all([
+    const [bal, list, prof, wb] = await Promise.all([
       supabase.from("gbp_balances").select("balance_pence").eq("user_id", user.id).maybeSingle(),
       supabase.from("transactions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
       supabase.from("profiles").select("wallet_address").eq("user_id", user.id).maybeSingle(),
+      supabase.from("wallet_balances").select("currency, balance_minor").eq("user_id", user.id),
     ]);
     setBalancePence(Number(bal.data?.balance_pence ?? 0));
     setTxs((list.data ?? []) as Tx[]);
     setSavedWallet((prof.data?.wallet_address as string | null) ?? null);
+    const wbMap: Record<Currency, number> = { GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0 };
+    for (const r of (wb.data ?? []) as { currency: Currency; balance_minor: number }[]) {
+      if (r.currency in wbMap) wbMap[r.currency] = Number(r.balance_minor ?? 0);
+    }
+    setWalletBalances(wbMap);
   };
 
   useEffect(() => {
@@ -231,6 +239,8 @@ const AppDashboard = () => {
         <WalletsRow
           userId={user.id}
           refreshKey={balancePence + walletsRefresh}
+          selectedCurrency={selectedWallet}
+          onSelectCurrency={setSelectedWallet}
           action={
             <div className="flex items-center gap-2">
               <WalletTransferDialog
@@ -246,10 +256,14 @@ const AppDashboard = () => {
         />
         <div className="grid gap-6 md:grid-cols-2">
           <Card className="p-6">
-            <p className="text-sm text-muted-foreground">GBP Balance</p>
-            <p className="text-4xl font-semibold mt-2">£{(balancePence / 100).toFixed(2)}</p>
+            <p className="text-sm text-muted-foreground">
+              {ALL_WALLETS.find((w) => w.currency === selectedWallet)?.label ?? selectedWallet} Balance
+            </p>
+            <p className="text-4xl font-semibold mt-2">
+              {fmtAmount(selectedWallet, walletBalances[selectedWallet])}
+            </p>
             <p className="text-sm text-muted-foreground mt-2">
-              Send EUR on Solana devnet using your GBP balance.
+              {ALL_WALLETS.find((w) => w.currency === selectedWallet)?.sub ?? ""}
             </p>
 
             <form onSubmit={addFunds} className="mt-6 space-y-3">
