@@ -34,14 +34,52 @@ const FX: Record<string, number> = {
   "EUR→EUR": 1,
   "BGBP→GBP": 1,
   "BEUR→EUR": 1,
-  "BDRP→EUR": 1.0, // 1 BDRP ≈ €0.50 + £0.43 ≈ €1.00
+  "BDRP→EUR": 1.0,
   "BDRP→GBP": 0.86,
+  "GBP→EURC": 1.18,
+  "EUR→EURC": 1,
+  "BGBP→EURC": 1.18,
+  "BEUR→EURC": 1,
+  "BDRP→EURC": 1.0,
+  "GBP→USDC": 1.27,
+  "EUR→USDC": 1.08,
+  "BGBP→USDC": 1.27,
+  "BEUR→USDC": 1.08,
+  "BDRP→USDC": 1.08,
+  "GBP→USDT": 1.27,
+  "EUR→USDT": 1.08,
+  "BGBP→USDT": 1.27,
+  "BEUR→USDT": 1.08,
+  "BDRP→USDT": 1.08,
 };
 
-const SEND_CURRENCIES = ["GBP", "EUR"] as const;
+const SEND_CURRENCIES = ["GBP", "EUR", "EURC", "USDC", "USDT"] as const;
 type SendCurrency = (typeof SEND_CURRENCIES)[number];
 
-const currencySymbol: Record<SendCurrency, string> = { GBP: "£", EUR: "€" };
+const currencySymbol: Record<SendCurrency, string> = {
+  GBP: "£",
+  EUR: "€",
+  EURC: "€",
+  USDC: "$",
+  USDT: "$",
+};
+
+const currencyLabel: Record<SendCurrency, string> = {
+  GBP: "£ GBP",
+  EUR: "€ EUR",
+  EURC: "€ EURC (Stablecoin)",
+  USDC: "$ USDC (Stablecoin)",
+  USDT: "$ USDT (Stablecoin)",
+};
+
+// Fee structure: fiat rails have higher fees, stablecoins are cheaper
+const FEES: Record<SendCurrency, { pct: number; fixed: number; label: string }> = {
+  GBP: { pct: 0.015, fixed: 0.50, label: "1.5% + £0.50" },
+  EUR: { pct: 0.012, fixed: 0.40, label: "1.2% + €0.40" },
+  EURC: { pct: 0.003, fixed: 0.0, label: "0.3% + no fixed fee" },
+  USDC: { pct: 0.003, fixed: 0.0, label: "0.3% + no fixed fee" },
+  USDT: { pct: 0.003, fixed: 0.0, label: "0.3% + no fixed fee" },
+};
 
 interface Props {
   userId: string;
