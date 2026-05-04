@@ -104,28 +104,17 @@ const Team = () => {
     }
     setInviting(true);
     try {
-      // Use Supabase invite (admin API via edge function or service role).
-      // For now we check if user already exists in profiles.
-      const { data: existing } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .eq("email", parsed.data)
-        .maybeSingle();
+      const { data, error } = await supabase.functions.invoke("invite-user", {
+        body: { email: parsed.data, role: inviteRole },
+      });
 
-      if (existing) {
-        // User already exists — just assign the role
-        const { error: roleErr } = await supabase
-          .from("user_roles")
-          .upsert(
-            { user_id: existing.user_id, role: inviteRole },
-            { onConflict: "user_id,role" }
-          );
-        if (roleErr) throw roleErr;
+      if (error) throw error;
+
+      if (data?.status === "existing") {
         toast.success(`Role "${inviteRole}" assigned to ${parsed.data}`);
-      } else {
-        // User doesn't exist yet — show guidance
-        toast.info(`${parsed.data} doesn't have an account yet`, {
-          description: "Ask them to sign up. Once they do, come back here to assign their role.",
+      } else if (data?.status === "invited") {
+        toast.success(`Invitation sent to ${parsed.data}`, {
+          description: "They'll receive an email from hello@borderpay.app to accept the invite.",
           duration: 6000,
         });
       }
