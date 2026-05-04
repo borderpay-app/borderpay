@@ -153,7 +153,7 @@ const Team = () => {
     try {
       // Remove existing non-user roles, then insert the new one
       // First delete old assignable roles
-      for (const role of ["creator", "approver", "admin"] as AppRole[]) {
+      for (const role of ["creator", "approver", "readonly", "admin"] as AppRole[]) {
         if (editMember.roles.includes(role) && role !== editRole) {
           await supabase
             .from("user_roles")
