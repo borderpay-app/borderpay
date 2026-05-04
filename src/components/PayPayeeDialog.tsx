@@ -271,7 +271,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
     setCurrency(r === "stable" ? "EURC" : "GBP");
   };
 
-  const goToReview = (e: React.FormEvent) => {
+  const goToReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!payee) return;
     const parsed = amountSchema.safeParse(amount);
@@ -304,7 +304,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       return;
     }
     // Generate Bridge quote for the review screen
-    const bq = bridgeGetQuote(
+    const bq = await bridgeGetQuote(
       bridgeCurrencyFromPayCurrency(sourceWallet!),
       bridgeCurrencyFromPayCurrency(currency),
       amountCents / 100,
@@ -361,7 +361,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       }
 
       // Create a mock Bridge transfer for the payment record
-      const bt = bridgeCreateTransfer({
+      const bt = await bridgeCreateTransfer({
         customer_id: user.id,
         amount: amountCents / 100,
         source_currency: bridgeCurrencyFromPayCurrency(sourceWallet),
