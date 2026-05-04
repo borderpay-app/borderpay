@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -13,7 +13,9 @@ import { Helmet } from "react-helmet-async";
 import logo from "@/assets/logo.png";
 import { MfaEnroll } from "@/components/MfaEnroll";
 import { MfaChallenge } from "@/components/MfaChallenge";
-import { ShieldCheck, ShieldAlert, Upload, Building2 } from "lucide-react";
+import { ShieldCheck, ShieldAlert, Upload, Building2, FileText } from "lucide-react";
+
+const WebsiteContent = lazy(() => import("./WebsiteContent"));
 
 interface UserRow {
   user_id: string;
@@ -230,6 +232,7 @@ const Admin = () => {
             <TabsList>
               <TabsTrigger value="users">Users</TabsTrigger>
               <TabsTrigger value="company">Company Configuration</TabsTrigger>
+              <TabsTrigger value="website">Website Content</TabsTrigger>
             </TabsList>
 
             {/* Users Tab */}
