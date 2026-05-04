@@ -453,12 +453,38 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
 
                     <span className="text-muted-foreground">Debit from {sourceWallet}</span>
                     <span className="text-right">{fmtAmount(sourceWallet, Math.round((confirmAmt / fxRate) * 100))}</span>
+                  </div>
 
-                    <span className="text-muted-foreground">Fee ({fee.label})</span>
-                    <span className="text-right">{currencySymbol[sendCurrency]}{feeCost.toFixed(2)}</span>
+                  {/* Fee breakdown */}
+                  <div className="rounded border p-3 space-y-1 bg-muted/40">
+                    <p className="text-xs font-semibold mb-1.5">Fee Breakdown</p>
+                    <div className="grid grid-cols-3 gap-x-3 text-xs text-muted-foreground">
+                      <span></span>
+                      <span className="text-right font-medium">{sendCurrency}</span>
+                      <span className="text-right font-medium">EUR</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-x-3 text-xs">
+                      <span className="text-muted-foreground">Percentage fee ({(fee.pct * 100).toFixed(1)}%)</span>
+                      <span className="text-right">{currencySymbol[sendCurrency]}{(confirmAmt * fee.pct).toFixed(2)}</span>
+                      <span className="text-right">€{(eurAmt * fee.pct).toFixed(2)}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-x-3 text-xs">
+                      <span className="text-muted-foreground">Fixed fee</span>
+                      <span className="text-right">{currencySymbol[sendCurrency]}{fee.fixed.toFixed(2)}</span>
+                      <span className="text-right">€{(fee.fixed * eurEquiv).toFixed(2)}</span>
+                    </div>
+                    <div className="grid grid-cols-3 gap-x-3 text-xs border-t pt-1 font-medium">
+                      <span>Total fees</span>
+                      <span className="text-right">{currencySymbol[sendCurrency]}{feeCost.toFixed(2)}</span>
+                      <span className="text-right">€{feeCostEur.toFixed(2)}</span>
+                    </div>
+                  </div>
 
-                    <span className="text-muted-foreground font-medium border-t pt-1">Total cost (EUR)</span>
-                    <span className="text-right font-semibold border-t pt-1">€{totalEur.toFixed(2)}</span>
+                  <div className="grid grid-cols-2 gap-x-4 text-sm border-t pt-2">
+                    <span className="font-medium">Total ({sendCurrency})</span>
+                    <span className="text-right font-semibold">{currencySymbol[sendCurrency]}{totalSend.toFixed(2)}</span>
+                    <span className="font-medium">Total (EUR)</span>
+                    <span className="text-right font-semibold">€{totalEur.toFixed(2)}</span>
                   </div>
 
                   {isStablecoin && savings > 0.01 && (
