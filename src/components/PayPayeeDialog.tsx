@@ -271,7 +271,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
     setCurrency(r === "stable" ? "EURC" : "GBP");
   };
 
-  const goToReview = (e: React.FormEvent) => {
+  const goToReview = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!payee) return;
     const parsed = amountSchema.safeParse(amount);
