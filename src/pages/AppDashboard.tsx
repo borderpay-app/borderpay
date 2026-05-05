@@ -266,28 +266,38 @@ const AppDashboard = () => {
               {ALL_WALLETS.find((w) => w.currency === selectedWallet)?.sub ?? ""}
             </p>
 
-            <form onSubmit={addFunds} className="mt-6 space-y-3">
-              <Label htmlFor="topup">Add funds (demo)</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="topup"
-                  type="number"
-                  inputMode="decimal"
-                  step="0.01"
-                  min="1"
-                  max="10000"
-                  placeholder="100.00"
-                  value={topupGbp}
-                  onChange={(e) => setTopupGbp(e.target.value)}
-                />
-                <Button type="submit" disabled={toppingUp}>
-                  {toppingUp ? "Adding…" : "Add funds"}
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Demo only — no real money is moved. Limits: £1–£10,000 per top-up, £25,000/day, £100,000 max balance.
+            {selectedWallet === "GBP" ? (
+              <form onSubmit={addFunds} className="mt-6 space-y-3">
+                <Label htmlFor="topup">Add funds (demo)</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="topup"
+                    type="number"
+                    inputMode="decimal"
+                    step="0.01"
+                    min="1"
+                    max="10000"
+                    placeholder="100.00"
+                    value={topupGbp}
+                    onChange={(e) => setTopupGbp(e.target.value)}
+                  />
+                  <Button type="submit" disabled={toppingUp}>
+                    {toppingUp ? "Adding…" : "Add funds"}
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Demo only — no real money is moved. Limits: £1–£10,000 per top-up, £25,000/day, £100,000 max balance.
+                </p>
+              </form>
+            ) : selectedWallet === "EUR" ? (
+              <p className="mt-6 text-sm text-muted-foreground">
+                Use the <strong>Send</strong> feature to convert GBP → EUR, or receive EUR from another user.
               </p>
-            </form>
+            ) : (
+              <p className="mt-6 text-sm text-muted-foreground">
+                Use <strong>Mint / Burn</strong> above to convert fiat balances into stablecoins.
+              </p>
+            )}
 
             <div className="mt-6 pt-6 border-t">
               <p className="text-sm font-medium">Your saved wallet</p>
