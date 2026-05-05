@@ -1,4 +1,11 @@
 import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
@@ -498,16 +505,50 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                   </div>
                 </Card>
 
-                <label className="flex items-start gap-2 cursor-pointer">
-                  <Checkbox
-                    checked={disclaimerAcked}
-                    onCheckedChange={(v) => setDisclaimerAcked(v === true)}
-                    className="mt-0.5"
-                  />
-                  <span className="text-xs text-muted-foreground leading-snug">
-                    I understand that Border Pay is not yet authorised by any financial regulator and that this action only expresses my interest in using the platform. No real funds will be transferred.
-                  </span>
-                </label>
+                <Dialog>
+                  <div className="space-y-2">
+                    <DialogTrigger asChild>
+                      <button type="button" className="text-xs text-primary underline hover:text-primary/80 transition-colors">
+                        Read full disclaimer
+                      </button>
+                    </DialogTrigger>
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <Checkbox
+                        checked={disclaimerAcked}
+                        onCheckedChange={(v) => setDisclaimerAcked(v === true)}
+                        className="mt-0.5"
+                      />
+                      <span className="text-xs text-muted-foreground leading-snug">
+                        I understand that Border Pay is not yet authorised by any financial regulator and that this action only expresses my interest in using the platform. No real funds will be transferred.
+                      </span>
+                    </label>
+                  </div>
+                  <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>Border Pay Disclaimer</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-3 text-sm text-muted-foreground leading-relaxed">
+                      <p>
+                        Border Pay is currently in a pre-launch, demonstration phase. The platform is <strong>not yet authorised or regulated</strong> by the Financial Conduct Authority (FCA), the Central Bank of Ireland, or any other financial regulator in any jurisdiction.
+                      </p>
+                      <p>
+                        By proceeding, you acknowledge and agree that:
+                      </p>
+                      <ul className="list-disc pl-5 space-y-2">
+                        <li>This transaction is a <strong>simulated expression of interest</strong> only. No real funds, fiat or cryptocurrency, will be debited, transferred, or received.</li>
+                        <li>Border Pay does not currently hold, transmit, or custody any client funds. All wallet balances and transactions shown are for demonstration purposes.</li>
+                        <li>Stablecoin references (EURC, USDC, USDT) are used to illustrate potential cost savings and do not constitute an offer to buy, sell, or exchange digital assets.</li>
+                        <li>Fee estimates, foreign-exchange rates, and savings comparisons displayed are indicative only and may differ materially from rates available at the time of any future live service.</li>
+                        <li>Border Pay makes no guarantee that the platform will receive regulatory authorisation or launch commercially in any jurisdiction.</li>
+                        <li>You should not rely on any information presented here as financial, legal, or tax advice. Please consult a qualified professional before making financial decisions.</li>
+                        <li>Your personal data will be handled in accordance with our Privacy Policy and applicable data-protection legislation (including UK GDPR and EU GDPR).</li>
+                      </ul>
+                      <p>
+                        If you have any questions, please contact us at <strong>hello@borderpay.app</strong>.
+                      </p>
+                    </div>
+                  </DialogContent>
+                </Dialog>
 
                 <div className="flex gap-2">
                   <Button type="button" variant="outline" className="flex-1" onClick={() => { setShowConfirm(false); setDisclaimerAcked(false); }} disabled={sending}>
