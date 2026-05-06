@@ -299,11 +299,21 @@ const TransactionHistory = () => {
               <TableHead className="w-[40px]"></TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Payee Legal Name</TableHead>
+              <TableHead>
+                <Button variant="ghost" size="sm" className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground" onClick={() => toggleSort("payee_legal_name")}>
+                  Payee Legal Name
+                  {sortKey === "payee_legal_name" ? (sortDir === "asc" ? <ArrowUp className="ml-1 h-3 w-3 inline" /> : <ArrowDown className="ml-1 h-3 w-3 inline" />) : <ArrowUpDown className="ml-1 h-3 w-3 inline opacity-50" />}
+                </Button>
+              </TableHead>
               <TableHead>Recipient</TableHead>
               <TableHead>Rail</TableHead>
               <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">Date</TableHead>
+              <TableHead className="text-right">
+                <Button variant="ghost" size="sm" className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground ml-auto" onClick={() => toggleSort("created_at")}>
+                  Date
+                  {sortKey === "created_at" ? (sortDir === "asc" ? <ArrowUp className="ml-1 h-3 w-3 inline" /> : <ArrowDown className="ml-1 h-3 w-3 inline" />) : <ArrowUpDown className="ml-1 h-3 w-3 inline opacity-50" />}
+                </Button>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
