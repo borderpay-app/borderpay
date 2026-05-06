@@ -1,5 +1,8 @@
+import * as React from 'npm:react@18.3.1'
+import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
+import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,6 +10,9 @@ const corsHeaders = {
 }
 
 const NOTIFY_EMAIL = 'hello@borderpay.app'
+const SITE_NAME = 'borderpay-express-interest'
+const SENDER_DOMAIN = 'notify.borderpay.app'
+const FROM_DOMAIN = 'borderpay.app'
 const RATE_LIMIT_WINDOW_MINUTES = 10
 const MAX_REQUESTS_PER_WINDOW = 3
 
@@ -25,6 +31,106 @@ function getSupabaseAdmin() {
     Deno.env.get('SUPABASE_URL')!,
     Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
   )
+}
+
+function generateToken(): string {
+  const bytes = new Uint8Array(32)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+async function enqueueTransactionalEmail(
+  supabaseAdmin: ReturnType<typeof createClient>,
+  body: {
+    templateName: string
+    recipientEmail: string
+    idempotencyKey: string
+    templateData?: Record<string, unknown>
+  }
+) {
+  const template = TEMPLATES[body.templateName]
+  if (!template) throw new Error(`Email template not found: ${body.templateName}`)
+
+  const effectiveRecipient = template.to || body.recipientEmail
+  const normalizedEmail = effectiveRecipient.toLowerCase()
+  const messageId = crypto.randomUUID()
+
+  const { data: suppressed, error: suppressionError } = await supabaseAdmin
+    .from('suppressed_emails')
+    .select('id')
+    .eq('email', normalizedEmail)
+    .maybeSingle()
+
+  if (suppressionError) throw new Error(`Suppression check failed: ${suppressionError.message}`)
+
+  if (suppressed) {
+    await supabaseAdmin.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: body.templateName,
+      recipient_email: effectiveRecipient,
+      status: 'suppressed',
+    })
+    return
+  }
+
+  const { data: existingToken, error: tokenLookupError } = await supabaseAdmin
+    .from('email_unsubscribe_tokens')
+    .select('token, used_at')
+    .eq('email', normalizedEmail)
+    .maybeSingle()
+
+  if (tokenLookupError) throw new Error(`Token lookup failed: ${tokenLookupError.message}`)
+  if (existingToken?.used_at) throw new Error('Email is unsubscribed but missing suppression record')
+
+  let unsubscribeToken = existingToken?.token
+  if (!unsubscribeToken) {
+    unsubscribeToken = generateToken()
+    const { error: tokenError } = await supabaseAdmin
+      .from('email_unsubscribe_tokens')
+      .upsert({ token: unsubscribeToken, email: normalizedEmail }, { onConflict: 'email', ignoreDuplicates: true })
+    if (tokenError) throw new Error(`Failed to create unsubscribe token: ${tokenError.message}`)
+  }
+
+  const templateData = body.templateData ?? {}
+  const html = await renderAsync(React.createElement(template.component, templateData))
+  const text = await renderAsync(React.createElement(template.component, templateData), { plainText: true })
+  const subject = typeof template.subject === 'function' ? template.subject(templateData) : template.subject
+
+  await supabaseAdmin.from('email_send_log').insert({
+    message_id: messageId,
+    template_name: body.templateName,
+    recipient_email: effectiveRecipient,
+    status: 'pending',
+  })
+
+  const { error: enqueueError } = await supabaseAdmin.rpc('enqueue_email', {
+    queue_name: 'transactional_emails',
+    payload: {
+      message_id: messageId,
+      to: effectiveRecipient,
+      from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+      sender_domain: SENDER_DOMAIN,
+      subject,
+      html,
+      text,
+      purpose: 'transactional',
+      label: body.templateName,
+      idempotency_key: body.idempotencyKey,
+      unsubscribe_token: unsubscribeToken,
+      queued_at: new Date().toISOString(),
+    },
+  })
+
+  if (enqueueError) {
+    await supabaseAdmin.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: body.templateName,
+      recipient_email: effectiveRecipient,
+      status: 'failed',
+      error_message: 'Failed to enqueue email',
+    })
+    throw new Error(`Failed to enqueue email: ${enqueueError.message}`)
+  }
 }
 
 async function checkRateLimit(supabaseAdmin: ReturnType<typeof createClient>, email: string): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
@@ -120,15 +226,12 @@ Deno.serve(async (req) => {
     // Send confirmation email to the registrant (fire-and-forget — failures don't block success)
     try {
       const idempotencyKey = `interest-confirm-${email.toLowerCase()}`
-      const { error: emailErr } = await supabaseAdmin.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'interest-confirmation',
-          recipientEmail: email,
-          idempotencyKey,
-          templateData: { name },
-        },
+      await enqueueTransactionalEmail(supabaseAdmin, {
+        templateName: 'interest-confirmation',
+        recipientEmail: email,
+        idempotencyKey,
+        templateData: { name },
       })
-      if (emailErr) console.error('Confirmation email failed:', emailErr.message)
     } catch (e) {
       console.error('Confirmation email threw:', e)
     }
@@ -142,15 +245,12 @@ Deno.serve(async (req) => {
 
     // Send notification email to admin via transactional email queue
     try {
-      const { error: notifyErr } = await supabaseAdmin.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'interest-notification',
-          recipientEmail: NOTIFY_EMAIL,
-          idempotencyKey: `interest-notify-${registrationId}`,
-          templateData: { name, email, company, location },
-        },
+      await enqueueTransactionalEmail(supabaseAdmin, {
+        templateName: 'interest-notification',
+        recipientEmail: NOTIFY_EMAIL,
+        idempotencyKey: `interest-notify-${registrationId}`,
+        templateData: { name, email, company, location },
       })
-      if (notifyErr) console.error('Notification email failed:', notifyErr.message)
     } catch (e) {
       console.error('Notification email threw:', e)
     }
