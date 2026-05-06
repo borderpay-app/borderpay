@@ -346,18 +346,10 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
           const cheapest = Math.min(...rows.map((r) => r.eurTotal));
           return (
             <Card className="mt-2 p-4 space-y-3 bg-muted/30">
-              <div className="flex items-center gap-2">
-                <Label htmlFor="calc-amount" className="text-xs whitespace-nowrap">Amount (€ equiv.)</Label>
-                <Input
-                  id="calc-amount"
-                  type="number"
-                  step="1"
-                  min="1"
-                  value={calcAmount}
-                  onChange={(e) => setCalcAmount(e.target.value)}
-                  className="h-8 w-32 text-sm"
-                />
-              </div>
+              <p className="text-xs text-muted-foreground">
+                Estimating fees for <strong>{currencySymbol[sendCurrency]}{calcAmount}</strong>{" "}
+                {amount ? "(from your send amount)" : "(default — enter an amount above)"}
+              </p>
               {calcAmt > 0 && (
                 <div className="overflow-x-auto">
                   <table className="w-full text-xs">
