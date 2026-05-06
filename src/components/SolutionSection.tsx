@@ -89,7 +89,7 @@ const SolutionSection = () => {
             </div>
             <h3 className="font-semibold text-foreground mb-2">Built for the Border</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Purpose-built for the unique NI–Ireland dual-currency corridor. Payroll, suppliers, tax — all in one wallet.
+              Purpose-built for the unique NI–Ireland dual-currency corridor 12B. Payroll, suppliers, tax — all in one wallet.
             </p>
           </div>
         </div>

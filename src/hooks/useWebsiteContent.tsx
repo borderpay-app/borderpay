@@ -34,19 +34,19 @@ const DEFAULTS: Record<string, SectionContent> = {
     headline: "Cross-border payments,",
     headlineAccent: "simplified.",
     subtitle:
-      "BDRP is a dual-pegged stablecoin backed by GBP and EUR, powering fast, low-cost settlement across the NI–Ireland corridor.",
+      "BDRP is a dual-pegged stablecoin backed by GBP and EUR, powering fast, low-cost settlement across the NI–Ireland corridor 12B.",
     stat1Value: "<30s",
     stat1Label: "Settlement time",
     stat2Value: "<0.5%",
     stat2Label: "All-in fees",
     stat3Value: "£1.5–2B",
-    stat3Label: "Corridor volume",
+    stat3Label: "Corridor 12B volume",
   },
   problem: {
     tagline: "The Problem",
     headline: "Cross-border payments are broken",
     subtitle:
-      "Northern Ireland SMEs trading with Ireland bear a disproportionate cost burden — despite operating across the world's most integrated cross-border corridor.",
+      "Northern Ireland SMEs trading with Ireland bear a disproportionate cost burden — despite operating across the world's most integrated cross-border corridor 12B.",
   },
   solution: {
     tagline: "The Solution",
