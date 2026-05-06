@@ -69,10 +69,14 @@ const TransactionHistory = () => {
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+      const newDir = sortDir === "asc" ? "desc" : "asc";
+      setSortDir(newDir);
+      localStorage.setItem("tx_sort_dir", newDir);
     } else {
       setSortKey(key);
       setSortDir("asc");
+      localStorage.setItem("tx_sort_key", key);
+      localStorage.setItem("tx_sort_dir", "asc");
     }
   };
 
