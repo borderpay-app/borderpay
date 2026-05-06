@@ -65,6 +65,7 @@ const SEND_CURRENCIES = ["GBP", "EUR", "EURC", "USDC", "USDT"] as const;
 type SendCurrency = (typeof SEND_CURRENCIES)[number];
 
 type DeliveryMethod = "solana" | "domestic" | "iban";
+type SigningMode = "custodial" | "connected";
 
 const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
   solana: "Solana Address",
