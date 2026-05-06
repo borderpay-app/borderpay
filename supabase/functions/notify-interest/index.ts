@@ -19,21 +19,6 @@ const InterestSchema = z.object({
   location: z.enum(VALID_LOCATIONS, { errorMap: () => ({ message: 'Invalid location' }) }),
 })
 
-function escapeHtml(str: string): string {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;')
-}
-
-const locationMap: Record<string, string> = {
-  'northern-ireland': 'Northern Ireland',
-  'ireland': 'Ireland',
-  'uk-other': 'UK (other)',
-  'other': 'Other',
-}
 
 function getSupabaseAdmin() {
   return createClient(
