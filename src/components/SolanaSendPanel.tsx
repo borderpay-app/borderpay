@@ -754,6 +754,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                   )}
 
                   <div className="text-xs text-muted-foreground break-all space-y-0.5">
+                    <p><span className="font-medium">Payee:</span> {payeeLegalName}</p>
                     <p><span className="font-medium">Method:</span> {DELIVERY_LABELS[deliveryMethod]}</p>
                     {deliveryMethod === "solana" && (
                       <p><span className="font-medium">To:</span> {recipient}</p>
