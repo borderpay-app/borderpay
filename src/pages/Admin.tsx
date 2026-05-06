@@ -232,6 +232,7 @@ const Admin = () => {
           <Tabs defaultValue="users" className="space-y-6">
             <TabsList>
               <TabsTrigger value="users">Users</TabsTrigger>
+              <TabsTrigger value="interest">Interest Log</TabsTrigger>
               <TabsTrigger value="company">Company Configuration</TabsTrigger>
               <TabsTrigger value="website">Website Content</TabsTrigger>
             </TabsList>
