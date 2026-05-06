@@ -20,8 +20,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpRight, ArrowDownLeft, Search, Download } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Search, Download, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+type SortKey = "payee_legal_name" | "created_at";
+type SortDir = "asc" | "desc";
 
 interface Tx {
   id: string;
@@ -55,6 +58,17 @@ const TransactionHistory = () => {
   const [dateTo, setDateTo] = useState("");
   const [currencyFilter, setCurrencyFilter] = useState("all");
   const [directionFilter, setDirectionFilter] = useState("all");
+  const [sortKey, setSortKey] = useState<SortKey | null>(null);
+  const [sortDir, setSortDir] = useState<SortDir>("asc");
+
+  const toggleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -116,8 +130,26 @@ const TransactionHistory = () => {
       list = list.filter((tx) => tx.type === directionFilter);
     }
 
+    // Sorting
+    if (sortKey) {
+      list = [...list].sort((a, b) => {
+        let aVal: string | number = "";
+        let bVal: string | number = "";
+        if (sortKey === "payee_legal_name") {
+          aVal = (a.payee_legal_name ?? "").toLowerCase();
+          bVal = (b.payee_legal_name ?? "").toLowerCase();
+        } else if (sortKey === "created_at") {
+          aVal = new Date(a.created_at).getTime();
+          bVal = new Date(b.created_at).getTime();
+        }
+        if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
     return list;
-  }, [txs, search, dateFrom, dateTo, currencyFilter, directionFilter]);
+  }, [txs, search, dateFrom, dateTo, currencyFilter, directionFilter, sortKey, sortDir]);
 
   const formatAmount = (tx: Tx) => {
     if (tx.currency) {
@@ -267,11 +299,21 @@ const TransactionHistory = () => {
               <TableHead className="w-[40px]"></TableHead>
               <TableHead>Type</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Payee Legal Name</TableHead>
+              <TableHead>
+                <Button variant="ghost" size="sm" className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground" onClick={() => toggleSort("payee_legal_name")}>
+                  Payee Legal Name
+                  {sortKey === "payee_legal_name" ? (sortDir === "asc" ? <ArrowUp className="ml-1 h-3 w-3 inline" /> : <ArrowDown className="ml-1 h-3 w-3 inline" />) : <ArrowUpDown className="ml-1 h-3 w-3 inline opacity-50" />}
+                </Button>
+              </TableHead>
               <TableHead>Recipient</TableHead>
               <TableHead>Rail</TableHead>
               <TableHead className="text-right">Amount</TableHead>
-              <TableHead className="text-right">Date</TableHead>
+              <TableHead className="text-right">
+                <Button variant="ghost" size="sm" className="h-auto p-0 font-medium text-muted-foreground hover:text-foreground ml-auto" onClick={() => toggleSort("created_at")}>
+                  Date
+                  {sortKey === "created_at" ? (sortDir === "asc" ? <ArrowUp className="ml-1 h-3 w-3 inline" /> : <ArrowDown className="ml-1 h-3 w-3 inline" />) : <ArrowUpDown className="ml-1 h-3 w-3 inline opacity-50" />}
+                </Button>
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
