@@ -12,6 +12,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { ArrowUpRight, ArrowDownLeft, Search, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -252,66 +260,91 @@ const TransactionHistory = () => {
       </Card>
 
       {/* Results */}
-      <Card className="divide-y">
-        {filtered.length === 0 ? (
-          <div className="p-8 text-center text-sm text-muted-foreground">
-            {txs.length === 0 ? "No transactions yet." : "No transactions match your filters."}
-          </div>
-        ) : (
-          filtered.map((tx) => (
-            <div key={tx.id} className="p-4 flex items-center gap-4 flex-wrap">
-              {/* Direction icon */}
-              <div className={`w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 ${
-                tx.type === "send" ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600"
-              }`}>
-                {tx.type === "send" ? <ArrowUpRight size={16} /> : <ArrowDownLeft size={16} />}
-              </div>
+      <Card className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[40px]"></TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Payee Legal Name</TableHead>
+              <TableHead>Recipient</TableHead>
+              <TableHead>Rail</TableHead>
+              <TableHead className="text-right">Amount</TableHead>
+              <TableHead className="text-right">Date</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filtered.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={8} className="text-center py-8 text-sm text-muted-foreground">
+                  {txs.length === 0 ? "No transactions yet." : "No transactions match your filters."}
+                </TableCell>
+              </TableRow>
+            ) : (
+              filtered.map((tx) => (
+                <TableRow key={tx.id}>
+                  {/* Direction icon */}
+                  <TableCell>
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      tx.type === "send" ? "bg-red-50 text-red-600" : "bg-emerald-50 text-emerald-600"
+                    }`}>
+                      {tx.type === "send" ? <ArrowUpRight size={14} /> : <ArrowDownLeft size={14} />}
+                    </div>
+                  </TableCell>
 
-              {/* Details */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-sm capitalize">{tx.type === "send" ? "Sent" : "Top-up"}</span>
-                  <Badge variant="outline" className={`text-[10px] ${statusColor[tx.status] ?? ""}`}>
-                    {tx.status}
-                  </Badge>
-                  {tx.rail && (
-                    <Badge variant="secondary" className="text-[10px]">{tx.rail}</Badge>
-                  )}
-                </div>
-                {tx.payee_legal_name && (
-                  <p className="text-xs text-foreground font-medium truncate mt-0.5">
-                    {tx.payee_legal_name}
-                  </p>
-                )}
-                {tx.recipient_address && (
-                  <p className="text-xs text-muted-foreground font-mono truncate mt-0.5">
-                    → {tx.recipient_address}
-                  </p>
-                )}
-                {tx.notes && (
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">{tx.notes}</p>
-                )}
-              </div>
+                  {/* Type */}
+                  <TableCell className="font-medium text-sm capitalize">
+                    {tx.type === "send" ? "Sent" : "Top-up"}
+                  </TableCell>
 
-              {/* Amount */}
-              <div className="text-right flex-shrink-0">
-                <p className={`font-semibold text-sm font-mono ${
-                  tx.type === "send" ? "text-red-600" : "text-emerald-600"
-                }`}>
-                  {tx.type === "send" ? "−" : "+"}{formatAmount(tx)}
-                </p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
-                  {new Date(tx.created_at).toLocaleDateString("en-GB", {
-                    day: "2-digit", month: "short", year: "numeric",
-                  })}{" "}
-                  {new Date(tx.created_at).toLocaleTimeString("en-GB", {
-                    hour: "2-digit", minute: "2-digit",
-                  })}
-                </p>
-              </div>
-            </div>
-          ))
-        )}
+                  {/* Status */}
+                  <TableCell>
+                    <Badge variant="outline" className={`text-[10px] ${statusColor[tx.status] ?? ""}`}>
+                      {tx.status}
+                    </Badge>
+                  </TableCell>
+
+                  {/* Payee Legal Name */}
+                  <TableCell className="text-sm max-w-[180px] truncate">
+                    {tx.payee_legal_name || "—"}
+                  </TableCell>
+
+                  {/* Recipient */}
+                  <TableCell className="text-xs text-muted-foreground font-mono max-w-[160px] truncate">
+                    {tx.recipient_address || "—"}
+                  </TableCell>
+
+                  {/* Rail */}
+                  <TableCell>
+                    {tx.rail ? (
+                      <Badge variant="secondary" className="text-[10px]">{tx.rail}</Badge>
+                    ) : "—"}
+                  </TableCell>
+
+                  {/* Amount */}
+                  <TableCell className="text-right">
+                    <span className={`font-semibold text-sm font-mono ${
+                      tx.type === "send" ? "text-red-600" : "text-emerald-600"
+                    }`}>
+                      {tx.type === "send" ? "−" : "+"}{formatAmount(tx)}
+                    </span>
+                  </TableCell>
+
+                  {/* Date */}
+                  <TableCell className="text-right text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(tx.created_at).toLocaleDateString("en-GB", {
+                      day: "2-digit", month: "short", year: "numeric",
+                    })}{" "}
+                    {new Date(tx.created_at).toLocaleTimeString("en-GB", {
+                      hour: "2-digit", minute: "2-digit",
+                    })}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </Card>
     </div>
   );
