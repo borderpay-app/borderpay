@@ -196,7 +196,7 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
         </p>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {visibleWallets.map((w, idx) => {
           const isHidden = hidden.has(w.currency);
           const isSelected = selectedCurrency === w.currency && !managing;
@@ -251,6 +251,61 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
             </Card>
           );
         })}
+
+        {/* Connected external wallet card */}
+        {!managing && (
+          <Card
+            className={cn(
+              "relative overflow-hidden border-2 border-dashed p-4 text-white transition-all",
+              connected
+                ? "border-white/30 bg-gradient-to-br from-[#4A2A1A] to-[#6A3A2A] cursor-default hover:-translate-y-0.5 hover:shadow-lg"
+                : "border-white/10 bg-muted/20 cursor-pointer hover:border-white/30",
+            )}
+            onClick={() => {
+              if (!connected) {
+                // Trigger the wallet modal
+                const btn = document.querySelector(".wallet-adapter-button") as HTMLButtonElement | null;
+                btn?.click();
+              }
+            }}
+          >
+            {connected ? (
+              <span className="absolute top-3 right-3 text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/15 text-white/80 border border-white/10">
+                External
+              </span>
+            ) : null}
+            <span className="text-lg block mb-2" aria-hidden="true">
+              <Link2 className="h-5 w-5 inline" />
+            </span>
+            <p className="text-[10px] font-medium uppercase tracking-wider text-white/55">
+              {connected ? "Connected" : "Connect Wallet"}
+            </p>
+            {connected && publicKey ? (
+              <>
+                <p className="font-mono text-xl font-medium mt-1 tabular-nums">
+                  {solBalance !== null ? `${solBalance.toFixed(4)} SOL` : "…"}
+                </p>
+                <p className="text-[11px] text-white/45 mt-1.5 font-mono">
+                  {publicKey.toBase58().slice(0, 4)}…{publicKey.toBase58().slice(-4)}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-mono text-sm font-medium mt-1 text-white/60">
+                  Phantom / Solflare
+                </p>
+                <p className="text-[11px] text-white/45 mt-1.5">
+                  Link your own wallet
+                </p>
+              </>
+            )}
+          </Card>
+        )}
+      </div>
+
+      {/* Hidden WalletMultiButton for programmatic triggering */}
+      <div className="hidden">
+        <WalletMultiButton />
       </div>
 
       {hidden.size > 0 && !managing && (
