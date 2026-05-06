@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import logo from "@/assets/logo.png";
+import ConnectWallet from "@/components/ConnectWallet";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
