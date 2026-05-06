@@ -3,7 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { EyeOff, Eye, GripVertical, Settings2 } from "lucide-react";
+import { EyeOff, Eye, GripVertical, Settings2, Link2 } from "lucide-react";
+import { useWallet } from "@solana/wallet-adapter-react";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useConnection } from "@solana/wallet-adapter-react";
+import { LAMPORTS_PER_SOL } from "@solana/web3.js";
 import {
   DropdownMenu,
   DropdownMenuContent,
