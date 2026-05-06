@@ -197,6 +197,11 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       }
     }
 
+    if (!payeeLegalName.trim()) {
+      toast.error("Enter the payee's legal name");
+      return;
+    }
+
     const sendAmt = parseFloat(amount);
     if (!sendAmt || sendAmt <= 0) {
       toast.error(`Enter a valid ${sendCurrency} amount`);
