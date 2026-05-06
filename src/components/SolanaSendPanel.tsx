@@ -634,8 +634,8 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={!connected}>
-              {connected ? "Review & Confirm" : "Connect wallet to send"}
+            <Button type="submit" className="w-full" disabled={deliveryMethod === "solana" && !connected}>
+              {deliveryMethod === "solana" && !connected ? "Connect wallet to send" : "Review & Confirm"}
             </Button>
           </>
         ) : (
