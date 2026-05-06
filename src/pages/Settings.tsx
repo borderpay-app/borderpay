@@ -139,7 +139,9 @@ const Settings = () => {
         </div>
 
         <div className="rounded-md border border-muted bg-muted/30 px-4 py-3 text-xs text-muted-foreground leading-relaxed">
-          <strong>BVNK Disclaimer:</strong> BVNK acts as BorderPay's regulated payment infrastructure partner, providing digital asset banking, settlement, and payment processing services. BVNK is not a party to any transaction between BorderPay and its end users. All funds held via BVNK are subject to BVNK's own terms of service, regulatory obligations, and applicable safeguarding requirements. BorderPay does not guarantee the availability or performance of BVNK services.
+          <strong>BVNK Disclaimer:</strong> BVNK acts as BorderPay's regulated payment infrastructure partner, providing digital asset banking, settlement, and payment processing services. BVNK is not a party to any transaction between BorderPay and its end users. All funds held via BVNK are subject to BVNK's own{" "}
+          <a href="https://www.bvnk.com/legal/terms-of-service" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">terms of service</a>, regulatory obligations, and applicable{" "}
+          <a href="https://www.bvnk.com/legal/safeguarding-policy" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">safeguarding requirements</a>. BorderPay does not guarantee the availability or performance of BVNK services.
         </div>
       </section>
     </div>
