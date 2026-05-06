@@ -18,15 +18,15 @@ export interface WalletDef {
 }
 
 export const ALL_WALLETS: WalletDef[] = [
-  { currency: "GBP", flag: "🇬🇧", label: "Fiat GBP", sub: "British Pounds Sterling", symbol: "£",
+  { currency: "GBP", flag: "🇬🇧", label: "Fiat GBP", sub: "British Pounds Sterling", badge: "Custodial", symbol: "£",
     bg: "bg-[hsl(140_30%_18%)]" },
-  { currency: "EUR", flag: "🇮🇪", label: "Fiat EUR", sub: "Euro", symbol: "€",
+  { currency: "EUR", flag: "🇮🇪", label: "Fiat EUR", sub: "Euro", badge: "Custodial", symbol: "€",
     bg: "bg-[hsl(220_40%_22%)]" },
-  { currency: "BGBP", flag: "⬡", label: "BGBP", sub: "Pegged 1:1 to GBP", badge: "Stablecoin", symbol: "",
+  { currency: "BGBP", flag: "⬡", label: "BGBP", sub: "Pegged 1:1 to GBP", badge: "Custodial", symbol: "",
     bg: "bg-gradient-to-br from-[#2A4A1A] to-[#3A6A22]" },
-  { currency: "BEUR", flag: "⬡", label: "BEUR", sub: "Pegged 1:1 to EUR", badge: "Stablecoin", symbol: "",
+  { currency: "BEUR", flag: "⬡", label: "BEUR", sub: "Pegged 1:1 to EUR", badge: "Custodial", symbol: "",
     bg: "bg-gradient-to-br from-[#3A1A4A] to-[#5A2A6A]" },
-  { currency: "BDRP", flag: "◈", label: "BDRP", sub: "€0.50 + £0.43 per BDRP", badge: "Dual-Peg", symbol: "",
+  { currency: "BDRP", flag: "◈", label: "BDRP", sub: "€0.50 + £0.43 per BDRP", badge: "Custodial", symbol: "",
     bg: "bg-gradient-to-br from-[#1A3A4A] to-[#2A5A3A]" },
 ];
 
