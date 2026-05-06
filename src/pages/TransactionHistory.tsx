@@ -275,6 +275,11 @@ const TransactionHistory = () => {
                     <Badge variant="secondary" className="text-[10px]">{tx.rail}</Badge>
                   )}
                 </div>
+                {tx.payee_legal_name && (
+                  <p className="text-xs text-foreground font-medium truncate mt-0.5">
+                    {tx.payee_legal_name}
+                  </p>
+                )}
                 {tx.recipient_address && (
                   <p className="text-xs text-muted-foreground font-mono truncate mt-0.5">
                     → {tx.recipient_address}
