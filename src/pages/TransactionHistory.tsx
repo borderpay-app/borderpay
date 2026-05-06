@@ -135,7 +135,7 @@ const TransactionHistory = () => {
   }, [txs]);
 
   const exportCsv = () => {
-    const headers = ["Date", "Type", "Status", "Amount", "Currency", "Recipient", "Rail", "Solana Signature", "Notes"];
+    const headers = ["Date", "Type", "Status", "Amount", "Currency", "Payee Legal Name", "Recipient", "Rail", "Solana Signature", "Notes"];
     const rows = filtered.map((tx) => {
       const amount = tx.currency
         ? ((tx.currency === "GBP" ? tx.gbp_pence : tx.eur_cents) ?? 0) / 100
@@ -147,6 +147,7 @@ const TransactionHistory = () => {
         tx.status,
         amount.toFixed(2),
         currency,
+        (tx.payee_legal_name ?? "").replace(/"/g, '""'),
         tx.recipient_address ?? "",
         tx.rail ?? "",
         tx.solana_signature ?? "",
