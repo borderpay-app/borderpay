@@ -72,10 +72,12 @@ const TransactionHistory = () => {
           tx.recipient_address,
           tx.currency,
           tx.notes,
+          tx.notes,
           tx.rail,
           tx.type,
           tx.status,
           tx.solana_signature,
+          tx.payee_legal_name,
         ];
         return fields.some((f) => f?.toLowerCase().includes(q));
       });
