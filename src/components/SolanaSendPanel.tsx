@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -107,6 +107,8 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const [walletBalances, setWalletBalances] = useState<Record<Currency, number>>({
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
+  const [showCalc, setShowCalc] = useState(false);
+  const [calcAmount, setCalcAmount] = useState("1000");
 
   // Load wallet balances
   useEffect(() => {
@@ -320,6 +322,88 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       <p className="text-sm text-muted-foreground mb-4">
         Sends tokens on Solana devnet. Connect Phantom (set to Devnet) first.
       </p>
+
+      {/* Fee Calculator */}
+      <div className="mb-4">
+        <button
+          type="button"
+          onClick={() => setShowCalc((v) => !v)}
+          className="text-sm font-medium text-primary hover:underline flex items-center gap-1"
+        >
+          🧮 Fee Calculator {showCalc ? "▾" : "▸"}
+        </button>
+        {showCalc && (() => {
+          const calcAmt = parseFloat(calcAmount) || 0;
+          const rows = SEND_CURRENCIES.map((c) => {
+            const f = FEES[c];
+            const pctFee = calcAmt * f.pct;
+            const total = calcAmt + pctFee + f.fixed;
+            // Convert to EUR for comparison
+            const toEur = c === "EUR" || c === "EURC" ? 1 : c === "GBP" ? 1 / 1.18 : 1 / 1.08;
+            const eurTotal = total * toEur;
+            return { currency: c, label: currencyLabel[c], sym: currencySymbol[c], pctFee, fixedFee: f.fixed, totalFee: pctFee + f.fixed, total, eurTotal, pctLabel: `${(f.pct * 100).toFixed(1)}%` };
+          });
+          const cheapest = Math.min(...rows.map((r) => r.eurTotal));
+          return (
+            <Card className="mt-2 p-4 space-y-3 bg-muted/30">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="calc-amount" className="text-xs whitespace-nowrap">Amount (€ equiv.)</Label>
+                <Input
+                  id="calc-amount"
+                  type="number"
+                  step="1"
+                  min="1"
+                  value={calcAmount}
+                  onChange={(e) => setCalcAmount(e.target.value)}
+                  className="h-8 w-32 text-sm"
+                />
+              </div>
+              {calcAmt > 0 && (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs">
+                    <thead>
+                      <tr className="border-b text-muted-foreground">
+                        <th className="text-left py-1.5 pr-2">Currency</th>
+                        <th className="text-right py-1.5 px-1">% Fee</th>
+                        <th className="text-right py-1.5 px-1">Fixed</th>
+                        <th className="text-right py-1.5 px-1">Total Fee</th>
+                        <th className="text-right py-1.5 pl-1">You Pay</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rows.map((r) => {
+                        const isCheapest = Math.abs(r.eurTotal - cheapest) < 0.01;
+                        return (
+                          <tr key={r.currency} className={`border-b last:border-0 ${isCheapest ? "bg-green-50/60 dark:bg-green-950/20" : ""}`}>
+                            <td className="py-1.5 pr-2 font-medium">{r.label}</td>
+                            <td className="text-right py-1.5 px-1">{r.sym}{r.pctFee.toFixed(2)} <span className="text-muted-foreground">({r.pctLabel})</span></td>
+                            <td className="text-right py-1.5 px-1">{r.fixedFee > 0 ? `${r.sym}${r.fixedFee.toFixed(2)}` : "—"}</td>
+                            <td className="text-right py-1.5 px-1 font-medium">{r.sym}{r.totalFee.toFixed(2)}</td>
+                            <td className="text-right py-1.5 pl-1 font-semibold">
+                              {r.sym}{r.total.toFixed(2)}
+                              {isCheapest && <span className="ml-1 text-green-700 dark:text-green-400">✓</span>}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                  {(() => {
+                    const fiatEur = rows.find((r) => r.currency === "EUR")!;
+                    const stableBest = rows.find((r) => r.currency === "EURC")!;
+                    const saving = fiatEur.totalFee - stableBest.totalFee;
+                    return saving > 0.01 ? (
+                      <p className="text-xs text-green-700 dark:text-green-400 font-medium mt-2">
+                        💰 Save €{saving.toFixed(2)} per transfer using stablecoins vs fiat EUR
+                      </p>
+                    ) : null;
+                  })()}
+                </div>
+              )}
+            </Card>
+          );
+        })()}
+      </div>
 
       <form onSubmit={showConfirm ? send : handleReview} className="space-y-4">
         {!showConfirm ? (
