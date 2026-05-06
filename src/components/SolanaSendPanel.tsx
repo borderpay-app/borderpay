@@ -342,6 +342,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       setWalletBalances((b) => ({ ...b, [sourceWallet]: newBalance }));
       const via = deliveryMethod === "solana" ? "Solana" : deliveryMethod === "domestic" ? "UK Faster Payments" : "SEPA/SWIFT";
       toast.success(`${currencySymbol[sendCurrency]}${sendAmt.toFixed(2)} sent via ${via}`);
+      setPayeeLegalName("");
       setRecipient("");
       setSortCode("");
       setAccountNumber("");
