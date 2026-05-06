@@ -7,6 +7,7 @@ const corsHeaders = {
 }
 
 const NOTIFY_EMAIL = 'hello@borderpay.app'
+const FUNCTION_INVOKE_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6InBxamVibXR4Zm1qdmRybHZ6a2xhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTY0MDMsImV4cCI6MjA5MTA3MjQwM30.Wax6tDIslgm3809DaAtJJiwAR8Vvjn5H1i0SzJ5gOrg'
 const RATE_LIMIT_WINDOW_MINUTES = 10
 const MAX_REQUESTS_PER_WINDOW = 3
 
@@ -29,12 +30,9 @@ function getSupabaseAdmin() {
 
 async function enqueueTransactionalEmail(body: Record<string, unknown>, authorizationHeader: string | null) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
-  const functionInvokeKey = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY')
   const authorization = authorizationHeader?.startsWith('Bearer ')
     ? authorizationHeader
-    : functionInvokeKey
-      ? `Bearer ${functionInvokeKey}`
-      : null
+    : `Bearer ${FUNCTION_INVOKE_JWT}`
 
   if (!supabaseUrl || !authorization) {
     throw new Error('Missing backend email configuration')
@@ -44,7 +42,7 @@ async function enqueueTransactionalEmail(body: Record<string, unknown>, authoriz
     method: 'POST',
     headers: {
       Authorization: authorization,
-      ...(functionInvokeKey ? { apikey: functionInvokeKey } : {}),
+      apikey: FUNCTION_INVOKE_JWT,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
