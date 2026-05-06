@@ -130,8 +130,26 @@ const TransactionHistory = () => {
       list = list.filter((tx) => tx.type === directionFilter);
     }
 
+    // Sorting
+    if (sortKey) {
+      list = [...list].sort((a, b) => {
+        let aVal: string | number = "";
+        let bVal: string | number = "";
+        if (sortKey === "payee_legal_name") {
+          aVal = (a.payee_legal_name ?? "").toLowerCase();
+          bVal = (b.payee_legal_name ?? "").toLowerCase();
+        } else if (sortKey === "created_at") {
+          aVal = new Date(a.created_at).getTime();
+          bVal = new Date(b.created_at).getTime();
+        }
+        if (aVal < bVal) return sortDir === "asc" ? -1 : 1;
+        if (aVal > bVal) return sortDir === "asc" ? 1 : -1;
+        return 0;
+      });
+    }
+
     return list;
-  }, [txs, search, dateFrom, dateTo, currencyFilter, directionFilter]);
+  }, [txs, search, dateFrom, dateTo, currencyFilter, directionFilter, sortKey, sortDir]);
 
   const formatAmount = (tx: Tx) => {
     if (tx.currency) {
