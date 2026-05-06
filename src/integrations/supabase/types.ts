@@ -658,6 +658,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      vault_retrieve_wallet_key: { Args: { _user_id: string }; Returns: string }
       vault_store_wallet_key: {
         Args: { _secret_value: string; _user_id: string }
         Returns: undefined

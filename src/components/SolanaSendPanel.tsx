@@ -65,6 +65,7 @@ const SEND_CURRENCIES = ["GBP", "EUR", "EURC", "USDC", "USDT"] as const;
 type SendCurrency = (typeof SEND_CURRENCIES)[number];
 
 type DeliveryMethod = "solana" | "domestic" | "iban";
+type SigningMode = "custodial" | "connected";
 
 const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
   solana: "Solana Address",
@@ -129,6 +130,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
   const [showCalc, setShowCalc] = useState(false);
+  const [signingMode, setSigningMode] = useState<SigningMode>("custodial");
   const calcAmount = amount || "1000";
 
   // Auto-select delivery method when send currency changes
@@ -182,7 +184,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const handleReview = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (deliveryMethod === "solana") {
+    if (deliveryMethod === "solana" && signingMode === "connected") {
       if (typeof window !== "undefined" && !(window as any).solana) {
         toast.error("Phantom wallet not detected", {
           description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
@@ -290,7 +292,25 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
 
       let sig: string | null = null;
 
-      if (deliveryMethod === "solana") {
+      if (deliveryMethod === "solana" && signingMode === "custodial") {
+        // Server-side signing via custodial wallet
+        toast.info("Signing transaction server-side…");
+        const { data: result, error: fnErr } = await supabase.functions.invoke(
+          "sign-and-send",
+          {
+            body: {
+              recipient_address: recipient.trim(),
+              amount: sendAmt,
+              mint: EURC_MINT.toBase58(),
+            },
+          }
+        );
+        if (fnErr) throw new Error(fnErr.message ?? "Edge function error");
+        if (result?.error) throw new Error(result.error);
+        sig = result.signature;
+        toast.info("Transaction confirmed on-chain");
+      } else if (deliveryMethod === "solana" && signingMode === "connected") {
+        // Client-side signing via connected wallet
         if (!publicKey || !connected) {
           toast.error("Wallet not connected");
           return;
@@ -577,6 +597,41 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             </div>
 
             {/* Recipient Fields */}
+            {deliveryMethod === "solana" && (
+              <div>
+                <Label>Signing Wallet</Label>
+                <Select value={signingMode} onValueChange={(v) => setSigningMode(v as SigningMode)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="custodial">
+                      🔒 Custodial Wallet (server-signed)
+                    </SelectItem>
+                    <SelectItem value="connected">
+                      🔗 Connected Wallet (Phantom / Solflare)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {signingMode === "custodial"
+                    ? "Transaction will be signed securely on the server using your custodial wallet."
+                    : "Transaction will be signed in your browser wallet."}
+                </p>
+              </div>
+            )}
+
+            {deliveryMethod === "solana" && signingMode === "connected" && (
+              <div className="flex items-center gap-2">
+                <WalletMultiButton className="!bg-primary !text-primary-foreground !rounded-lg !text-sm !font-medium !h-9 !px-4 hover:!opacity-90 !transition-opacity" />
+                {connected && publicKey && (
+                  <span className="text-xs font-mono text-muted-foreground">
+                    {publicKey.toBase58().slice(0, 4)}…{publicKey.toBase58().slice(-4)}
+                  </span>
+                )}
+              </div>
+            )}
+
             {deliveryMethod === "solana" && (
               <div>
                 <Label htmlFor="recipient">Recipient Solana Address</Label>
