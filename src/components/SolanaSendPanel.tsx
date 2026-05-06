@@ -561,9 +561,13 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                   id="recipient"
                   value={recipient}
                   onChange={(e) => setRecipient(e.target.value)}
-                  placeholder="7xKX…"
+                  placeholder="e.g. 7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU"
+                  className="font-mono text-xs"
                   required
                 />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Base58-encoded public key, 32–44 characters
+                </p>
               </div>
             )}
 
@@ -574,22 +578,34 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                   <Input
                     id="sortCode"
                     value={sortCode}
-                    onChange={(e) => setSortCode(e.target.value)}
-                    placeholder="12-34-56"
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^\d-]/g, "");
+                      setSortCode(raw);
+                    }}
+                    placeholder="e.g. 12-34-56"
                     maxLength={8}
                     required
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    6 digits, with or without dashes (e.g. 123456 or 12-34-56)
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="accountNumber">Account Number</Label>
                   <Input
                     id="accountNumber"
                     value={accountNumber}
-                    onChange={(e) => setAccountNumber(e.target.value)}
-                    placeholder="12345678"
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, "");
+                      setAccountNumber(raw);
+                    }}
+                    placeholder="e.g. 12345678"
                     maxLength={8}
                     required
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    8-digit UK bank account number
+                  </p>
                 </div>
               </div>
             )}
@@ -601,21 +617,35 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                   <Input
                     id="bic"
                     value={bic}
-                    onChange={(e) => setBic(e.target.value)}
-                    placeholder="DEUTDEFF"
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^A-Za-z0-9]/g, "").toUpperCase();
+                      setBic(raw);
+                    }}
+                    placeholder="e.g. DEUTDEFF or DEUTDEFFXXX"
+                    className="uppercase"
                     maxLength={11}
                     required
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    8 or 11 alphanumeric characters (e.g. NWBKGB2L)
+                  </p>
                 </div>
                 <div>
                   <Label htmlFor="iban">IBAN</Label>
                   <Input
                     id="iban"
                     value={iban}
-                    onChange={(e) => setIban(e.target.value)}
-                    placeholder="DE89 3704 0044 0532 0130 00"
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/[^A-Za-z0-9 ]/g, "").toUpperCase();
+                      setIban(raw);
+                    }}
+                    placeholder="e.g. DE89 3704 0044 0532 0130 00"
+                    className="uppercase font-mono text-xs"
                     required
                   />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Country code + check digits + account number (15–34 characters)
+                  </p>
                 </div>
               </div>
             )}
