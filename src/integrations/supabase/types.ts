@@ -658,6 +658,10 @@ export type Database = {
           read_ct: number
         }[]
       }
+      vault_store_wallet_key: {
+        Args: { _secret_value: string; _user_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role:
