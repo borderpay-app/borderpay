@@ -82,6 +82,9 @@ interface Props {
 }
 
 export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSelectCurrency }: Props) => {
+  const { publicKey, connected } = useWallet();
+  const { connection } = useConnection();
+  const [solBalance, setSolBalance] = useState<number | null>(null);
   const [rows, setRows] = useState<Record<Currency, number>>({
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
@@ -90,6 +93,21 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
   const [hidden, setHidden] = useState<Set<Currency>>(loadHidden);
   const [managing, setManaging] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
+
+  // Fetch connected wallet SOL balance
+  useEffect(() => {
+    if (!publicKey || !connected) { setSolBalance(null); return; }
+    let cancelled = false;
+    const fetch = async () => {
+      try {
+        const lamports = await connection.getBalance(publicKey);
+        if (!cancelled) setSolBalance(lamports / LAMPORTS_PER_SOL);
+      } catch { if (!cancelled) setSolBalance(null); }
+    };
+    fetch();
+    const id = setInterval(fetch, 15_000);
+    return () => { cancelled = true; clearInterval(id); };
+  }, [publicKey, connected, connection]);
 
   useEffect(() => {
     let cancelled = false;
