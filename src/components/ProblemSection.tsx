@@ -26,7 +26,7 @@ const problems = [
   {
     icon: AlertTriangle,
     title: "Post-Brexit Friction",
-    description: "The Windsor Framework adds regulatory complexity to an already fragmented payments corridor — increasing costs and compliance burdens for SMEs.",
+    description: "The Windsor Framework adds regulatory complexity to an already fragmented payments corridor 12B — increasing costs and compliance burdens for SMEs.",
     stat: "6.49%",
     statLabel: "avg. remittance cost (NI)",
   },
