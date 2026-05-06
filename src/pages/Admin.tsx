@@ -14,6 +14,7 @@ import logo from "@/assets/logo.png";
 import { MfaEnroll } from "@/components/MfaEnroll";
 import { MfaChallenge } from "@/components/MfaChallenge";
 import { ShieldCheck, ShieldAlert, Upload, Building2, FileText } from "lucide-react";
+import InterestLog from "@/components/InterestLog";
 
 const WebsiteContent = lazy(() => import("./WebsiteContent"));
 
@@ -231,6 +232,7 @@ const Admin = () => {
           <Tabs defaultValue="users" className="space-y-6">
             <TabsList>
               <TabsTrigger value="users">Users</TabsTrigger>
+              <TabsTrigger value="interest">Interest Log</TabsTrigger>
               <TabsTrigger value="company">Company Configuration</TabsTrigger>
               <TabsTrigger value="website">Website Content</TabsTrigger>
             </TabsList>
@@ -267,6 +269,11 @@ const Admin = () => {
                 ))}
                 {rows.length === 0 && <div className="p-6 text-sm text-muted-foreground">No users yet.</div>}
               </Card>
+            </TabsContent>
+
+            {/* Interest Log Tab */}
+            <TabsContent value="interest">
+              <InterestLog />
             </TabsContent>
 
             {/* Company Configuration Tab */}

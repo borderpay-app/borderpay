@@ -612,6 +612,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_interest_log: {
+        Args: never
+        Returns: {
+          company: string
+          email: string
+          email_error: string
+          email_sent_at: string
+          email_status: string
+          id: string
+          location: string
+          name: string
+          registered_at: string
+        }[]
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
