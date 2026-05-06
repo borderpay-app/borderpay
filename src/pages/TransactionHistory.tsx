@@ -25,6 +25,7 @@ interface Tx {
   rail: string | null;
   recipient_address: string | null;
   solana_signature: string | null;
+  payee_legal_name: string | null;
   notes: string | null;
   created_at: string;
 }
@@ -71,10 +72,12 @@ const TransactionHistory = () => {
           tx.recipient_address,
           tx.currency,
           tx.notes,
+          tx.notes,
           tx.rail,
           tx.type,
           tx.status,
           tx.solana_signature,
+          tx.payee_legal_name,
         ];
         return fields.some((f) => f?.toLowerCase().includes(q));
       });
@@ -132,7 +135,7 @@ const TransactionHistory = () => {
   }, [txs]);
 
   const exportCsv = () => {
-    const headers = ["Date", "Type", "Status", "Amount", "Currency", "Recipient", "Rail", "Solana Signature", "Notes"];
+    const headers = ["Date", "Type", "Status", "Amount", "Currency", "Payee Legal Name", "Recipient", "Rail", "Solana Signature", "Notes"];
     const rows = filtered.map((tx) => {
       const amount = tx.currency
         ? ((tx.currency === "GBP" ? tx.gbp_pence : tx.eur_cents) ?? 0) / 100
@@ -144,6 +147,7 @@ const TransactionHistory = () => {
         tx.status,
         amount.toFixed(2),
         currency,
+        (tx.payee_legal_name ?? "").replace(/"/g, '""'),
         tx.recipient_address ?? "",
         tx.rail ?? "",
         tx.solana_signature ?? "",
@@ -274,6 +278,11 @@ const TransactionHistory = () => {
                     <Badge variant="secondary" className="text-[10px]">{tx.rail}</Badge>
                   )}
                 </div>
+                {tx.payee_legal_name && (
+                  <p className="text-xs text-foreground font-medium truncate mt-0.5">
+                    {tx.payee_legal_name}
+                  </p>
+                )}
                 {tx.recipient_address && (
                   <p className="text-xs text-muted-foreground font-mono truncate mt-0.5">
                     → {tx.recipient_address}

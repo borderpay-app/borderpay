@@ -1,0 +1,1 @@
+ALTER TABLE public.transactions ADD COLUMN payee_legal_name text;

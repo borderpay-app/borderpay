@@ -488,6 +488,7 @@ export type Database = {
           id: string
           invoice_id: string | null
           notes: string | null
+          payee_legal_name: string | null
           rail: Database["public"]["Enums"]["payment_rail"] | null
           recipient_address: string | null
           solana_signature: string | null
@@ -503,6 +504,7 @@ export type Database = {
           id?: string
           invoice_id?: string | null
           notes?: string | null
+          payee_legal_name?: string | null
           rail?: Database["public"]["Enums"]["payment_rail"] | null
           recipient_address?: string | null
           solana_signature?: string | null
@@ -518,6 +520,7 @@ export type Database = {
           id?: string
           invoice_id?: string | null
           notes?: string | null
+          payee_legal_name?: string | null
           rail?: Database["public"]["Enums"]["payment_rail"] | null
           recipient_address?: string | null
           solana_signature?: string | null
