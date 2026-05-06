@@ -70,6 +70,7 @@ const TransactionHistory = () => {
     }
   };
 
+  useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase
