@@ -404,11 +404,10 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   return (
     <Card className="p-6">
       <div className="flex items-center justify-between mb-1">
-        <h2 className="font-semibold">Send Funds via Solana</h2>
-        <WalletMultiButton />
+        <h2 className="font-semibold">Send Funds</h2>
       </div>
       <p className="text-sm text-muted-foreground mb-4">
-        Sends tokens on Solana devnet. Connect Phantom (set to Devnet) first.
+        Send fiat or stablecoins to any recipient. Choose your source wallet and delivery method.
       </p>
 
       {/* Fee Calculator */}

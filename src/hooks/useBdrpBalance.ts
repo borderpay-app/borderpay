@@ -4,11 +4,11 @@ import { getAssociatedTokenAddressSync } from "@solana/spl-token";
 
 /**
  * BDRP SPL token mint address on devnet.
- * Replace with the real mainnet mint when deploying to production.
+ * Using EURC devnet mint as a placeholder until the real BDRP token is deployed.
+ * Replace with the actual BDRP mint address when available.
  */
 export const BDRP_MINT = new PublicKey(
-  // Placeholder devnet mint — update when BDRP token is deployed
-  "BDRPdevMintXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  "HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr"
 );
 
 const connection = new Connection(clusterApiUrl("devnet"), "confirmed");
