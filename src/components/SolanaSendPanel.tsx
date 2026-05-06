@@ -107,6 +107,8 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const [walletBalances, setWalletBalances] = useState<Record<Currency, number>>({
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
+  const [showCalc, setShowCalc] = useState(false);
+  const [calcAmount, setCalcAmount] = useState("1000");
 
   // Load wallet balances
   useEffect(() => {
