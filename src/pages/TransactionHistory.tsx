@@ -20,8 +20,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ArrowUpRight, ArrowDownLeft, Search, Download } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Search, Download, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+type SortKey = "payee_legal_name" | "created_at";
+type SortDir = "asc" | "desc";
 
 interface Tx {
   id: string;
