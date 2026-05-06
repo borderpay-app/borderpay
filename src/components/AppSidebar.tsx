@@ -21,7 +21,6 @@ const items = [
   { title: "Team", url: "/app/team", icon: UsersRound, end: false },
   { title: "Monitoring", url: "/app/monitoring", icon: ShieldAlert, end: false },
   { title: "Settings", url: "/app/settings", icon: Settings, end: false },
-  { title: "Settings", url: "/app/settings", icon: Settings, end: false },
 ];
 
 export function AppSidebar() {
