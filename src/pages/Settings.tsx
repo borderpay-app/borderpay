@@ -53,6 +53,13 @@ const integrations: Integration[] = [
     statusLabel: "Connected",
     logo: "◎",
   },
+  {
+    name: "BVNK",
+    description: "Digital asset banking & payments infrastructure",
+    status: "connected",
+    statusLabel: "Connected",
+    logo: "💎",
+  },
 ];
 
 const Settings = () => {
