@@ -72,6 +72,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setMfaEnrolled(verified);
   };
 
+  const ensureWallet = async () => {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("wallet_address")
+        .single();
+      if (!profile?.wallet_address) {
+        await supabase.functions.invoke("generate-wallet");
+      }
+    } catch {
+      // non-critical — wallet will be generated on next login
+    }
+  };
+
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, sess) => {
       setSession(sess);
@@ -79,6 +93,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setTimeout(() => {
           fetchRoles(sess.user.id);
           refreshMfa();
+          ensureWallet();
         }, 0);
       } else {
         setRoles([]);
