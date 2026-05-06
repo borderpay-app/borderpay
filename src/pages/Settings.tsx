@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { CheckCircle2, XCircle, Settings as SettingsIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+
+const WalletDebugPanel = lazy(() => import("@/components/WalletDebugPanel"));
 
 interface Integration {
   name: string;
