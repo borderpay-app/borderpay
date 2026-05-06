@@ -1,6 +1,9 @@
-import { CheckCircle2, ExternalLink, Settings as SettingsIcon } from "lucide-react";
+import { useState } from "react";
+import { CheckCircle2, XCircle, Settings as SettingsIcon } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface Integration {
   name: string;
@@ -8,6 +11,7 @@ interface Integration {
   status: "connected";
   statusLabel: string;
   logo: string;
+  toggleable?: boolean;
 }
 
 const integrations: Integration[] = [
@@ -59,10 +63,19 @@ const integrations: Integration[] = [
     status: "connected",
     statusLabel: "Connected",
     logo: "💎",
+    toggleable: true,
   },
 ];
 
 const Settings = () => {
+  const [bvnkConnected, setBvnkConnected] = useState(true);
+
+  const handleToggleBvnk = () => {
+    const next = !bvnkConnected;
+    setBvnkConnected(next);
+    toast.success(next ? "BVNK connected" : "BVNK disconnected");
+  };
+
   return (
     <div className="space-y-8 max-w-4xl">
       <div>
@@ -78,29 +91,51 @@ const Settings = () => {
       <section className="space-y-4">
         <h2 className="text-lg font-medium">Integrations</h2>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {integrations.map((int) => (
-            <Card
-              key={int.name}
-              className="p-4 flex flex-col gap-3 hover:shadow-md transition-shadow"
-            >
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl leading-none">{int.logo}</span>
-                  <span className="font-semibold text-sm">{int.name}</span>
+          {integrations.map((int) => {
+            const isConnected = int.name === "BVNK" ? bvnkConnected : true;
+
+            return (
+              <Card
+                key={int.name}
+                className="p-4 flex flex-col gap-3 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-2xl leading-none">{int.logo}</span>
+                    <span className="font-semibold text-sm">{int.name}</span>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className={
+                      isConnected
+                        ? "border-green-600/40 bg-green-50 text-green-700 text-xs gap-1 shrink-0"
+                        : "border-muted-foreground/40 bg-muted text-muted-foreground text-xs gap-1 shrink-0"
+                    }
+                  >
+                    {isConnected ? (
+                      <CheckCircle2 className="h-3 w-3" />
+                    ) : (
+                      <XCircle className="h-3 w-3" />
+                    )}
+                    {isConnected ? "Connected" : "Disconnected"}
+                  </Badge>
                 </div>
-                <Badge
-                  variant="outline"
-                  className="border-green-600/40 bg-green-50 text-green-700 text-xs gap-1 shrink-0"
-                >
-                  <CheckCircle2 className="h-3 w-3" />
-                  {int.statusLabel}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {int.description}
-              </p>
-            </Card>
-          ))}
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {int.description}
+                </p>
+                {int.toggleable && (
+                  <Button
+                    size="sm"
+                    variant={isConnected ? "destructive" : "default"}
+                    className="mt-auto w-full"
+                    onClick={handleToggleBvnk}
+                  >
+                    {isConnected ? "Disconnect" : "Connect"}
+                  </Button>
+                )}
+              </Card>
+            );
+          })}
         </div>
       </section>
     </div>
