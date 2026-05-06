@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-const WalletDebugPanel = lazy(() => import("@/components/WalletDebugPanel"));
+
 
 interface Integration {
   name: string;
@@ -199,15 +199,6 @@ const Settings = () => {
         </Card>
       </section>
 
-      {/* Wallet Debug */}
-      <section className="space-y-4">
-        <h2 className="text-lg font-medium">Wallet Debug</h2>
-        <Suspense fallback={
-          <Card className="p-6"><p className="text-sm text-muted-foreground">Loading wallet debug…</p></Card>
-        }>
-          <WalletDebugPanel />
-        </Suspense>
-      </section>
     </div>
   );
 };
