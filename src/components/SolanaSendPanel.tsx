@@ -180,18 +180,22 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   // Validation before showing confirm screen
   const handleReview = (e: React.FormEvent) => {
     e.preventDefault();
-    if (typeof window !== "undefined" && !(window as any).solana) {
-      toast.error("Phantom wallet not detected", {
-        description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
-      });
-      return;
+
+    if (deliveryMethod === "solana") {
+      if (typeof window !== "undefined" && !(window as any).solana) {
+        toast.error("Phantom wallet not detected", {
+          description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
+        });
+        return;
+      }
+      if (!publicKey || !connected) {
+        toast.error("Wallet not connected", {
+          description: "Click 'Select Wallet' to connect Phantom (Devnet).",
+        });
+        return;
+      }
     }
-    if (!publicKey || !connected) {
-      toast.error("Wallet not connected", {
-        description: "Click 'Select Wallet' to connect Phantom (Devnet).",
-      });
-      return;
-    }
+
     const sendAmt = parseFloat(amount);
     if (!sendAmt || sendAmt <= 0) {
       toast.error(`Enter a valid ${sendCurrency} amount`);
@@ -201,12 +205,35 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       toast.error(`Insufficient ${sourceWallet} balance`);
       return;
     }
-    try {
-      new PublicKey(recipient.trim());
-    } catch {
-      toast.error("Invalid Solana address");
-      return;
+
+    if (deliveryMethod === "solana") {
+      try {
+        new PublicKey(recipient.trim());
+      } catch {
+        toast.error("Invalid Solana address");
+        return;
+      }
+    } else if (deliveryMethod === "domestic") {
+      const cleanSort = sortCode.replace(/\D/g, "");
+      if (cleanSort.length !== 6) {
+        toast.error("Sort code must be 6 digits");
+        return;
+      }
+      if (accountNumber.replace(/\D/g, "").length !== 8) {
+        toast.error("Account number must be 8 digits");
+        return;
+      }
+    } else if (deliveryMethod === "iban") {
+      if (!bic.trim() || bic.trim().length < 8) {
+        toast.error("Enter a valid BIC / SWIFT code (8–11 characters)");
+        return;
+      }
+      if (!iban.trim() || iban.replace(/\s/g, "").length < 15) {
+        toast.error("Enter a valid IBAN");
+        return;
+      }
     }
+
     setShowConfirm(true);
   };
 
