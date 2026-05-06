@@ -64,6 +64,21 @@ const FX: Record<string, number> = {
 const SEND_CURRENCIES = ["GBP", "EUR", "EURC", "USDC", "USDT"] as const;
 type SendCurrency = (typeof SEND_CURRENCIES)[number];
 
+type DeliveryMethod = "solana" | "domestic" | "iban";
+
+const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
+  solana: "Solana Address",
+  domestic: "UK Domestic (Sort Code + Account)",
+  iban: "International (BIC + IBAN)",
+};
+
+// Auto-select delivery method based on send currency
+const defaultDeliveryMethod = (currency: SendCurrency): DeliveryMethod => {
+  if (["EURC", "USDC", "USDT"].includes(currency)) return "solana";
+  if (currency === "GBP") return "domestic";
+  return "iban"; // EUR
+};
+
 const currencySymbol: Record<SendCurrency, string> = {
   GBP: "£",
   EUR: "€",
@@ -98,6 +113,11 @@ interface Props {
 const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const { publicKey, sendTransaction, connected } = useWallet();
   const [recipient, setRecipient] = useState("");
+  const [sortCode, setSortCode] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [bic, setBic] = useState("");
+  const [iban, setIban] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("iban");
   const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -109,6 +129,11 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   });
   const [showCalc, setShowCalc] = useState(false);
   const calcAmount = amount || "1000";
+
+  // Auto-select delivery method when send currency changes
+  useEffect(() => {
+    setDeliveryMethod(defaultDeliveryMethod(sendCurrency));
+  }, [sendCurrency]);
 
   // Load wallet balances
   useEffect(() => {
@@ -155,18 +180,22 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   // Validation before showing confirm screen
   const handleReview = (e: React.FormEvent) => {
     e.preventDefault();
-    if (typeof window !== "undefined" && !(window as any).solana) {
-      toast.error("Phantom wallet not detected", {
-        description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
-      });
-      return;
+
+    if (deliveryMethod === "solana") {
+      if (typeof window !== "undefined" && !(window as any).solana) {
+        toast.error("Phantom wallet not detected", {
+          description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
+        });
+        return;
+      }
+      if (!publicKey || !connected) {
+        toast.error("Wallet not connected", {
+          description: "Click 'Select Wallet' to connect Phantom (Devnet).",
+        });
+        return;
+      }
     }
-    if (!publicKey || !connected) {
-      toast.error("Wallet not connected", {
-        description: "Click 'Select Wallet' to connect Phantom (Devnet).",
-      });
-      return;
-    }
+
     const sendAmt = parseFloat(amount);
     if (!sendAmt || sendAmt <= 0) {
       toast.error(`Enter a valid ${sendCurrency} amount`);
@@ -176,29 +205,41 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       toast.error(`Insufficient ${sourceWallet} balance`);
       return;
     }
-    try {
-      new PublicKey(recipient.trim());
-    } catch {
-      toast.error("Invalid Solana address");
-      return;
+
+    if (deliveryMethod === "solana") {
+      try {
+        new PublicKey(recipient.trim());
+      } catch {
+        toast.error("Invalid Solana address");
+        return;
+      }
+    } else if (deliveryMethod === "domestic") {
+      const cleanSort = sortCode.replace(/\D/g, "");
+      if (cleanSort.length !== 6) {
+        toast.error("Sort code must be 6 digits");
+        return;
+      }
+      if (accountNumber.replace(/\D/g, "").length !== 8) {
+        toast.error("Account number must be 8 digits");
+        return;
+      }
+    } else if (deliveryMethod === "iban") {
+      if (!bic.trim() || bic.trim().length < 8) {
+        toast.error("Enter a valid BIC / SWIFT code (8–11 characters)");
+        return;
+      }
+      if (!iban.trim() || iban.replace(/\s/g, "").length < 15) {
+        toast.error("Enter a valid IBAN");
+        return;
+      }
     }
+
     setShowConfirm(true);
   };
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (typeof window !== "undefined" && !(window as any).solana) {
-      toast.error("Phantom wallet not detected", {
-        description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
-      });
-      return;
-    }
-    if (!publicKey || !connected) {
-      toast.error("Wallet not connected", {
-        description: "Click 'Select Wallet' to connect Phantom (Devnet).",
-      });
-      return;
-    }
+
     const sendAmt = parseFloat(amount);
     if (!sendAmt || sendAmt <= 0) {
       toast.error(`Enter a valid ${sendCurrency} amount`);
@@ -208,19 +249,21 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       toast.error(`Insufficient ${sourceWallet} balance`);
       return;
     }
-    let recipientPk: PublicKey;
-    try {
-      recipientPk = new PublicKey(recipient.trim());
-    } catch {
-      toast.error("Invalid Solana address");
-      return;
-    }
 
     setSending(true);
     let txRowId: string | null = null;
+
     try {
       const debitMinor = Math.round((sendAmt / fxRate) * 100);
       const amtCents = Math.round(sendAmt * 100);
+
+      const recipientInfo =
+        deliveryMethod === "solana"
+          ? recipient.trim()
+          : deliveryMethod === "domestic"
+            ? `SC: ${sortCode} / Acc: ${accountNumber}`
+            : `BIC: ${bic} / IBAN: ${iban}`;
+
       const { data: txRow, error: txErr } = await supabase
         .from("transactions")
         .insert({
@@ -230,35 +273,47 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
           currency: sendCurrency,
           gbp_pence: sendCurrency === "GBP" ? amtCents : null,
           eur_cents: sendCurrency === "EUR" ? amtCents : null,
-          recipient_address: recipientPk.toBase58(),
-          notes: `Via ${sourceWallet} wallet · FX ${fxRate.toFixed(4)}`,
+          recipient_address: recipientInfo,
+          notes: `Via ${sourceWallet} wallet · FX ${fxRate.toFixed(4)} · ${DELIVERY_LABELS[deliveryMethod]}`,
         })
         .select()
         .single();
       if (txErr) throw txErr;
       txRowId = txRow.id;
 
-      const senderAta = await getAssociatedTokenAddress(EURC_MINT, publicKey);
-      const recipientAta = await getAssociatedTokenAddress(EURC_MINT, recipientPk);
+      let sig: string | null = null;
 
-      const tx = new Transaction();
-      try {
-        await getAccount(connection, recipientAta);
-      } catch {
+      if (deliveryMethod === "solana") {
+        if (!publicKey || !connected) {
+          toast.error("Wallet not connected");
+          return;
+        }
+        const recipientPk = new PublicKey(recipient.trim());
+        const senderAta = await getAssociatedTokenAddress(EURC_MINT, publicKey);
+        const recipientAta = await getAssociatedTokenAddress(EURC_MINT, recipientPk);
+
+        const tx = new Transaction();
+        try {
+          await getAccount(connection, recipientAta);
+        } catch {
+          tx.add(
+            createAssociatedTokenAccountInstruction(publicKey, recipientAta, recipientPk, EURC_MINT)
+          );
+        }
+
+        const amountUnits = BigInt(Math.round(sendAmt * 10 ** EURC_DECIMALS));
         tx.add(
-          createAssociatedTokenAccountInstruction(publicKey, recipientAta, recipientPk, EURC_MINT)
+          createTransferInstruction(senderAta, recipientAta, publicKey, amountUnits, [], TOKEN_PROGRAM_ID)
         );
+
+        sig = await sendTransaction(tx, connection);
+        toast.info("Transaction submitted — confirming…");
+        await connection.confirmTransaction(sig, "confirmed");
+      } else {
+        // Fiat rail — simulate processing
+        toast.info("Payment submitted to banking rail…");
+        await new Promise((r) => setTimeout(r, 1500));
       }
-
-      const amountUnits = BigInt(Math.round(sendAmt * 10 ** EURC_DECIMALS));
-      tx.add(
-        createTransferInstruction(senderAta, recipientAta, publicKey, amountUnits, [], TOKEN_PROGRAM_ID)
-      );
-
-      const sig = await sendTransaction(tx, connection);
-      toast.info("Transaction submitted — confirming…");
-
-      await connection.confirmTransaction(sig, "confirmed");
 
       // Deduct from source wallet
       const newBalance = sourceBalanceMinor - debitMinor;
@@ -268,7 +323,6 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         .eq("user_id", userId)
         .eq("currency", sourceWallet);
 
-      // Sync legacy gbp_balances if GBP wallet
       if (sourceWallet === "GBP") {
         await supabase
           .from("gbp_balances")
@@ -278,12 +332,20 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
 
       await supabase
         .from("transactions")
-        .update({ status: "confirmed", solana_signature: sig })
+        .update({
+          status: "confirmed",
+          ...(sig ? { solana_signature: sig } : {}),
+        })
         .eq("id", txRowId);
 
       setWalletBalances((b) => ({ ...b, [sourceWallet]: newBalance }));
-      toast.success(`${currencySymbol[sendCurrency]}${sendAmt.toFixed(2)} sent via Solana`);
+      const via = deliveryMethod === "solana" ? "Solana" : deliveryMethod === "domestic" ? "UK Faster Payments" : "SEPA/SWIFT";
+      toast.success(`${currencySymbol[sendCurrency]}${sendAmt.toFixed(2)} sent via ${via}`);
       setRecipient("");
+      setSortCode("");
+      setAccountNumber("");
+      setBic("");
+      setIban("");
       setAmount("");
       setShowConfirm(false);
       onSent();
@@ -293,15 +355,13 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       const raw = err?.message ?? String(err);
       let friendly = raw;
       if (/Failed to fetch|NetworkError|fetch failed/i.test(raw)) {
-        friendly = "Network error reaching Solana devnet RPC. Check your internet connection and try again.";
+        friendly = "Network error. Check your internet connection and try again.";
       } else if (/User rejected|rejected the request/i.test(raw)) {
         friendly = "You rejected the transaction in Phantom.";
       } else if (/insufficient lamports|insufficient funds/i.test(raw)) {
         friendly = "Wallet has no SOL for fees. Airdrop devnet SOL at faucet.solana.com.";
       } else if (/TokenAccountNotFound|could not find account|Invalid account/i.test(raw)) {
         friendly = "Your wallet has no EURC devnet token account yet. Receive a small EURC test transfer first.";
-      } else if (/Cannot find module|is not a function|undefined is not an object/i.test(raw)) {
-        friendly = "Solana libraries failed to load. Hard-refresh the page; if it persists, contact support.";
       }
       toast.error("Send failed", { description: friendly });
       if (txRowId) {
@@ -478,17 +538,87 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               );
             })()}
 
-            {/* Recipient */}
+            {/* Delivery Method */}
             <div>
-              <Label htmlFor="recipient">Recipient Solana address</Label>
-              <Input
-                id="recipient"
-                value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
-                placeholder="7xKX…"
-                required
-              />
+              <Label>Delivery Method</Label>
+              <Select value={deliveryMethod} onValueChange={(v) => setDeliveryMethod(v as DeliveryMethod)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solana">{DELIVERY_LABELS.solana}</SelectItem>
+                  <SelectItem value="domestic">{DELIVERY_LABELS.domestic}</SelectItem>
+                  <SelectItem value="iban">{DELIVERY_LABELS.iban}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Recipient Fields */}
+            {deliveryMethod === "solana" && (
+              <div>
+                <Label htmlFor="recipient">Recipient Solana Address</Label>
+                <Input
+                  id="recipient"
+                  value={recipient}
+                  onChange={(e) => setRecipient(e.target.value)}
+                  placeholder="7xKX…"
+                  required
+                />
+              </div>
+            )}
+
+            {deliveryMethod === "domestic" && (
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="sortCode">Sort Code</Label>
+                  <Input
+                    id="sortCode"
+                    value={sortCode}
+                    onChange={(e) => setSortCode(e.target.value)}
+                    placeholder="12-34-56"
+                    maxLength={8}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="accountNumber">Account Number</Label>
+                  <Input
+                    id="accountNumber"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    placeholder="12345678"
+                    maxLength={8}
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {deliveryMethod === "iban" && (
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="bic">BIC / SWIFT Code</Label>
+                  <Input
+                    id="bic"
+                    value={bic}
+                    onChange={(e) => setBic(e.target.value)}
+                    placeholder="DEUTDEFF"
+                    maxLength={11}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="iban">IBAN</Label>
+                  <Input
+                    id="iban"
+                    value={iban}
+                    onChange={(e) => setIban(e.target.value)}
+                    placeholder="DE89 3704 0044 0532 0130 00"
+                    required
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Amount */}
             <div>
@@ -504,8 +634,8 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={!connected}>
-              {connected ? "Review & Confirm" : "Connect wallet to send"}
+            <Button type="submit" className="w-full" disabled={deliveryMethod === "solana" && !connected}>
+              {deliveryMethod === "solana" && !connected ? "Connect wallet to send" : "Review & Confirm"}
             </Button>
           </>
         ) : (
@@ -576,8 +706,23 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                     </p>
                   )}
 
-                  <div className="text-xs text-muted-foreground break-all">
-                    <span className="font-medium">To:</span> {recipient}
+                  <div className="text-xs text-muted-foreground break-all space-y-0.5">
+                    <p><span className="font-medium">Method:</span> {DELIVERY_LABELS[deliveryMethod]}</p>
+                    {deliveryMethod === "solana" && (
+                      <p><span className="font-medium">To:</span> {recipient}</p>
+                    )}
+                    {deliveryMethod === "domestic" && (
+                      <>
+                        <p><span className="font-medium">Sort Code:</span> {sortCode}</p>
+                        <p><span className="font-medium">Account:</span> {accountNumber}</p>
+                      </>
+                    )}
+                    {deliveryMethod === "iban" && (
+                      <>
+                        <p><span className="font-medium">BIC:</span> {bic}</p>
+                        <p><span className="font-medium">IBAN:</span> {iban}</p>
+                      </>
+                    )}
                   </div>
                 </Card>
 
