@@ -112,6 +112,7 @@ interface Props {
 
 const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const { publicKey, sendTransaction, connected } = useWallet();
+  const [payeeLegalName, setPayeeLegalName] = useState("");
   const [recipient, setRecipient] = useState("");
   const [sortCode, setSortCode] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
