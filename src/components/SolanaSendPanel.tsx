@@ -7,16 +7,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { PublicKey, Transaction } from "@solana/web3.js";
-import {
-  createTransferInstruction,
-  getAssociatedTokenAddress,
-  getAccount,
-  createAssociatedTokenAccountInstruction,
-  TOKEN_PROGRAM_ID,
-} from "@solana/spl-token";
+import { PublicKey } from "@solana/web3.js";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { connection, EURC_MINT, EURC_DECIMALS } from "@/lib/solana";
+import { EURC_MINT } from "@/lib/solana";
 import { reportWalletError } from "@/lib/walletDebug";
 import { ALL_WALLETS, type Currency, fmtAmount } from "@/components/WalletsRow";
 
@@ -65,7 +56,6 @@ const SEND_CURRENCIES = ["GBP", "EUR", "EURC", "USDC", "USDT"] as const;
 type SendCurrency = (typeof SEND_CURRENCIES)[number];
 
 type DeliveryMethod = "solana" | "domestic" | "iban";
-type SigningMode = "custodial" | "connected";
 
 const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
   solana: "Solana Address",
@@ -73,11 +63,10 @@ const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
   iban: "International (BIC + IBAN)",
 };
 
-// Auto-select delivery method based on send currency
 const defaultDeliveryMethod = (currency: SendCurrency): DeliveryMethod => {
   if (["EURC", "USDC", "USDT"].includes(currency)) return "solana";
   if (currency === "GBP") return "domestic";
-  return "iban"; // EUR
+  return "iban";
 };
 
 const currencySymbol: Record<SendCurrency, string> = {
@@ -96,7 +85,6 @@ const currencyLabel: Record<SendCurrency, string> = {
   USDT: "$ USDT (Stablecoin)",
 };
 
-// Fee structure: 0.5% for stablecoins, mid-market rate for fiat
 const FEES: Record<SendCurrency, { pct: number; fixed: number; label: string }> = {
   GBP: { pct: 0, fixed: 0, label: "Mid-market rate" },
   EUR: { pct: 0, fixed: 0, label: "Mid-market rate" },
@@ -112,7 +100,6 @@ interface Props {
 }
 
 const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
-  const { publicKey, sendTransaction, connected } = useWallet();
   const [payeeLegalName, setPayeeLegalName] = useState("");
   const [recipient, setRecipient] = useState("");
   const [sortCode, setSortCode] = useState("");
@@ -130,15 +117,12 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
   const [showCalc, setShowCalc] = useState(false);
-  const [signingMode, setSigningMode] = useState<SigningMode>("custodial");
   const calcAmount = amount || "1000";
 
-  // Auto-select delivery method when send currency changes
   useEffect(() => {
     setDeliveryMethod(defaultDeliveryMethod(sendCurrency));
   }, [sendCurrency]);
 
-  // Load wallet balances
   useEffect(() => {
     (async () => {
       const { data } = await supabase
@@ -153,7 +137,6 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
     })();
   }, [userId]);
 
-  // Pick up a "pay this entity" prefill
   useEffect(() => {
     try {
       const raw = sessionStorage.getItem("borderpay:prefill");
@@ -164,9 +147,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         sessionStorage.removeItem("borderpay:prefill");
         toast.info(label ? `Paying ${label}` : "Recipient prefilled");
       }
-    } catch {
-      /* ignore */
-    }
+    } catch { /* ignore */ }
   }, []);
 
   const fxKey = `${sourceWallet}→${sendCurrency}`;
@@ -175,29 +156,10 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const sendableAmount = (sourceBalanceMinor / 100) * fxRate;
 
   const amt = parseFloat(amount) || 0;
-  // EUR equivalent factor: how many EUR per 1 unit of sendCurrency
   const eurEquiv = sendCurrency === "EUR" || sendCurrency === "EURC" ? 1 : sendCurrency === "GBP" ? 1 / 1.18 : 1 / 1.08;
 
-  const walletDef = ALL_WALLETS.find((w) => w.currency === sourceWallet);
-
-  // Validation before showing confirm screen
   const handleReview = (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (deliveryMethod === "solana" && signingMode === "connected") {
-      if (typeof window !== "undefined" && !(window as any).solana) {
-        toast.error("Phantom wallet not detected", {
-          description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
-        });
-        return;
-      }
-      if (!publicKey || !connected) {
-        toast.error("Wallet not connected", {
-          description: "Click 'Select Wallet' to connect Phantom (Devnet).",
-        });
-        return;
-      }
-    }
 
     if (!payeeLegalName.trim()) {
       toast.error("Enter the payee's legal name");
@@ -292,7 +254,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
 
       let sig: string | null = null;
 
-      if (deliveryMethod === "solana" && signingMode === "custodial") {
+      if (deliveryMethod === "solana") {
         // Server-side signing via custodial wallet
         toast.info("Signing transaction server-side…");
         const { data: result, error: fnErr } = await supabase.functions.invoke(
@@ -309,33 +271,6 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         if (result?.error) throw new Error(result.error);
         sig = result.signature;
         toast.info("Transaction confirmed on-chain");
-      } else if (deliveryMethod === "solana" && signingMode === "connected") {
-        // Client-side signing via connected wallet
-        if (!publicKey || !connected) {
-          toast.error("Wallet not connected");
-          return;
-        }
-        const recipientPk = new PublicKey(recipient.trim());
-        const senderAta = await getAssociatedTokenAddress(EURC_MINT, publicKey);
-        const recipientAta = await getAssociatedTokenAddress(EURC_MINT, recipientPk);
-
-        const tx = new Transaction();
-        try {
-          await getAccount(connection, recipientAta);
-        } catch {
-          tx.add(
-            createAssociatedTokenAccountInstruction(publicKey, recipientAta, recipientPk, EURC_MINT)
-          );
-        }
-
-        const amountUnits = BigInt(Math.round(sendAmt * 10 ** EURC_DECIMALS));
-        tx.add(
-          createTransferInstruction(senderAta, recipientAta, publicKey, amountUnits, [], TOKEN_PROGRAM_ID)
-        );
-
-        sig = await sendTransaction(tx, connection);
-        toast.info("Transaction submitted — confirming…");
-        await connection.confirmTransaction(sig, "confirmed");
       } else {
         // Fiat rail — simulate processing
         toast.info("Payment submitted to banking rail…");
@@ -384,8 +319,6 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       let friendly = raw;
       if (/Failed to fetch|NetworkError|fetch failed/i.test(raw)) {
         friendly = "Network error. Check your internet connection and try again.";
-      } else if (/User rejected|rejected the request/i.test(raw)) {
-        friendly = "You rejected the transaction in Phantom.";
       } else if (/insufficient lamports|insufficient funds/i.test(raw)) {
         friendly = "Wallet has no SOL for fees. Airdrop devnet SOL at faucet.solana.com.";
       } else if (/TokenAccountNotFound|could not find account|Invalid account/i.test(raw)) {
@@ -425,7 +358,6 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             const f = FEES[c];
             const pctFee = calcAmt * f.pct;
             const total = calcAmt + pctFee + f.fixed;
-            // Convert to EUR for comparison
             const toEur = c === "EUR" || c === "EURC" ? 1 : c === "GBP" ? 1 / 1.18 : 1 / 1.08;
             const eurTotal = total * toEur;
             return { currency: c, label: currencyLabel[c], sym: currencySymbol[c], pctFee, fixedFee: f.fixed, totalFee: pctFee + f.fixed, total, eurTotal, pctLabel: `${(f.pct * 100).toFixed(1)}%` };
@@ -595,44 +527,12 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               </p>
             </div>
 
-            {/* Recipient Fields */}
+            {/* Solana delivery — custodial only */}
             {deliveryMethod === "solana" && (
               <div>
-                <Label>Signing Wallet</Label>
-                <Select value={signingMode} onValueChange={(v) => setSigningMode(v as SigningMode)}>
-                  <SelectTrigger className="mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="custodial">
-                      🔒 Custodial Wallet (server-signed)
-                    </SelectItem>
-                    <SelectItem value="connected">
-                      🔗 Connected Wallet (Phantom / Solflare)
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {signingMode === "custodial"
-                    ? "Transaction will be signed securely on the server using your custodial wallet."
-                    : "Transaction will be signed in your browser wallet."}
+                <p className="text-xs text-muted-foreground mb-2">
+                  🔒 Transaction will be signed securely on the server using your Border Pay custodial wallet.
                 </p>
-              </div>
-            )}
-
-            {deliveryMethod === "solana" && signingMode === "connected" && (
-              <div className="flex items-center gap-2">
-                <WalletMultiButton className="!bg-primary !text-primary-foreground !rounded-lg !text-sm !font-medium !h-9 !px-4 hover:!opacity-90 !transition-opacity" />
-                {connected && publicKey && (
-                  <span className="text-xs font-mono text-muted-foreground">
-                    {publicKey.toBase58().slice(0, 4)}…{publicKey.toBase58().slice(-4)}
-                  </span>
-                )}
-              </div>
-            )}
-
-            {deliveryMethod === "solana" && (
-              <div>
                 <Label htmlFor="recipient">Recipient Solana Address</Label>
                 <Input
                   id="recipient"
@@ -741,12 +641,11 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               />
             </div>
 
-            <Button type="submit" className="w-full" disabled={deliveryMethod === "solana" && !connected}>
-              {deliveryMethod === "solana" && !connected ? "Connect wallet to send" : "Review & Confirm"}
+            <Button type="submit" className="w-full">
+              Review & Confirm
             </Button>
           </>
         ) : (
-          /* ── Confirmation Screen ── */
           (() => {
             const confirmAmt = parseFloat(amount) || 0;
             const eurAmt = confirmAmt * eurEquiv;
@@ -775,7 +674,6 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                     <span className="text-right">{fmtAmount(sourceWallet, Math.round((confirmAmt / fxRate) * 100))}</span>
                   </div>
 
-                  {/* Fee breakdown */}
                   <div className="rounded border p-3 space-y-1 bg-muted/40">
                     <p className="text-xs font-semibold mb-1.5">Fee Breakdown</p>
                     <div className="grid grid-cols-3 gap-x-3 text-xs text-muted-foreground">
@@ -860,9 +758,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                       <p>
                         Border Pay is currently in a pre-launch, demonstration phase. The platform is <strong>not yet authorised or regulated</strong> by the Financial Conduct Authority (FCA), the Central Bank of Ireland, or any other financial regulator in any jurisdiction.
                       </p>
-                      <p>
-                        By proceeding, you acknowledge and agree that:
-                      </p>
+                      <p>By proceeding, you acknowledge and agree that:</p>
                       <ul className="list-disc pl-5 space-y-2">
                         <li>This transaction is a <strong>simulated expression of interest</strong> only. No real funds, fiat or cryptocurrency, will be debited, transferred, or received.</li>
                         <li>Border Pay does not currently hold, transmit, or custody any client funds. All wallet balances and transactions shown are for demonstration purposes.</li>
