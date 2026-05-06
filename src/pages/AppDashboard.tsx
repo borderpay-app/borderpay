@@ -301,15 +301,12 @@ const AppDashboard = () => {
             )}
 
             <div className="mt-6 pt-6 border-t">
-              <p className="text-sm font-medium">Your saved wallet</p>
+              <p className="text-sm font-medium">Your custodial wallet</p>
               {savedWallet ? (
                 <p className="text-xs font-mono text-muted-foreground mt-1 break-all">{savedWallet}</p>
               ) : (
-                <p className="text-xs text-muted-foreground mt-1">No wallet saved yet.</p>
+                <p className="text-xs text-muted-foreground mt-1">Generating wallet…</p>
               )}
-              <Button variant="outline" size="sm" className="mt-3" onClick={saveConnectedWallet}>
-                {savedWallet ? "Update from connected Phantom" : "Save connected Phantom address"}
-              </Button>
             </div>
           </Card>
 
