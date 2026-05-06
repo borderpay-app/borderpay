@@ -27,6 +27,30 @@ function getSupabaseAdmin() {
   )
 }
 
+async function enqueueTransactionalEmail(body: Record<string, unknown>) {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL')
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error('Missing backend email configuration')
+  }
+
+  const response = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${serviceRoleKey}`,
+      apikey: serviceRoleKey,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  })
+
+  if (!response.ok) {
+    const detail = await response.text()
+    throw new Error(`Email enqueue failed (${response.status}): ${detail}`)
+  }
+}
+
 async function checkRateLimit(supabaseAdmin: ReturnType<typeof createClient>, email: string): Promise<{ allowed: boolean; retryAfterSeconds?: number }> {
   const windowStart = new Date(Date.now() - RATE_LIMIT_WINDOW_MINUTES * 60 * 1000).toISOString()
 
@@ -120,15 +144,12 @@ Deno.serve(async (req) => {
     // Send confirmation email to the registrant (fire-and-forget — failures don't block success)
     try {
       const idempotencyKey = `interest-confirm-${email.toLowerCase()}`
-      const { error: emailErr } = await supabaseAdmin.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'interest-confirmation',
-          recipientEmail: email,
-          idempotencyKey,
-          templateData: { name },
-        },
+      await enqueueTransactionalEmail({
+        templateName: 'interest-confirmation',
+        recipientEmail: email,
+        idempotencyKey,
+        templateData: { name },
       })
-      if (emailErr) console.error('Confirmation email failed:', emailErr.message)
     } catch (e) {
       console.error('Confirmation email threw:', e)
     }
@@ -142,15 +163,12 @@ Deno.serve(async (req) => {
 
     // Send notification email to admin via transactional email queue
     try {
-      const { error: notifyErr } = await supabaseAdmin.functions.invoke('send-transactional-email', {
-        body: {
-          templateName: 'interest-notification',
-          recipientEmail: NOTIFY_EMAIL,
-          idempotencyKey: `interest-notify-${registrationId}`,
-          templateData: { name, email, company, location },
-        },
+      await enqueueTransactionalEmail({
+        templateName: 'interest-notification',
+        recipientEmail: NOTIFY_EMAIL,
+        idempotencyKey: `interest-notify-${registrationId}`,
+        templateData: { name, email, company, location },
       })
-      if (notifyErr) console.error('Notification email failed:', notifyErr.message)
     } catch (e) {
       console.error('Notification email threw:', e)
     }
