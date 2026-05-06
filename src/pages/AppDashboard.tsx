@@ -15,6 +15,7 @@ import logo from "@/assets/logo.png";
 import { WalletsRow, ALL_WALLETS, fmtAmount, type Currency } from "@/components/WalletsRow";
 import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
 import { WalletTransferDialog } from "@/components/WalletTransferDialog";
+import { WalletSection } from "@/components/WalletSection";
 
 interface Tx {
   id: string;
@@ -207,25 +208,6 @@ const AppDashboard = () => {
     }
   };
 
-  const saveConnectedWallet = async () => {
-    const pk = (window as any).solana?.publicKey?.toString?.();
-    if (!pk) {
-      toast.error("Connect Phantom first", {
-        description: "Click 'Select Wallet' in the Send card and approve the connection.",
-      });
-      return;
-    }
-    const { error } = await supabase
-      .from("profiles")
-      .update({ wallet_address: pk })
-      .eq("user_id", user!.id);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    setSavedWallet(pk);
-    toast.success("Wallet saved to your profile");
-  };
 
   if (loading || !user) return <div className="min-h-screen flex items-center justify-center">Loading…</div>;
 
@@ -300,15 +282,12 @@ const AppDashboard = () => {
             )}
 
             <div className="mt-6 pt-6 border-t">
-              <p className="text-sm font-medium">Your saved wallet</p>
+              <p className="text-sm font-medium">Your custodial wallet</p>
               {savedWallet ? (
                 <p className="text-xs font-mono text-muted-foreground mt-1 break-all">{savedWallet}</p>
               ) : (
-                <p className="text-xs text-muted-foreground mt-1">No wallet saved yet.</p>
+                <p className="text-xs text-muted-foreground mt-1">Generating wallet…</p>
               )}
-              <Button variant="outline" size="sm" className="mt-3" onClick={saveConnectedWallet}>
-                {savedWallet ? "Update from connected Phantom" : "Save connected Phantom address"}
-              </Button>
             </div>
           </Card>
 
@@ -369,6 +348,8 @@ const AppDashboard = () => {
               />
             </Suspense>
           )}
+
+          <WalletSection custodialAddress={savedWallet} />
 
           {(() => {
             const cutoff = Date.now() - 24 * 60 * 60 * 1000;
