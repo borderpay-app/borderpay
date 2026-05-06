@@ -14,6 +14,7 @@ import logo from "@/assets/logo.png";
 import { MfaEnroll } from "@/components/MfaEnroll";
 import { MfaChallenge } from "@/components/MfaChallenge";
 import { ShieldCheck, ShieldAlert, Upload, Building2, FileText } from "lucide-react";
+import InterestLog from "@/components/InterestLog";
 
 const WebsiteContent = lazy(() => import("./WebsiteContent"));
 
