@@ -208,25 +208,6 @@ const AppDashboard = () => {
     }
   };
 
-  const saveConnectedWallet = async () => {
-    const pk = (window as any).solana?.publicKey?.toString?.();
-    if (!pk) {
-      toast.error("Connect Phantom first", {
-        description: "Click 'Select Wallet' in the Send card and approve the connection.",
-      });
-      return;
-    }
-    const { error } = await supabase
-      .from("profiles")
-      .update({ wallet_address: pk })
-      .eq("user_id", user!.id);
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-    setSavedWallet(pk);
-    toast.success("Wallet saved to your profile");
-  };
 
   if (loading || !user) return <div className="min-h-screen flex items-center justify-center">Loading…</div>;
 
