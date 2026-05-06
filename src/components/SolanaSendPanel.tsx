@@ -130,6 +130,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
   const [showCalc, setShowCalc] = useState(false);
+  const [signingMode, setSigningMode] = useState<SigningMode>("custodial");
   const calcAmount = amount || "1000";
 
   // Auto-select delivery method when send currency changes
