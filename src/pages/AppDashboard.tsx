@@ -370,63 +370,6 @@ const AppDashboard = () => {
             </Suspense>
           )}
 
-          {preflight.status === "ok" && (
-            <Suspense fallback={
-              <Card className="p-6 md:col-span-2"><p className="text-sm text-muted-foreground">Loading wallet debug…</p></Card>
-            }>
-              <WalletDebugPanel />
-            </Suspense>
-          )}
-
-          {/* Bridge Infrastructure Status */}
-          <Card className="p-6 md:col-span-2 border-primary/20">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <span className="text-primary font-bold text-sm">B</span>
-                </div>
-                <div>
-                  <h2 className="font-semibold">Bridge Infrastructure</h2>
-                  <p className="text-xs text-muted-foreground">Stablecoin orchestration by Stripe</p>
-                </div>
-              </div>
-              <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-                Connected
-              </span>
-            </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Orchestration</p>
-                <p className="font-medium mt-0.5">Active</p>
-                <p className="text-xs text-muted-foreground">Move & convert stablecoins</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Wallets</p>
-                <p className="font-medium mt-0.5">5 wallets</p>
-                <p className="text-xs text-muted-foreground">GBP, EUR, BGBP, BEUR, BDRP</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Networks</p>
-                <p className="font-medium mt-0.5">Solana</p>
-                <p className="text-xs text-muted-foreground">+ Ethereum, Polygon, Base</p>
-              </div>
-              <div>
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">Fee</p>
-                <p className="font-medium mt-0.5">0.1%</p>
-                <p className="text-xs text-muted-foreground">Per orchestration transfer</p>
-              </div>
-            </div>
-            <div className="mt-4 pt-3 border-t flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">
-                Cross-border payments, on/off ramp, stablecoin issuance, and settlement via{" "}
-                <a href="https://www.bridge.xyz" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
-                  bridge.xyz
-                </a>
-              </span>
-              <span className="text-muted-foreground italic">Demo mode</span>
-            </div>
-          </Card>
-
           {(() => {
             const cutoff = Date.now() - 24 * 60 * 60 * 1000;
             const recent = txs
