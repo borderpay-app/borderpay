@@ -58,15 +58,25 @@ const TransactionHistory = () => {
   const [dateTo, setDateTo] = useState("");
   const [currencyFilter, setCurrencyFilter] = useState("all");
   const [directionFilter, setDirectionFilter] = useState("all");
-  const [sortKey, setSortKey] = useState<SortKey | null>(null);
-  const [sortDir, setSortDir] = useState<SortDir>("asc");
+  const [sortKey, setSortKey] = useState<SortKey | null>(() => {
+    const stored = localStorage.getItem("tx_sort_key");
+    return stored === "payee_legal_name" || stored === "created_at" ? stored : null;
+  });
+  const [sortDir, setSortDir] = useState<SortDir>(() => {
+    const stored = localStorage.getItem("tx_sort_dir");
+    return stored === "desc" ? "desc" : "asc";
+  });
 
   const toggleSort = (key: SortKey) => {
     if (sortKey === key) {
-      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+      const newDir = sortDir === "asc" ? "desc" : "asc";
+      setSortDir(newDir);
+      localStorage.setItem("tx_sort_dir", newDir);
     } else {
       setSortKey(key);
       setSortDir("asc");
+      localStorage.setItem("tx_sort_key", key);
+      localStorage.setItem("tx_sort_dir", "asc");
     }
   };
 
