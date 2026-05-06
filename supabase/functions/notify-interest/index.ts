@@ -155,52 +155,19 @@ Deno.serve(async (req) => {
       )
     }
 
-    // Send notification email
-    const safeName = escapeHtml(name)
-    const safeEmail = escapeHtml(email)
-    const safeCompany = company ? escapeHtml(company) : '—'
-    const safeLocation = locationMap[location] || escapeHtml(location)
-
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #1A3A2A; border-bottom: 2px solid #1A3A2A; padding-bottom: 10px;">
-          New Interest Registration — Border Pay
-        </h2>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 16px;">
-          <tr><td style="padding: 8px 0; color: #666; width: 120px;">Name</td><td style="padding: 8px 0; font-weight: 600;">${safeName}</td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">Email</td><td style="padding: 8px 0;"><a href="mailto:${safeEmail}" style="color: #1A3A2A;">${safeEmail}</a></td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">Company</td><td style="padding: 8px 0;">${safeCompany}</td></tr>
-          <tr><td style="padding: 8px 0; color: #666;">Location</td><td style="padding: 8px 0;">${safeLocation}</td></tr>
-        </table>
-        <p style="margin-top: 24px; font-size: 12px; color: #999;">
-          This notification was sent from the Border Pay website interest form.
-        </p>
-      </div>
-    `
-
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY')
-    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')
-    const PROJECT_ID = SUPABASE_URL?.match(/https:\/\/(.+)\.supabase\.co/)?.[1]
-
-    if (LOVABLE_API_KEY && PROJECT_ID) {
-      const response = await fetch(`https://api.lovable.dev/v1/projects/${PROJECT_ID}/email/send`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+    // Send notification email to admin via transactional email queue
+    try {
+      const { error: notifyErr } = await supabaseAdmin.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: 'interest-notification',
+          recipientEmail: NOTIFY_EMAIL,
+          idempotencyKey: `interest-notify-${registrationId}`,
+          templateData: { name, email, company, location },
         },
-        body: JSON.stringify({
-          to: NOTIFY_EMAIL,
-          subject: `New Interest: ${safeName}${company ? ` (${escapeHtml(company)})` : ''}`,
-          html,
-        }),
       })
-
-      if (!response.ok) {
-        console.error('Email send failed:', await response.text())
-      }
-    } else {
-      console.error('Missing LOVABLE_API_KEY or SUPABASE_URL — notification skipped')
+      if (notifyErr) console.error('Notification email failed:', notifyErr.message)
+    } catch (e) {
+      console.error('Notification email threw:', e)
     }
 
     return new Response(
