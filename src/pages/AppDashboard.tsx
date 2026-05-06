@@ -15,6 +15,7 @@ import logo from "@/assets/logo.png";
 import { WalletsRow, ALL_WALLETS, fmtAmount, type Currency } from "@/components/WalletsRow";
 import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
 import { WalletTransferDialog } from "@/components/WalletTransferDialog";
+import { WalletSection } from "@/components/WalletSection";
 
 interface Tx {
   id: string;
