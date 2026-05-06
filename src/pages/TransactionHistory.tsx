@@ -25,6 +25,7 @@ interface Tx {
   rail: string | null;
   recipient_address: string | null;
   solana_signature: string | null;
+  payee_legal_name: string | null;
   notes: string | null;
   created_at: string;
 }
