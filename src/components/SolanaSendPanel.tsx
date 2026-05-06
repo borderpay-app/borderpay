@@ -113,6 +113,11 @@ interface Props {
 const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const { publicKey, sendTransaction, connected } = useWallet();
   const [recipient, setRecipient] = useState("");
+  const [sortCode, setSortCode] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [bic, setBic] = useState("");
+  const [iban, setIban] = useState("");
+  const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod>("iban");
   const [amount, setAmount] = useState("");
   const [sending, setSending] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
@@ -124,6 +129,11 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   });
   const [showCalc, setShowCalc] = useState(false);
   const calcAmount = amount || "1000";
+
+  // Auto-select delivery method when send currency changes
+  useEffect(() => {
+    setDeliveryMethod(defaultDeliveryMethod(sendCurrency));
+  }, [sendCurrency]);
 
   // Load wallet balances
   useEffect(() => {
