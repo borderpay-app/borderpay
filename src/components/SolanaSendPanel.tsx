@@ -599,6 +599,41 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             {/* Recipient Fields */}
             {deliveryMethod === "solana" && (
               <div>
+                <Label>Signing Wallet</Label>
+                <Select value={signingMode} onValueChange={(v) => setSigningMode(v as SigningMode)}>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="custodial">
+                      🔒 Custodial Wallet (server-signed)
+                    </SelectItem>
+                    <SelectItem value="connected">
+                      🔗 Connected Wallet (Phantom / Solflare)
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {signingMode === "custodial"
+                    ? "Transaction will be signed securely on the server using your custodial wallet."
+                    : "Transaction will be signed in your browser wallet."}
+                </p>
+              </div>
+            )}
+
+            {deliveryMethod === "solana" && signingMode === "connected" && (
+              <div className="flex items-center gap-2">
+                <WalletMultiButton className="!bg-primary !text-primary-foreground !rounded-lg !text-sm !font-medium !h-9 !px-4 hover:!opacity-90 !transition-opacity" />
+                {connected && publicKey && (
+                  <span className="text-xs font-mono text-muted-foreground">
+                    {publicKey.toBase58().slice(0, 4)}…{publicKey.toBase58().slice(-4)}
+                  </span>
+                )}
+              </div>
+            )}
+
+            {deliveryMethod === "solana" && (
+              <div>
                 <Label htmlFor="recipient">Recipient Solana Address</Label>
                 <Input
                   id="recipient"
