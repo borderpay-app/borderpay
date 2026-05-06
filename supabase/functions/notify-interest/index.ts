@@ -1,5 +1,8 @@
+import * as React from 'npm:react@18.3.1'
+import { renderAsync } from 'npm:@react-email/components@0.0.22'
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.49.1'
+import { TEMPLATES } from '../_shared/transactional-email-templates/registry.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -7,7 +10,9 @@ const corsHeaders = {
 }
 
 const NOTIFY_EMAIL = 'hello@borderpay.app'
-const FUNCTION_INVOKE_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6InBxamVibXR4Zm1qdmRybHZ6a2xhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTY0MDMsImV4cCI6MjA5MTA3MjQwM30.Wax6tDIslgm3809DaAtJJiwAR8Vvjn5H1i0SzJ5gOrg'
+const SITE_NAME = 'borderpay-express-interest'
+const SENDER_DOMAIN = 'notify.borderpay.app'
+const FROM_DOMAIN = 'borderpay.app'
 const RATE_LIMIT_WINDOW_MINUTES = 10
 const MAX_REQUESTS_PER_WINDOW = 3
 
@@ -28,29 +33,103 @@ function getSupabaseAdmin() {
   )
 }
 
-async function enqueueTransactionalEmail(body: Record<string, unknown>, authorizationHeader: string | null) {
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')
-  const authorization = authorizationHeader?.startsWith('Bearer ')
-    ? authorizationHeader
-    : `Bearer ${FUNCTION_INVOKE_JWT}`
+function generateToken(): string {
+  const bytes = new Uint8Array(32)
+  crypto.getRandomValues(bytes)
+  return Array.from(bytes).map((b) => b.toString(16).padStart(2, '0')).join('')
+}
 
-  if (!supabaseUrl || !authorization) {
-    throw new Error('Missing backend email configuration')
+async function enqueueTransactionalEmail(
+  supabaseAdmin: ReturnType<typeof createClient>,
+  body: {
+    templateName: string
+    recipientEmail: string
+    idempotencyKey: string
+    templateData?: Record<string, unknown>
+  }
+) {
+  const template = TEMPLATES[body.templateName]
+  if (!template) throw new Error(`Email template not found: ${body.templateName}`)
+
+  const effectiveRecipient = template.to || body.recipientEmail
+  const normalizedEmail = effectiveRecipient.toLowerCase()
+  const messageId = crypto.randomUUID()
+
+  const { data: suppressed, error: suppressionError } = await supabaseAdmin
+    .from('suppressed_emails')
+    .select('id')
+    .eq('email', normalizedEmail)
+    .maybeSingle()
+
+  if (suppressionError) throw new Error(`Suppression check failed: ${suppressionError.message}`)
+
+  if (suppressed) {
+    await supabaseAdmin.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: body.templateName,
+      recipient_email: effectiveRecipient,
+      status: 'suppressed',
+    })
+    return
   }
 
-  const response = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
-    method: 'POST',
-    headers: {
-      Authorization: authorization,
-      apikey: FUNCTION_INVOKE_JWT,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
+  const { data: existingToken, error: tokenLookupError } = await supabaseAdmin
+    .from('email_unsubscribe_tokens')
+    .select('token, used_at')
+    .eq('email', normalizedEmail)
+    .maybeSingle()
+
+  if (tokenLookupError) throw new Error(`Token lookup failed: ${tokenLookupError.message}`)
+  if (existingToken?.used_at) throw new Error('Email is unsubscribed but missing suppression record')
+
+  let unsubscribeToken = existingToken?.token
+  if (!unsubscribeToken) {
+    unsubscribeToken = generateToken()
+    const { error: tokenError } = await supabaseAdmin
+      .from('email_unsubscribe_tokens')
+      .upsert({ token: unsubscribeToken, email: normalizedEmail }, { onConflict: 'email', ignoreDuplicates: true })
+    if (tokenError) throw new Error(`Failed to create unsubscribe token: ${tokenError.message}`)
+  }
+
+  const templateData = body.templateData ?? {}
+  const html = await renderAsync(React.createElement(template.component, templateData))
+  const text = await renderAsync(React.createElement(template.component, templateData), { plainText: true })
+  const subject = typeof template.subject === 'function' ? template.subject(templateData) : template.subject
+
+  await supabaseAdmin.from('email_send_log').insert({
+    message_id: messageId,
+    template_name: body.templateName,
+    recipient_email: effectiveRecipient,
+    status: 'pending',
   })
 
-  if (!response.ok) {
-    const detail = await response.text()
-    throw new Error(`Email enqueue failed (${response.status}): ${detail}`)
+  const { error: enqueueError } = await supabaseAdmin.rpc('enqueue_email', {
+    queue_name: 'transactional_emails',
+    payload: {
+      message_id: messageId,
+      to: effectiveRecipient,
+      from: `${SITE_NAME} <noreply@${FROM_DOMAIN}>`,
+      sender_domain: SENDER_DOMAIN,
+      subject,
+      html,
+      text,
+      purpose: 'transactional',
+      label: body.templateName,
+      idempotency_key: body.idempotencyKey,
+      unsubscribe_token: unsubscribeToken,
+      queued_at: new Date().toISOString(),
+    },
+  })
+
+  if (enqueueError) {
+    await supabaseAdmin.from('email_send_log').insert({
+      message_id: messageId,
+      template_name: body.templateName,
+      recipient_email: effectiveRecipient,
+      status: 'failed',
+      error_message: 'Failed to enqueue email',
+    })
+    throw new Error(`Failed to enqueue email: ${enqueueError.message}`)
   }
 }
 
