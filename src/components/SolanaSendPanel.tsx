@@ -280,6 +280,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
           gbp_pence: sendCurrency === "GBP" ? amtCents : null,
           eur_cents: sendCurrency === "EUR" ? amtCents : null,
           recipient_address: recipientInfo,
+          payee_legal_name: payeeLegalName.trim() || null,
           notes: `Via ${sourceWallet} wallet · FX ${fxRate.toFixed(4)} · ${DELIVERY_LABELS[deliveryMethod]}`,
         })
         .select()
