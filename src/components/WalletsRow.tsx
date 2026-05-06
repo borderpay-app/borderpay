@@ -3,19 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { EyeOff, Eye, GripVertical, Settings2, Link2 } from "lucide-react";
-import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
-import { useConnection } from "@solana/wallet-adapter-react";
-import { LAMPORTS_PER_SOL } from "@solana/web3.js";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  DropdownMenuLabel,
-} from "@/components/ui/dropdown-menu";
+import { EyeOff, Eye, GripVertical, Settings2 } from "lucide-react";
 
 export type Currency = "GBP" | "EUR" | "BGBP" | "BEUR" | "BDRP";
 
@@ -82,9 +70,6 @@ interface Props {
 }
 
 export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSelectCurrency }: Props) => {
-  const { publicKey, connected } = useWallet();
-  const { connection } = useConnection();
-  const [solBalance, setSolBalance] = useState<number | null>(null);
   const [rows, setRows] = useState<Record<Currency, number>>({
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
@@ -93,21 +78,6 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
   const [hidden, setHidden] = useState<Set<Currency>>(loadHidden);
   const [managing, setManaging] = useState(false);
   const [dragIdx, setDragIdx] = useState<number | null>(null);
-
-  // Fetch connected wallet SOL balance
-  useEffect(() => {
-    if (!publicKey || !connected) { setSolBalance(null); return; }
-    let cancelled = false;
-    const fetch = async () => {
-      try {
-        const lamports = await connection.getBalance(publicKey);
-        if (!cancelled) setSolBalance(lamports / LAMPORTS_PER_SOL);
-      } catch { if (!cancelled) setSolBalance(null); }
-    };
-    fetch();
-    const id = setInterval(fetch, 15_000);
-    return () => { cancelled = true; clearInterval(id); };
-  }, [publicKey, connected, connection]);
 
   useEffect(() => {
     let cancelled = false;
@@ -138,7 +108,6 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
       if (next.has(c)) next.delete(c);
       else next.add(c);
       localStorage.setItem(STORAGE_KEY_HIDDEN, JSON.stringify([...next]));
-      // If hiding the selected wallet, deselect
       if (next.has(c) && selectedCurrency === c) {
         const firstVisible = order.find((cur) => !next.has(cur));
         if (firstVisible) onSelectCurrency?.(firstVisible);
@@ -154,11 +123,9 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
     saveOrder(newOrder);
   }, [order, saveOrder]);
 
-  // Ensure order contains all currencies
   const orderedWallets = order
     .filter((c) => ALL_WALLETS.some((w) => w.currency === c))
     .map((c) => ALL_WALLETS.find((w) => w.currency === c)!);
-  // Add any missing currencies
   for (const w of ALL_WALLETS) {
     if (!orderedWallets.find((o) => o.currency === w.currency)) {
       orderedWallets.push(w);
@@ -196,7 +163,7 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
         </p>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {visibleWallets.map((w, idx) => {
           const isHidden = hidden.has(w.currency);
           const isSelected = selectedCurrency === w.currency && !managing;
@@ -251,61 +218,6 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
             </Card>
           );
         })}
-
-        {/* Connected external wallet card */}
-        {!managing && (
-          <Card
-            className={cn(
-              "relative overflow-hidden border-2 border-dashed p-4 text-white transition-all",
-              connected
-                ? "border-white/30 bg-gradient-to-br from-[#4A2A1A] to-[#6A3A2A] cursor-default hover:-translate-y-0.5 hover:shadow-lg"
-                : "border-white/10 bg-muted/20 cursor-pointer hover:border-white/30",
-            )}
-            onClick={() => {
-              if (!connected) {
-                // Trigger the wallet modal
-                const btn = document.querySelector(".wallet-adapter-button") as HTMLButtonElement | null;
-                btn?.click();
-              }
-            }}
-          >
-            {connected ? (
-              <span className="absolute top-3 right-3 text-[9px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-white/15 text-white/80 border border-white/10">
-                External
-              </span>
-            ) : null}
-            <span className="text-lg block mb-2" aria-hidden="true">
-              <Link2 className="h-5 w-5 inline" />
-            </span>
-            <p className="text-[10px] font-medium uppercase tracking-wider text-white/55">
-              {connected ? "Connected" : "Connect Wallet"}
-            </p>
-            {connected && publicKey ? (
-              <>
-                <p className="font-mono text-xl font-medium mt-1 tabular-nums">
-                  {solBalance !== null ? `${solBalance.toFixed(4)} SOL` : "…"}
-                </p>
-                <p className="text-[11px] text-white/45 mt-1.5 font-mono">
-                  {publicKey.toBase58().slice(0, 4)}…{publicKey.toBase58().slice(-4)}
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="font-mono text-sm font-medium mt-1 text-white/60">
-                  Phantom / Solflare
-                </p>
-                <p className="text-[11px] text-white/45 mt-1.5">
-                  Link your own wallet
-                </p>
-              </>
-            )}
-          </Card>
-        )}
-      </div>
-
-      {/* Hidden WalletMultiButton for programmatic triggering */}
-      <div className="hidden">
-        <WalletMultiButton />
       </div>
 
       {hidden.size > 0 && !managing && (
