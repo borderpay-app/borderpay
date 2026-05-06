@@ -137,6 +137,10 @@ const Settings = () => {
             );
           })}
         </div>
+
+        <div className="rounded-md border border-muted bg-muted/30 px-4 py-3 text-xs text-muted-foreground leading-relaxed">
+          <strong>BVNK Disclaimer:</strong> BVNK acts as BorderPay's regulated payment infrastructure partner, providing digital asset banking, settlement, and payment processing services. BVNK is not a party to any transaction between BorderPay and its end users. All funds held via BVNK are subject to BVNK's own terms of service, regulatory obligations, and applicable safeguarding requirements. BorderPay does not guarantee the availability or performance of BVNK services.
+        </div>
       </section>
     </div>
   );
