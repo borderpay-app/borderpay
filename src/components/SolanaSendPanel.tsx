@@ -292,7 +292,25 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
 
       let sig: string | null = null;
 
-      if (deliveryMethod === "solana") {
+      if (deliveryMethod === "solana" && signingMode === "custodial") {
+        // Server-side signing via custodial wallet
+        toast.info("Signing transaction server-side…");
+        const { data: result, error: fnErr } = await supabase.functions.invoke(
+          "sign-and-send",
+          {
+            body: {
+              recipient_address: recipient.trim(),
+              amount: sendAmt,
+              mint: EURC_MINT.toBase58(),
+            },
+          }
+        );
+        if (fnErr) throw new Error(fnErr.message ?? "Edge function error");
+        if (result?.error) throw new Error(result.error);
+        sig = result.signature;
+        toast.info("Transaction confirmed on-chain");
+      } else if (deliveryMethod === "solana" && signingMode === "connected") {
+        // Client-side signing via connected wallet
         if (!publicKey || !connected) {
           toast.error("Wallet not connected");
           return;
