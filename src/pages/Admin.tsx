@@ -271,6 +271,11 @@ const Admin = () => {
               </Card>
             </TabsContent>
 
+            {/* Interest Log Tab */}
+            <TabsContent value="interest">
+              <InterestLog />
+            </TabsContent>
+
             {/* Company Configuration Tab */}
             <TabsContent value="company">
               <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
