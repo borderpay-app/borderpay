@@ -112,6 +112,7 @@ interface Props {
 
 const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const { publicKey, sendTransaction, connected } = useWallet();
+  const [payeeLegalName, setPayeeLegalName] = useState("");
   const [recipient, setRecipient] = useState("");
   const [sortCode, setSortCode] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
@@ -194,6 +195,11 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
         });
         return;
       }
+    }
+
+    if (!payeeLegalName.trim()) {
+      toast.error("Enter the payee's legal name");
+      return;
     }
 
     const sendAmt = parseFloat(amount);
@@ -341,6 +347,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       setWalletBalances((b) => ({ ...b, [sourceWallet]: newBalance }));
       const via = deliveryMethod === "solana" ? "Solana" : deliveryMethod === "domestic" ? "UK Faster Payments" : "SEPA/SWIFT";
       toast.success(`${currencySymbol[sendCurrency]}${sendAmt.toFixed(2)} sent via ${via}`);
+      setPayeeLegalName("");
       setRecipient("");
       setSortCode("");
       setAccountNumber("");
@@ -553,6 +560,21 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               </Select>
             </div>
 
+            {/* Payee Legal Name */}
+            <div>
+              <Label htmlFor="payeeLegalName">Payee Legal Name</Label>
+              <Input
+                id="payeeLegalName"
+                value={payeeLegalName}
+                onChange={(e) => setPayeeLegalName(e.target.value)}
+                placeholder="e.g. Acme Ltd or John Smith"
+                required
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Full legal name of the beneficiary as registered with their bank
+              </p>
+            </div>
+
             {/* Recipient Fields */}
             {deliveryMethod === "solana" && (
               <div>
@@ -737,6 +759,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                   )}
 
                   <div className="text-xs text-muted-foreground break-all space-y-0.5">
+                    <p><span className="font-medium">Payee:</span> {payeeLegalName}</p>
                     <p><span className="font-medium">Method:</span> {DELIVERY_LABELS[deliveryMethod]}</p>
                     {deliveryMethod === "solana" && (
                       <p><span className="font-medium">To:</span> {recipient}</p>
