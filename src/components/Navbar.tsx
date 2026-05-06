@@ -44,6 +44,7 @@ const Navbar = () => {
           <a href="/blog" className="text-sm text-muted-foreground text-left py-2 block">Blog</a>
           <a href="/investors" className="text-sm text-muted-foreground text-left py-2 block">Investors</a>
           <button onClick={() => scrollTo("interest")} className="bg-primary text-primary-foreground px-5 py-2.5 rounded-lg text-sm font-medium mt-1">Express Interest</button>
+          <div className="mt-2"><ConnectWallet /></div>
         </div>
       )}
     </nav>
