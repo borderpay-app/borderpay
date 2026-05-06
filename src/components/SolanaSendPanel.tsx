@@ -503,17 +503,87 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               );
             })()}
 
-            {/* Recipient */}
+            {/* Delivery Method */}
             <div>
-              <Label htmlFor="recipient">Recipient Solana address</Label>
-              <Input
-                id="recipient"
-                value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
-                placeholder="7xKX…"
-                required
-              />
+              <Label>Delivery Method</Label>
+              <Select value={deliveryMethod} onValueChange={(v) => setDeliveryMethod(v as DeliveryMethod)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solana">{DELIVERY_LABELS.solana}</SelectItem>
+                  <SelectItem value="domestic">{DELIVERY_LABELS.domestic}</SelectItem>
+                  <SelectItem value="iban">{DELIVERY_LABELS.iban}</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+
+            {/* Recipient Fields */}
+            {deliveryMethod === "solana" && (
+              <div>
+                <Label htmlFor="recipient">Recipient Solana Address</Label>
+                <Input
+                  id="recipient"
+                  value={recipient}
+                  onChange={(e) => setRecipient(e.target.value)}
+                  placeholder="7xKX…"
+                  required
+                />
+              </div>
+            )}
+
+            {deliveryMethod === "domestic" && (
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="sortCode">Sort Code</Label>
+                  <Input
+                    id="sortCode"
+                    value={sortCode}
+                    onChange={(e) => setSortCode(e.target.value)}
+                    placeholder="12-34-56"
+                    maxLength={8}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="accountNumber">Account Number</Label>
+                  <Input
+                    id="accountNumber"
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value)}
+                    placeholder="12345678"
+                    maxLength={8}
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {deliveryMethod === "iban" && (
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="bic">BIC / SWIFT Code</Label>
+                  <Input
+                    id="bic"
+                    value={bic}
+                    onChange={(e) => setBic(e.target.value)}
+                    placeholder="DEUTDEFF"
+                    maxLength={11}
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="iban">IBAN</Label>
+                  <Input
+                    id="iban"
+                    value={iban}
+                    onChange={(e) => setIban(e.target.value)}
+                    placeholder="DE89 3704 0044 0532 0130 00"
+                    required
+                  />
+                </div>
+              </div>
+            )}
 
             {/* Amount */}
             <div>
