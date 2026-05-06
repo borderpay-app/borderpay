@@ -95,10 +95,10 @@ const currencyLabel: Record<SendCurrency, string> = {
   USDT: "$ USDT (Stablecoin)",
 };
 
-// Fee structure: flat 0.5% across all currencies
+// Fee structure: 0.5% for stablecoins only, no fee for fiat
 const FEES: Record<SendCurrency, { pct: number; fixed: number; label: string }> = {
-  GBP: { pct: 0.005, fixed: 0, label: "0.5%" },
-  EUR: { pct: 0.005, fixed: 0, label: "0.5%" },
+  GBP: { pct: 0, fixed: 0, label: "No fee" },
+  EUR: { pct: 0, fixed: 0, label: "No fee" },
   EURC: { pct: 0.005, fixed: 0, label: "0.5%" },
   USDC: { pct: 0.005, fixed: 0, label: "0.5%" },
   USDT: { pct: 0.005, fixed: 0, label: "0.5%" },
