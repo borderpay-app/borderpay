@@ -29,7 +29,7 @@ interface Tx {
 
 // Lazy-load the Solana-dependent panel so a missing dependency doesn't crash the page.
 const SolanaSendPanel = lazy(() => import("@/components/SolanaSendPanel"));
-const WalletDebugPanel = lazy(() => import("@/components/WalletDebugPanel"));
+
 
 type PreflightState =
   | { status: "checking" }
