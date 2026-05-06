@@ -184,7 +184,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const handleReview = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (deliveryMethod === "solana") {
+    if (deliveryMethod === "solana" && signingMode === "connected") {
       if (typeof window !== "undefined" && !(window as any).solana) {
         toast.error("Phantom wallet not detected", {
           description: "Install Phantom from phantom.app and switch it to Devnet, then reload this page.",
