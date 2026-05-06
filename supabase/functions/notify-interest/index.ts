@@ -29,17 +29,17 @@ function getSupabaseAdmin() {
 
 async function enqueueTransactionalEmail(body: Record<string, unknown>) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+  const functionInvokeKey = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY')
 
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!supabaseUrl || !functionInvokeKey) {
     throw new Error('Missing backend email configuration')
   }
 
   const response = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${serviceRoleKey}`,
-      apikey: serviceRoleKey,
+      Authorization: `Bearer ${functionInvokeKey}`,
+      apikey: functionInvokeKey,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
