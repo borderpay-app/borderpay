@@ -698,8 +698,23 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                     </p>
                   )}
 
-                  <div className="text-xs text-muted-foreground break-all">
-                    <span className="font-medium">To:</span> {recipient}
+                  <div className="text-xs text-muted-foreground break-all space-y-0.5">
+                    <p><span className="font-medium">Method:</span> {DELIVERY_LABELS[deliveryMethod]}</p>
+                    {deliveryMethod === "solana" && (
+                      <p><span className="font-medium">To:</span> {recipient}</p>
+                    )}
+                    {deliveryMethod === "domestic" && (
+                      <>
+                        <p><span className="font-medium">Sort Code:</span> {sortCode}</p>
+                        <p><span className="font-medium">Account:</span> {accountNumber}</p>
+                      </>
+                    )}
+                    {deliveryMethod === "iban" && (
+                      <>
+                        <p><span className="font-medium">BIC:</span> {bic}</p>
+                        <p><span className="font-medium">IBAN:</span> {iban}</p>
+                      </>
+                    )}
                   </div>
                 </Card>
 
