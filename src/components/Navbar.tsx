@@ -28,6 +28,7 @@ const Navbar = () => {
           <button onClick={() => scrollTo("interest")} className="bg-primary text-primary-foreground px-5 py-2 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
             Express Interest
           </button>
+          <ConnectWallet />
         </div>
 
         <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
