@@ -159,8 +159,6 @@ Deno.serve(async (req) => {
     return new Response('ok', { headers: corsHeaders })
   }
 
-  const authorizationHeader = req.headers.get('Authorization')
-
   try {
     let body: unknown
     try {
@@ -228,12 +226,12 @@ Deno.serve(async (req) => {
     // Send confirmation email to the registrant (fire-and-forget — failures don't block success)
     try {
       const idempotencyKey = `interest-confirm-${email.toLowerCase()}`
-      await enqueueTransactionalEmail({
+      await enqueueTransactionalEmail(supabaseAdmin, {
         templateName: 'interest-confirmation',
         recipientEmail: email,
         idempotencyKey,
         templateData: { name },
-      }, authorizationHeader)
+      })
     } catch (e) {
       console.error('Confirmation email threw:', e)
     }
@@ -247,12 +245,12 @@ Deno.serve(async (req) => {
 
     // Send notification email to admin via transactional email queue
     try {
-      await enqueueTransactionalEmail({
+      await enqueueTransactionalEmail(supabaseAdmin, {
         templateName: 'interest-notification',
         recipientEmail: NOTIFY_EMAIL,
         idempotencyKey: `interest-notify-${registrationId}`,
         templateData: { name, email, company, location },
-      }, authorizationHeader)
+      })
     } catch (e) {
       console.error('Notification email threw:', e)
     }
