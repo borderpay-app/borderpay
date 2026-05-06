@@ -40,8 +40,6 @@ type PreflightState =
 const REQUIRED_MODULES = [
   "@solana/web3.js",
   "@solana/spl-token",
-  "@solana/wallet-adapter-react",
-  "@solana/wallet-adapter-react-ui",
 ] as const;
 
 const AppDashboard = () => {
@@ -71,12 +69,10 @@ const AppDashboard = () => {
         REQUIRED_MODULES.map(async (m) => {
           try {
             // @vite-ignore — dynamic literal list, resolved at build time per entry below
-            switch (m) {
-              case "@solana/web3.js": await import("@solana/web3.js"); break;
-              case "@solana/spl-token": await import("@solana/spl-token"); break;
-              case "@solana/wallet-adapter-react": await import("@solana/wallet-adapter-react"); break;
-              case "@solana/wallet-adapter-react-ui": await import("@solana/wallet-adapter-react-ui"); break;
-            }
+              switch (m) {
+                case "@solana/web3.js": await import("@solana/web3.js"); break;
+                case "@solana/spl-token": await import("@solana/spl-token"); break;
+              }
             return { m, ok: true as const };
           } catch (err: any) {
             errors.push(`${m}: ${err?.message ?? String(err)}`);
