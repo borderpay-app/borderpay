@@ -27,19 +27,24 @@ function getSupabaseAdmin() {
   )
 }
 
-async function enqueueTransactionalEmail(body: Record<string, unknown>) {
+async function enqueueTransactionalEmail(body: Record<string, unknown>, authorizationHeader: string | null) {
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const functionInvokeKey = Deno.env.get('SUPABASE_ANON_KEY') ?? Deno.env.get('SUPABASE_PUBLISHABLE_KEY')
+  const authorization = authorizationHeader?.startsWith('Bearer ')
+    ? authorizationHeader
+    : functionInvokeKey
+      ? `Bearer ${functionInvokeKey}`
+      : null
 
-  if (!supabaseUrl || !functionInvokeKey) {
+  if (!supabaseUrl || !authorization) {
     throw new Error('Missing backend email configuration')
   }
 
   const response = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${functionInvokeKey}`,
-      apikey: functionInvokeKey,
+      Authorization: authorization,
+      ...(functionInvokeKey ? { apikey: functionInvokeKey } : {}),
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
@@ -76,6 +81,8 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
+
+  const authorizationHeader = req.headers.get('Authorization')
 
   try {
     let body: unknown
@@ -149,7 +156,7 @@ Deno.serve(async (req) => {
         recipientEmail: email,
         idempotencyKey,
         templateData: { name },
-      })
+      }, authorizationHeader)
     } catch (e) {
       console.error('Confirmation email threw:', e)
     }
@@ -168,7 +175,7 @@ Deno.serve(async (req) => {
         recipientEmail: NOTIFY_EMAIL,
         idempotencyKey: `interest-notify-${registrationId}`,
         templateData: { name, email, company, location },
-      })
+      }, authorizationHeader)
     } catch (e) {
       console.error('Notification email threw:', e)
     }
