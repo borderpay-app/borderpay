@@ -64,6 +64,21 @@ const FX: Record<string, number> = {
 const SEND_CURRENCIES = ["GBP", "EUR", "EURC", "USDC", "USDT"] as const;
 type SendCurrency = (typeof SEND_CURRENCIES)[number];
 
+type DeliveryMethod = "solana" | "domestic" | "iban";
+
+const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
+  solana: "Solana Address",
+  domestic: "UK Domestic (Sort Code + Account)",
+  iban: "International (BIC + IBAN)",
+};
+
+// Auto-select delivery method based on send currency
+const defaultDeliveryMethod = (currency: SendCurrency): DeliveryMethod => {
+  if (["EURC", "USDC", "USDT"].includes(currency)) return "solana";
+  if (currency === "GBP") return "domestic";
+  return "iban"; // EUR
+};
+
 const currencySymbol: Record<SendCurrency, string> = {
   GBP: "£",
   EUR: "€",
