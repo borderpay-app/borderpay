@@ -228,6 +228,10 @@ export const WalletsRow = ({ userId, refreshKey, action, selectedCurrency, onSel
           </button>
         </p>
       )}
+
+      <p className="text-[10px] text-muted-foreground/70 mt-3 leading-relaxed">
+        Border Pay Limited is not yet authorised by the Financial Conduct Authority (FCA) or any other regulator to issue stablecoins or provide payment services. Wallets shown are for demonstration only — you may express interest in our future services, but no real funds can be held or transferred at this time.
+      </p>
     </section>
   );
 };
