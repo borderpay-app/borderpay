@@ -39,7 +39,7 @@ const DEFAULTS: Record<string, SectionContent> = {
     stat1Label: "Settlement time",
     stat2Value: "<0.5%",
     stat2Label: "All-in fees",
-    stat3Value: "£1.5–2B",
+    stat3Value: "£12.4B",
     stat3Label: "Corridor 12B volume",
   },
   problem: {
