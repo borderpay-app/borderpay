@@ -398,7 +398,7 @@ export const BRIDGE_SUPPORTED_CURRENCIES: { value: BridgeCurrency; label: string
   { value: "usd", label: "USD", type: "fiat" },
   { value: "eur", label: "EUR", type: "fiat" },
   { value: "gbp", label: "GBP", type: "fiat" },
-  { value: "usdc", label: "USDC", type: "stablecoin" },
+  { value: "usdc", label: "BGBP", type: "stablecoin" },
   { value: "eurc", label: "EURC", type: "stablecoin" },
-  { value: "usdt", label: "USDT", type: "stablecoin" },
+  { value: "usdt", label: "BDRP", type: "stablecoin" },
 ];
