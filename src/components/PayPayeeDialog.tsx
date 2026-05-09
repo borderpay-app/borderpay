@@ -73,7 +73,7 @@ type Step = "details" | "review";
 type WalletCurrency = "GBP" | "EUR" | "BGBP" | "BEUR" | "BDRP";
 
 // Map payment currency → which wallet funds it.
-// Stablecoins draw from their pegged wallet (EURC↔BEUR, USDC↔BDRP basket).
+// Stablecoins draw from their pegged wallet (EURC↔BEUR, BGBP↔BGBP, BDRP↔BDRP).
 // USD has no native fiat wallet — simulated mapping to BDRP (closest USD-bearing
 // basket wallet) so demo USD payouts can be funded and validated.
 const SOURCE_WALLET: Record<PayCurrency, WalletCurrency> = {
@@ -81,7 +81,8 @@ const SOURCE_WALLET: Record<PayCurrency, WalletCurrency> = {
   EUR: "EUR",
   USD: "BDRP",
   EURC: "BEUR",
-  USDC: "BDRP",
+  BGBP: "BGBP",
+  BDRP: "BDRP",
 };
 
 // Currencies whose source wallet is a simulated/closest-match (not a native wallet).
@@ -169,7 +170,8 @@ const quotePayment = (
     EUR: 1,
     USD: 1 / USD_PER_EUR,
     EURC: 1,
-    USDC: 1 / USD_PER_EUR,
+    BGBP: 1 / GBP_PER_EUR,
+    BDRP: 1, // basket ≈ €1
   };
 
   const ratio = eurPerPay[payCurrency] / eurPerSource[sourceWallet];
@@ -181,7 +183,7 @@ const quotePayment = (
   const finalStep = `1 ${sourceWallet} ≈ ${rate.toFixed(4)} ${payCurrency}`;
 
   let basis = `Demo FX · ${rate.toFixed(4)} ${payCurrency} per 1 ${sourceWallet}`;
-  if (payCurrency === "USD" || payCurrency === "USDC") {
+  if (payCurrency === "USD") {
     basis += ` · USD/EUR ${USD_PER_EUR.toFixed(2)}`;
   }
   if (sourceWallet === "BDRP") {
