@@ -448,6 +448,89 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               <p className="text-xs text-muted-foreground mt-1">
                 Balance: {fmtAmount(sourceWallet, sourceBalanceMinor)}
               </p>
+
+              {/* Source Wallet Details — populated based on selected source */}
+              <Card className="mt-3 p-3 bg-muted/40 border-dashed">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                  Source Wallet Details
+                </p>
+                {sourceWallet === "GBP" && (
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                      <p className="text-muted-foreground">Sort Code</p>
+                      <p className="font-mono">04-00-75</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">Account Number</p>
+                      <p className="font-mono">{("00000000" + (userId.replace(/\D/g, "").slice(-8) || "12345678")).slice(-8)}</p>
+                    </div>
+                  </div>
+                )}
+                {sourceWallet === "EUR" && (
+                  <div className="grid grid-cols-1 gap-2 text-xs">
+                    <div>
+                      <p className="text-muted-foreground">BIC / SWIFT</p>
+                      <p className="font-mono">MODRIE22XXX</p>
+                    </div>
+                    <div>
+                      <p className="text-muted-foreground">IBAN</p>
+                      <p className="font-mono break-all">IE29 MODR 9900 0000 {userId.replace(/\D/g, "").slice(-8).padStart(8, "0")}</p>
+                    </div>
+                  </div>
+                )}
+                {(sourceWallet === "BGBP" || sourceWallet === "BEUR" || sourceWallet === "BDRP") && (
+                  <div className="text-xs">
+                    <p className="text-muted-foreground">Solana Address</p>
+                    <p className="font-mono break-all">
+                      {custodialAddress ?? <span className="text-muted-foreground italic">Generating wallet…</span>}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground mt-1">Network: Solana Devnet · Custodial</p>
+                  </div>
+                )}
+              </Card>
+
+              {/* EURC funding source — only relevant when sending EURC */}
+              {sendCurrency === "EURC" && (
+                <Card className="mt-3 p-3 bg-muted/40 border-dashed">
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                    EURC Source Details
+                  </p>
+                  <div className="space-y-2 text-xs">
+                    <div>
+                      <Label className="text-xs">Bridge</Label>
+                      <Select value={eurcBridge} onValueChange={(v) => setEurcBridge(v as typeof eurcBridge)}>
+                        <SelectTrigger className="mt-1 h-8 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="circle">Circle CCTP</SelectItem>
+                          <SelectItem value="wormhole">Wormhole</SelectItem>
+                          <SelectItem value="lifi">LI.FI</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Network</Label>
+                      <Select value={eurcNetwork} onValueChange={(v) => setEurcNetwork(v as typeof eurcNetwork)}>
+                        <SelectTrigger className="mt-1 h-8 text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="solana">Solana</SelectItem>
+                          <SelectItem value="ethereum">Ethereum</SelectItem>
+                          <SelectItem value="polygon">Polygon</SelectItem>
+                          <SelectItem value="base">Base</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs">Wallet Address</Label>
+                      <Input
+                        className="mt-1 h-8 text-xs font-mono"
+                        value={eurcAddress}
+                        onChange={(e) => setEurcAddress(e.target.value)}
+                        placeholder={custodialAddress ?? "Wallet address"}
+                      />
+                    </div>
+                  </div>
+                </Card>
+              )}
             </div>
 
             {/* Send Currency */}
