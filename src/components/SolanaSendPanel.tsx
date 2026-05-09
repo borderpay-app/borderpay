@@ -129,15 +129,16 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("wallet_balances")
-        .select("currency, balance_minor")
-        .eq("user_id", userId);
+      const [{ data: balData }, { data: profData }] = await Promise.all([
+        supabase.from("wallet_balances").select("currency, balance_minor").eq("user_id", userId),
+        supabase.from("profiles").select("wallet_address").eq("user_id", userId).maybeSingle(),
+      ]);
       const map: Record<Currency, number> = { GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0 };
-      for (const r of (data ?? []) as { currency: Currency; balance_minor: number }[]) {
+      for (const r of (balData ?? []) as { currency: Currency; balance_minor: number }[]) {
         if (r.currency in map) map[r.currency] = Number(r.balance_minor ?? 0);
       }
       setWalletBalances(map);
+      setCustodialAddress((profData?.wallet_address as string | null) ?? null);
     })();
   }, [userId]);
 
