@@ -16,6 +16,7 @@ import { WalletsRow, ALL_WALLETS, fmtAmount, type Currency } from "@/components/
 import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
 import { WalletTransferDialog } from "@/components/WalletTransferDialog";
 import { WalletSection } from "@/components/WalletSection";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Tx {
   id: string;
@@ -337,7 +338,29 @@ const AppDashboard = () => {
             </Suspense>
           )}
 
-          {savedWallet && <WalletSection custodialAddress={savedWallet} />}
+          {savedWallet ? (
+            <WalletSection custodialAddress={savedWallet} />
+          ) : (
+            <Card className="p-6" aria-busy="true" aria-label="Generating custodial wallet">
+              <div className="flex items-center gap-2 mb-4">
+                <Skeleton className="h-5 w-5 rounded" />
+                <Skeleton className="h-5 w-40" />
+              </div>
+              <div className="space-y-3">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-4 w-3/4" />
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-7 w-32" />
+                  <div className="flex items-center justify-between pt-1">
+                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                </div>
+                <Skeleton className="h-3 w-2/3" />
+              </div>
+            </Card>
+          )}
 
           {(() => {
             const cutoff = Date.now() - 24 * 60 * 60 * 1000;
