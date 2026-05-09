@@ -16,6 +16,7 @@ import { WalletsRow, ALL_WALLETS, fmtAmount, type Currency } from "@/components/
 import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
 import { WalletTransferDialog } from "@/components/WalletTransferDialog";
 import { WalletSection } from "@/components/WalletSection";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface Tx {
   id: string;
