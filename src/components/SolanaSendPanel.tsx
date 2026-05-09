@@ -86,11 +86,11 @@ const currencyLabel: Record<SendCurrency, string> = {
 };
 
 const FEES: Record<SendCurrency, { pct: number; fixed: number; label: string }> = {
-  GBP: { pct: 0, fixed: 0, label: "Mid-market rate" },
-  EUR: { pct: 0, fixed: 0, label: "Mid-market rate" },
-  EURC: { pct: 0.005, fixed: 0, label: "0.5%" },
-  USDC: { pct: 0.005, fixed: 0, label: "0.5%" },
-  USDT: { pct: 0.005, fixed: 0, label: "0.5%" },
+  GBP: { pct: 0.005, fixed: 0, label: "0.5%" },
+  EUR: { pct: 0.005, fixed: 0, label: "0.5%" },
+  EURC: { pct: 0.003, fixed: 0, label: "0.3%" },
+  USDC: { pct: 0.003, fixed: 0, label: "0.3%" },
+  USDT: { pct: 0.003, fixed: 0, label: "0.3%" },
 };
 
 interface Props {
