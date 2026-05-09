@@ -111,11 +111,14 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const [sending, setSending] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [disclaimerAcked, setDisclaimerAcked] = useState(false);
-  const [sourceWallet, setSourceWallet] = useState<Currency>("GBP");
+  const [sourceWallet, setSourceWallet] = useState<Currency | "EURC">("GBP");
   const [sendCurrency, setSendCurrency] = useState<SendCurrency>("EUR");
   const [walletBalances, setWalletBalances] = useState<Record<Currency, number>>({
     GBP: 0, EUR: 0, BGBP: 0, BEUR: 0, BDRP: 0,
   });
+  const [custodialAddress, setCustodialAddress] = useState<string | null>(null);
+  const [eurcBridge, setEurcBridge] = useState<"circle" | "wormhole" | "lifi">("circle");
+  const [eurcNetwork, setEurcNetwork] = useState<"solana" | "ethereum" | "polygon" | "base">("solana");
   const [showCalc, setShowCalc] = useState(false);
   const calcAmount = amount || "1000";
 
