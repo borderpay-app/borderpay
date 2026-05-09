@@ -377,7 +377,7 @@ export function bridgeIsLive(): boolean {
 export function bridgeCurrencyFromPayCurrency(c: string): BridgeCurrency {
   const map: Record<string, BridgeCurrency> = {
     GBP: "gbp", EUR: "eur", USD: "usd",
-    EURC: "eurc", USDC: "usdc", USDT: "usdt",
+    EURC: "eurc", BGBP: "usdc", BDRP: "usdc",
   };
   return map[c.toUpperCase()] ?? "usd";
 }

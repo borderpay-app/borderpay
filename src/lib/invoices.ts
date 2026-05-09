@@ -5,7 +5,7 @@ export type InvoiceCategory = "supplier" | "payroll" | "tax";
 export type InvoiceSource = "xero" | "quickbooks" | "sage" | "upload" | "manual";
 export type PaymentRail = "stable" | "fiat";
 
-export const STABLE_COINS = ["EURC", "USDC"] as const;
+export const STABLE_COINS = ["EURC", "BGBP", "BDRP"] as const;
 export const FIAT_CURRENCIES = ["GBP", "EUR", "USD"] as const;
 
 export type StableCoin = (typeof STABLE_COINS)[number];
@@ -18,7 +18,8 @@ const FX_TO_GBP: Record<string, number> = {
   EUR: 0.85, // 1 EUR = 0.85 GBP
   USD: 0.79,
   EURC: 0.85,
-  USDC: 0.79,
+  BGBP: 1,    // pegged 1:1 to GBP
+  BDRP: 0.85, // basket ≈ €1 ≈ £0.85
 };
 
 export const convertAmount = (amountCents: number, from: string, to: string): number => {
