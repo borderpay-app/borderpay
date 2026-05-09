@@ -277,14 +277,6 @@ const AppDashboard = () => {
               </p>
             )}
 
-            <div className="mt-6 pt-6 border-t">
-              <p className="text-sm font-medium">Your custodial wallet</p>
-              {savedWallet ? (
-                <p className="text-xs font-mono text-muted-foreground mt-1 break-all">{savedWallet}</p>
-              ) : (
-                <p className="text-xs text-muted-foreground mt-1">Generating wallet…</p>
-              )}
-            </div>
           </Card>
 
           {preflight.status === "checking" && (
@@ -345,7 +337,7 @@ const AppDashboard = () => {
             </Suspense>
           )}
 
-          <WalletSection custodialAddress={savedWallet} />
+          {savedWallet && <WalletSection custodialAddress={savedWallet} />}
 
           {(() => {
             const cutoff = Date.now() - 24 * 60 * 60 * 1000;
