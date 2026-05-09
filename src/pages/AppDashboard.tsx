@@ -337,7 +337,7 @@ const AppDashboard = () => {
             </Suspense>
           )}
 
-          <WalletSection custodialAddress={savedWallet} />
+          {savedWallet && <WalletSection custodialAddress={savedWallet} />}
 
           {(() => {
             const cutoff = Date.now() - 24 * 60 * 60 * 1000;
