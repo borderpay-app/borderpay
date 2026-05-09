@@ -40,19 +40,21 @@ const FX: Record<string, number> = {
   "BGBP→EURC": 1.18,
   "BEUR→EURC": 1,
   "BDRP→EURC": 1.0,
-  "GBP→USDC": 1.27,
-  "EUR→USDC": 1.08,
-  "BGBP→USDC": 1.27,
-  "BEUR→USDC": 1.08,
-  "BDRP→USDC": 1.08,
-  "GBP→USDT": 1.27,
-  "EUR→USDT": 1.08,
-  "BGBP→USDT": 1.27,
-  "BEUR→USDT": 1.08,
-  "BDRP→USDT": 1.08,
+  // BGBP send (pegged 1:1 to GBP)
+  "GBP→BGBP": 1,
+  "EUR→BGBP": 0.86,
+  "BGBP→BGBP": 1,
+  "BEUR→BGBP": 0.86,
+  "BDRP→BGBP": 0.86,
+  // BDRP send (basket ≈ €1 / £0.86)
+  "GBP→BDRP": 1.16,
+  "EUR→BDRP": 1,
+  "BGBP→BDRP": 1.16,
+  "BEUR→BDRP": 1,
+  "BDRP→BDRP": 1,
 };
 
-const SEND_CURRENCIES = ["GBP", "EUR", "EURC", "USDC", "USDT"] as const;
+const SEND_CURRENCIES = ["GBP", "EUR", "EURC", "BGBP", "BDRP"] as const;
 type SendCurrency = (typeof SEND_CURRENCIES)[number];
 
 type DeliveryMethod = "solana" | "domestic" | "iban";
@@ -64,7 +66,7 @@ const DELIVERY_LABELS: Record<DeliveryMethod, string> = {
 };
 
 const defaultDeliveryMethod = (currency: SendCurrency): DeliveryMethod => {
-  if (["EURC", "USDC", "USDT"].includes(currency)) return "solana";
+  if (["EURC", "BGBP", "BDRP"].includes(currency)) return "solana";
   if (currency === "GBP") return "domestic";
   return "iban";
 };
@@ -73,24 +75,24 @@ const currencySymbol: Record<SendCurrency, string> = {
   GBP: "£",
   EUR: "€",
   EURC: "€",
-  USDC: "$",
-  USDT: "$",
+  BGBP: "£",
+  BDRP: "€",
 };
 
 const currencyLabel: Record<SendCurrency, string> = {
   GBP: "£ GBP",
   EUR: "€ EUR",
   EURC: "€ EURC (Stablecoin)",
-  USDC: "$ USDC (Stablecoin)",
-  USDT: "$ USDT (Stablecoin)",
+  BGBP: "£ BGBP (Stablecoin)",
+  BDRP: "€ BDRP (Stablecoin)",
 };
 
 const FEES: Record<SendCurrency, { pct: number; fixed: number; label: string }> = {
   GBP: { pct: 0.005, fixed: 0, label: "0.5%" },
   EUR: { pct: 0.005, fixed: 0, label: "0.5%" },
   EURC: { pct: 0.003, fixed: 0, label: "0.3%" },
-  USDC: { pct: 0.003, fixed: 0, label: "0.3%" },
-  USDT: { pct: 0.003, fixed: 0, label: "0.3%" },
+  BGBP: { pct: 0.003, fixed: 0, label: "0.3%" },
+  BDRP: { pct: 0.003, fixed: 0, label: "0.3%" },
 };
 
 interface Props {
