@@ -19,7 +19,7 @@ interface Integration {
 const integrations: Integration[] = [
   {
     name: "Circle",
-    description: "EURC / USDC stablecoin issuance & redemption",
+    description: "EURC / BGBP / BDRP stablecoin issuance & redemption",
     status: "connected",
     statusLabel: "Connected",
     logo: "🟢",

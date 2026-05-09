@@ -744,7 +744,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
             const feeCostEur = eurAmt * fee.pct + fee.fixed;
             const totalSend = confirmAmt + feeCost;
             const totalEur = eurAmt + feeCostEur;
-            const isStablecoin = ["EURC", "USDC", "USDT"].includes(sendCurrency);
+            const isStablecoin = ["EURC", "BGBP", "BDRP"].includes(sendCurrency);
             const eurFiatFee = eurAmt * FEES.EUR.pct + FEES.EUR.fixed;
             const savings = eurFiatFee - feeCostEur;
 
@@ -852,7 +852,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
                       <ul className="list-disc pl-5 space-y-2">
                         <li>This transaction is a <strong>simulated expression of interest</strong> only. No real funds, fiat or cryptocurrency, will be debited, transferred, or received.</li>
                         <li>Border Pay does not currently hold, transmit, or custody any client funds. All wallet balances and transactions shown are for demonstration purposes.</li>
-                        <li>Stablecoin references (EURC, USDC, USDT) are used to illustrate potential cost savings and do not constitute an offer to buy, sell, or exchange digital assets.</li>
+                        <li>Stablecoin references (EURC, BGBP, BDRP) are used to illustrate potential cost savings and do not constitute an offer to buy, sell, or exchange digital assets.</li>
                         <li>Fee estimates, foreign-exchange rates, and savings comparisons displayed are indicative only and may differ materially from rates available at the time of any future live service.</li>
                         <li>Border Pay makes no guarantee that the platform will receive regulatory authorisation or launch commercially in any jurisdiction.</li>
                         <li>You should not rely on any information presented here as financial, legal, or tax advice. Please consult a qualified professional before making financial decisions.</li>
