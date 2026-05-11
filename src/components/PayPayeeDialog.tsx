@@ -35,6 +35,9 @@ import {
   type PayCurrency,
   type PaymentRail,
 } from "@/lib/invoices";
+
+const isStableCoin = (c: PayCurrency) =>
+  (STABLE_COINS as readonly string[]).includes(c);
 import {
   bridgeGetQuote,
   bridgeCreateTransfer,
