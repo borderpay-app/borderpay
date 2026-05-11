@@ -96,7 +96,9 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
   };
 
   const payNow = (row: any) => {
-    if (!row.wallet_address && !row.account_number && !row.iban) {
+    const hasBank =
+      row.iban || row.account_number || row.sort_code || row.swift || row.bank_name;
+    if (!row.wallet_address && !hasBank) {
       toast.error("No payment details on file", {
         description: "Add a wallet address or bank details before paying this payee.",
       });
