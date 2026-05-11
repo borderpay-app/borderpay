@@ -52,9 +52,25 @@ interface Payee {
   name: string;
   wallet_address?: string | null;
   bank_name?: string | null;
+  account_name?: string | null;
+  sort_code?: string | null;
   account_number?: string | null;
   iban?: string | null;
+  swift?: string | null;
 }
+
+const hasBankDetails = (p: Payee | null) =>
+  !!(p && (p.iban || p.account_number || p.sort_code || p.swift || p.bank_name));
+
+const bankDestinationLabel = (p: Payee): string => {
+  if (p.iban) return p.iban;
+  if (p.account_number) {
+    return p.sort_code ? `${p.sort_code} · ${p.account_number}` : p.account_number;
+  }
+  if (p.swift) return p.swift;
+  if (p.bank_name) return p.bank_name;
+  return "—";
+};
 
 interface Props {
   open: boolean;
