@@ -17,6 +17,8 @@ import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
 import { WalletTransferDialog } from "@/components/WalletTransferDialog";
 import { WalletSection } from "@/components/WalletSection";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EurOpenBankingForm } from "@/components/EurOpenBankingForm";
+import { RequestInvoiceForm } from "@/components/RequestInvoiceForm";
 
 interface Tx {
   id: string;
@@ -269,9 +271,13 @@ const AppDashboard = () => {
                 </p>
               </form>
             ) : selectedWallet === "EUR" ? (
-              <p className="mt-6 text-sm text-muted-foreground">
-                Use the <strong>Send</strong> feature to convert GBP → EUR, or receive EUR from another user.
-              </p>
+              <EurOpenBankingForm
+                userId={user.id}
+                currentEurCents={walletBalances.EUR}
+                onAdded={() => { setWalletsRefresh((n) => n + 1); refresh(); }}
+              />
+            ) : selectedWallet === "BGBP" || selectedWallet === "BEUR" ? (
+              <RequestInvoiceForm currency={selectedWallet} />
             ) : (
               <p className="mt-6 text-sm text-muted-foreground">
                 Use <strong>Mint / Burn</strong> above to convert fiat balances into stablecoins.
