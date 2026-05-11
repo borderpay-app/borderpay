@@ -691,53 +691,85 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
               </div>
             )}
 
-            {/* Bridge Infrastructure Panel */}
-            {bridgeQuote && (
-              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2 text-sm">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-primary" />
-                    <span className="font-medium">Bridge Orchestration</span>
+            {/* Cost breakdown / fee explainer */}
+            {bridgeQuote && sourceWallet && (() => {
+              const feeMinor = Math.round(amountCents * 0.003);
+              const totalDebitMinor = debitMinor + Math.round(feeMinor * (quote?.rate ? 1 / quote.rate : 1));
+              // Fee is taken in source-wallet units (0.3% of the amount being sent, expressed in source currency)
+              const feeInSourceMinor = Math.round((debitMinor) * 0.003);
+              const grandTotalMinor = debitMinor + feeInSourceMinor;
+              const cardComparisonMinor = Math.round(amountCents * 0.029); // typical 2.9% card/SWIFT
+              const savingsMinor = cardComparisonMinor - feeMinor;
+              return (
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3 text-sm">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-4 w-4 text-primary" />
+                      <span className="font-medium">Cost breakdown</span>
+                    </div>
+                    <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      0.3% flat fee
+                    </span>
                   </div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
-                    Powered by Bridge
-                  </span>
+
+                  <p className="text-xs text-muted-foreground">
+                    BorderPay charges a flat <strong className="text-foreground">0.3%</strong> on the amount sent —
+                    no hidden FX markup, no SWIFT fees. Compare to typical card or wire rails at 2–3%.
+                  </p>
+
+                  <div className="space-y-1.5 pt-1 border-t">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Amount to recipient</span>
+                      <span className="font-mono">{formatMoney(amountCents, currency)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Exchange rate</span>
+                      <span className="font-mono">
+                        {quote?.pegged
+                          ? `1:1 peg`
+                          : `1 ${sourceWallet} ≈ ${quote?.rate.toFixed(4)} ${currency}`}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Subtotal (debit before fee)</span>
+                      <span className="font-mono">{formatMoney(debitMinor, sourceWallet)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">BorderPay fee (0.3%)</span>
+                      <span className="font-mono">+ {formatMoney(feeInSourceMinor, sourceWallet)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm pt-1.5 border-t">
+                      <span className="font-medium">Total debited from {sourceWallet}</span>
+                      <span className="font-mono font-semibold">{formatMoney(grandTotalMinor, sourceWallet)}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="font-medium">Recipient receives</span>
+                      <span className="font-mono font-semibold">{formatMoney(amountCents, currency)}</span>
+                    </div>
+                  </div>
+
+                  {savingsMinor > 0 && (
+                    <div className="rounded-md bg-primary/10 border border-primary/20 px-3 py-2 text-xs">
+                      <span className="text-foreground font-medium">
+                        You save ~{formatMoney(savingsMinor, currency)}
+                      </span>
+                      <span className="text-muted-foreground">
+                        {" "}vs a 2.9% card / SWIFT transfer of the same amount.
+                      </span>
+                    </div>
+                  )}
+
+                  <p className="text-[11px] text-muted-foreground pt-1 border-t">
+                    Settlement: {rail === "stable" ? "On-chain (Solana) · seconds" : "Bank transfer · same/next day"}.
+                    Orchestrated via{" "}
+                    <a href="https://www.bridge.xyz" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
+                      Bridge
+                    </a>
+                    . Demo mode — no real funds move.
+                  </p>
                 </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Route</span>
-                  <span className="font-mono">
-                    {bridgeQuote.source_currency.toUpperCase()} → {bridgeQuote.destination_currency.toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Bridge exchange rate</span>
-                  <span className="font-mono">{bridgeQuote.exchange_rate}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">BorderPay fee (0.3%)</span>
-                  <span className="font-mono">${bridgeQuote.developer_fee}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Estimated received</span>
-                  <span className="font-mono font-medium">
-                    {bridgeQuote.estimated_amount} {bridgeQuote.destination_currency.toUpperCase()}
-                  </span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Settlement</span>
-                  <span className="font-mono">
-                    {rail === "stable" ? "On-chain (Solana)" : "Bank transfer"}
-                  </span>
-                </div>
-                <p className="text-[11px] text-muted-foreground pt-1 border-t mt-1">
-                  Stablecoin orchestration, FX conversion, and settlement handled by{" "}
-                  <a href="https://www.bridge.xyz" target="_blank" rel="noopener noreferrer" className="underline hover:text-foreground">
-                    Bridge (by Stripe)
-                  </a>
-                  . Demo mode — no real funds move.
-                </p>
-              </div>
-            )}
+              );
+            })()}
 
             <label className="flex items-start gap-2 rounded-md border bg-muted/40 p-3 text-sm cursor-pointer">
               <input
