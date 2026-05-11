@@ -478,7 +478,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                   ? payee.wallet_address
                     ? `Wallet on file ✓`
                     : "No wallet address on file"
-                  : payee.iban || payee.account_number
+                  : hasBankDetails(payee)
                     ? `Bank details on file ✓`
                     : "No bank details on file"}
               </p>
