@@ -306,12 +306,17 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       return;
     }
     // Generate Bridge quote for the review screen
-    const bq = await bridgeGetQuote(
-      bridgeCurrencyFromPayCurrency(sourceWallet!),
-      bridgeCurrencyFromPayCurrency(currency),
-      amountCents / 100,
-    );
-    setBridgeQuote(bq);
+    try {
+      const bq = await bridgeGetQuote(
+        bridgeCurrencyFromPayCurrency(sourceWallet!),
+        bridgeCurrencyFromPayCurrency(currency),
+        amountCents / 100,
+      );
+      setBridgeQuote(bq);
+    } catch (err: any) {
+      toast.error("Couldn't generate quote", { description: err?.message ?? "Try again." });
+      return;
+    }
     setApproved(false);
     setStep("review");
   };
