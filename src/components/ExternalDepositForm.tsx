@@ -211,20 +211,23 @@ export const ExternalDepositForm = ({ currency, custodialAddress, onDeposited }:
             placeholder={`Amount in ${currency}`}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            disabled={busy || !custodialAddress}
+            disabled={busy || !addressValid}
           />
           <Button
             type="submit"
             size="sm"
-            disabled={busy || !custodialAddress || !amount}
+            disabled={busy || !addressValid || !amount}
             className="gap-1.5"
+            title={!addressValid ? addressCheck.reason : undefined}
           >
             <ArrowDownToLine className="h-3.5 w-3.5" />
             {busy ? "Crediting…" : "Credit"}
           </Button>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Mocks an on-chain transfer arriving at your custodial address and credits your {currency} balance.
+          {addressValid
+            ? `Mocks an on-chain transfer arriving at your custodial address and credits your ${currency} balance.`
+            : `Credit is disabled until a valid ${currency} deposit address is available.`}
         </p>
       </form>
 
