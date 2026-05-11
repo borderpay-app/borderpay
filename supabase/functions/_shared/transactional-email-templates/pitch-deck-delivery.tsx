@@ -6,7 +6,7 @@ import {
 import type { TemplateEntry } from './registry.ts'
 
 const SITE_NAME = 'Border Pay'
-const PITCH_DECK_URL = 'https://pqjebmtxfmjvdrlvzkla.supabase.co/storage/v1/object/public/email-assets/BorderPay-Pitch-Deck.pptx'
+const PITCH_DECK_URL = 'https://pqjebmtxfmjvdrlvzkla.supabase.co/storage/v1/object/public/email-assets/BorderPay-Pitch-Deck.pdf'
 
 const PitchDeckDeliveryEmail = () => (
   <Html lang="en" dir="ltr">
