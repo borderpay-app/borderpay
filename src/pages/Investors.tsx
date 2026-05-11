@@ -81,7 +81,7 @@ const Investors = () => {
 
               <div className="mt-8 space-y-5">
                 {[
-                  "£4.73 billion NI ↔ Ireland trade corridor 12B",
+                  "£14.6B NI ↔ Ireland trade corridor",
                   "Faster & cheaper than Revolut, Wise, Stripe",
                   "Dual-pegged stablecoin — no FX conversion",
                   "Solana settlement in under 30 seconds",
