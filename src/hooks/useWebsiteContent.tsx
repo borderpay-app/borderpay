@@ -30,29 +30,29 @@ export type SectionContent = HeroContent | ProblemContent | SolutionContent;
 
 const DEFAULTS: Record<string, SectionContent> = {
   hero: {
-    badge: "Pre-launch — Express your interest today",
+    badge: "The payment rail of the all-island economy",
     headline: "Cross-border payments,",
     headlineAccent: "simplified.",
     subtitle:
-      "BDRP is a dual-pegged stablecoin backed by GBP and EUR, powering fast, low-cost settlement across the NI–Ireland corridor 12B.",
+      "Border Pay is a dual-rails payments company connecting GBP and EUR — fast, low-cost settlement across the all-island economy.",
     stat1Value: "<30s",
     stat1Label: "Settlement time",
-    stat2Value: "<0.5%",
+    stat2Value: "0.3–0.5%",
     stat2Label: "All-in fees",
-    stat3Value: "£12.4B",
-    stat3Label: "Corridor 12B volume",
+    stat3Value: "£14.6B",
+    stat3Label: "All-island corridor volume",
   },
   problem: {
     tagline: "The Problem",
     headline: "Cross-border payments are broken",
     subtitle:
-      "Northern Ireland SMEs trading with Ireland bear a disproportionate cost burden — despite operating across the world's most integrated cross-border corridor 12B.",
+      "Northern Ireland and Ireland SMEs trading across the all-island economy bear a disproportionate cost burden — despite operating across the world's most integrated cross-border corridor.",
   },
   solution: {
     tagline: "The Solution",
-    headline: "BDRP — the dual-pegged stablecoin",
+    headline: "Dual-rails payments for the all-island economy",
     subtitle:
-      "BDRP is backed by a basket of Euro and British Pound. 1 BDRP = 50% Euro + 50% British Pound — its value stays stable by tracking both currencies together, significantly reducing FX volatility and making cross-border payments fast, low-cost, and predictable.",
+      "Border Pay runs payment rails on both GBP and EUR — pay or get paid in your local currency with FX, settlement, and compliance handled end-to-end. The payment rail of the all-island economy.",
   },
 };
 

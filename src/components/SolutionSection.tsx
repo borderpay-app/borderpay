@@ -22,9 +22,9 @@ const SolutionSection = () => {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-primary-foreground">
             {[
               { flag: "🇬🇧", label: "UK Business", sub: "Sends GBP" },
-              { flag: "⬡", label: "On-Ramp", sub: "GBP → BDRP" },
+              { flag: "⬡", label: "GBP Rail", sub: "Instant FX" },
               { flag: "⚡", label: "Settlement", sub: "< 30 seconds" },
-              { flag: "⬡", label: "Off-Ramp", sub: "BDRP → EUR" },
+              { flag: "⬡", label: "EUR Rail", sub: "Instant payout" },
               { flag: "🇮🇪", label: "Irish Business", sub: "Receives EUR" },
             ].map((step, i) => (
               <div key={step.label} className="flex items-center gap-3 sm:gap-0 sm:flex-col text-center">
@@ -45,16 +45,12 @@ const SolutionSection = () => {
               <div className="text-xs opacity-60 mt-1">Settlement</div>
             </div>
             <div>
-              <div className="text-xl font-bold font-mono">&lt; 0.5%</div>
-              <div className="text-xs opacity-60 mt-1">All-in fee</div>
+              <div className="text-xl font-bold font-mono">0.5%</div>
+              <div className="text-xs opacity-60 mt-1">GBP / EUR transactions</div>
             </div>
             <div>
-              <div className="text-xl font-bold font-mono">BDRP</div>
-              <div className="text-xs opacity-60 mt-1">€0.50 + £0.43</div>
-            </div>
-            <div>
-              <div className="text-xl font-bold font-mono">Solana</div>
-              <div className="text-xs opacity-60 mt-1">Blockchain powered</div>
+              <div className="text-xl font-bold font-mono">0.3%</div>
+              <div className="text-xs opacity-60 mt-1">Stablecoin payments</div>
             </div>
             <div>
               <div className="text-xl font-bold font-mono">FCA / MiCA</div>
@@ -89,7 +85,7 @@ const SolutionSection = () => {
             </div>
             <h3 className="font-semibold text-foreground mb-2">Built for the Border</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Purpose-built for the unique NI–Ireland dual-currency corridor 12B. Payroll, suppliers, tax — all in one wallet.
+              Purpose-built for the unique NI–Ireland dual-currency corridor. Payroll, suppliers, tax — all in one wallet.
             </p>
           </div>
         </div>

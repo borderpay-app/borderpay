@@ -33,12 +33,12 @@ const VideoSection = () => {
         {/* Dual-Peg Explainer */}
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-10">
-            <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">Our Innovation</p>
+            <p className="text-xs font-semibold tracking-widest uppercase text-primary mb-3">Our Approach</p>
             <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
-              What is BDRP?
+              Dual-rails payments
             </h3>
             <p className="mt-4 text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              BDRP (BorderPay) is a dual-pegged stablecoin backed by a basket of Euro and British Pound. 1 BDRP = 50% Euro + 50% British Pound (1 BDRP represents a fixed basket of €0.50 + £0.43 — adjusted to equal value at launch). Its value stays stable by tracking both EUR and GBP together, significantly reducing FX volatility and making BDRP ideal for payments and holding value across the NI–Ireland corridor 12B.
+              Border Pay is a dual-rails payments company. We run native rails on both GBP and EUR, so businesses on either side of the border can send and receive in their local currency — with FX, settlement, and compliance handled end-to-end. The payment rail of the all-island economy.
             </p>
           </div>
 
@@ -49,7 +49,7 @@ const VideoSection = () => {
               </div>
               <h4 className="text-sm font-semibold text-foreground mb-2">Zero FX Slippage</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Pay a Belfast supplier in GBP or a Dublin supplier in EUR from the same BDRP balance. The dual peg locks in both rates — no spread, no conversion fees, no surprises.
+                Pay a Belfast supplier in GBP or a Dublin supplier in EUR from the same account. Locked-in rates — no spread, no surprises.
               </p>
             </div>
 
@@ -59,7 +59,7 @@ const VideoSection = () => {
               </div>
               <h4 className="text-sm font-semibold text-foreground mb-2">Instant Settlement</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Cross-border payments settle in under 30 seconds — not 2–3 business days. BDRP moves on-chain and redeems instantly to fiat in either jurisdiction.
+                Cross-border payments settle in under 30 seconds — not 2–3 business days. Funds redeem instantly to fiat in either jurisdiction.
               </p>
             </div>
 
@@ -69,7 +69,7 @@ const VideoSection = () => {
               </div>
               <h4 className="text-sm font-semibold text-foreground mb-2">Fully Reserved</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Every BDRP in circulation is backed 1:1 by a basket of segregated GBP and EUR reserves. Transparent, auditable, and designed for regulatory compliance across both the UK and Ireland.
+                Every balance is backed 1:1 by segregated GBP and EUR reserves. Transparent, auditable, and designed for regulatory compliance across both the UK and Ireland.
               </p>
             </div>
 
@@ -77,16 +77,16 @@ const VideoSection = () => {
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                 <Globe size={20} className="text-primary" />
               </div>
-              <h4 className="text-sm font-semibold text-foreground mb-2">One Balance, Two Economies</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-2">One Account, Two Economies</h4>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Businesses operating across the border no longer need separate GBP and EUR floats. BDRP unifies your treasury into a single dual-currency instrument.
+                Businesses operating across the border no longer need separate GBP and EUR floats. Border Pay unifies your treasury into a single dual-rails account.
               </p>
             </div>
           </div>
 
           <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6 text-center">
             <p className="text-sm text-foreground leading-relaxed max-w-2xl mx-auto">
-              <strong>How it works:</strong> Deposit GBP or EUR to mint BDRP. Send BDRP to anyone — they redeem in whichever currency they prefer. Each BDRP tracks both currencies together, so both parties always know exactly what they're sending and receiving, with no hidden FX markup.
+              <strong>How it works:</strong> Top up in GBP or EUR. Send payments across the border in seconds — recipients receive in whichever currency they prefer. Just <strong>0.5%</strong> on GBP/EUR transactions and <strong>0.3%</strong> on stablecoin payments. No hidden FX markup.
             </p>
           </div>
         </div>
