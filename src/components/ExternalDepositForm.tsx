@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, Check, Wallet, AlertTriangle } from "lucide-react";
+import { Copy, Check, Wallet, AlertTriangle, ArrowDownToLine } from "lucide-react";
 import type { Currency } from "@/components/WalletsRow";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Props {
   currency: Extract<Currency, "BGBP" | "BEUR">;
   custodialAddress: string | null;
+  onDeposited?: () => void;
 }
 
 const META: Record<Props["currency"], { name: string; network: string }> = {
@@ -15,8 +19,11 @@ const META: Record<Props["currency"], { name: string; network: string }> = {
   BEUR: { name: "BEUR", network: "Solana (SPL)" },
 };
 
-export const ExternalDepositForm = ({ currency, custodialAddress }: Props) => {
+export const ExternalDepositForm = ({ currency, custodialAddress, onDeposited }: Props) => {
+  const { user } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [amount, setAmount] = useState("");
+  const [busy, setBusy] = useState(false);
   const meta = META[currency];
 
   const copy = async () => {
@@ -25,6 +32,59 @@ export const ExternalDepositForm = ({ currency, custodialAddress }: Props) => {
     setCopied(true);
     toast.success("Deposit address copied");
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const simulateDeposit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    const n = Number(amount);
+    if (!Number.isFinite(n) || n <= 0) {
+      toast.error("Enter an amount greater than 0");
+      return;
+    }
+    if (n > 1_000_000) {
+      toast.error("Maximum simulated deposit is 1,000,000");
+      return;
+    }
+    setBusy(true);
+    try {
+      const minor = Math.round(n * 100);
+      const { data: row, error: selErr } = await supabase
+        .from("wallet_balances")
+        .select("balance_minor")
+        .eq("user_id", user.id)
+        .eq("currency", currency)
+        .maybeSingle();
+      if (selErr) throw selErr;
+      const current = Number(row?.balance_minor ?? 0);
+      const next = current + minor;
+      const { error: upErr } = await supabase
+        .from("wallet_balances")
+        .update({ balance_minor: next, updated_at: new Date().toISOString() })
+        .eq("user_id", user.id)
+        .eq("currency", currency);
+      if (upErr) throw upErr;
+
+      await supabase.from("transactions").insert({
+        user_id: user.id,
+        type: "topup",
+        status: "confirmed",
+        rail: "stable",
+        currency,
+        recipient_address: custodialAddress,
+        notes: `Simulated external ${currency} deposit · ${n.toFixed(2)} ${currency}`,
+      });
+
+      toast.success(`Credited ${n.toFixed(2)} ${currency}`, {
+        description: "Simulated on-chain deposit — no real funds moved.",
+      });
+      setAmount("");
+      onDeposited?.();
+    } catch (err: any) {
+      toast.error("Deposit failed", { description: err?.message ?? "Try again." });
+    } finally {
+      setBusy(false);
+    }
   };
 
   const qrSrc = custodialAddress
@@ -68,6 +128,37 @@ export const ExternalDepositForm = ({ currency, custodialAddress }: Props) => {
           </div>
         </div>
       )}
+
+      <form onSubmit={simulateDeposit} className="rounded-lg border bg-card p-3 space-y-2">
+        <Label htmlFor={`ext-deposit-${currency}`} className="text-xs">
+          Simulate incoming deposit (demo)
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            id={`ext-deposit-${currency}`}
+            type="number"
+            inputMode="decimal"
+            step="0.01"
+            min="0.01"
+            placeholder={`Amount in ${currency}`}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            disabled={busy || !custodialAddress}
+          />
+          <Button
+            type="submit"
+            size="sm"
+            disabled={busy || !custodialAddress || !amount}
+            className="gap-1.5"
+          >
+            <ArrowDownToLine className="h-3.5 w-3.5" />
+            {busy ? "Crediting…" : "Credit"}
+          </Button>
+        </div>
+        <p className="text-[11px] text-muted-foreground">
+          Mocks an on-chain transfer arriving at your custodial address and credits your {currency} balance.
+        </p>
+      </form>
 
       <p className="text-xs text-muted-foreground flex items-start gap-1.5">
         <AlertTriangle className="h-3.5 w-3.5 mt-0.5 flex-shrink-0 text-amber-500" />
