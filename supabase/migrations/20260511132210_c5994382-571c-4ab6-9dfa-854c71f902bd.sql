@@ -1,0 +1,6 @@
+
+UPDATE public.website_content SET content = '{"badge":"The payment rail of the all-island economy","headline":"Cross-border payments,","headlineAccent":"simplified.","subtitle":"Border Pay is a dual-rails payments company connecting GBP and EUR — fast, low-cost settlement across the all-island economy.","stat1Value":"<30s","stat1Label":"Settlement time","stat2Value":"0.3–0.5%","stat2Label":"All-in fees","stat3Value":"£14.6B","stat3Label":"All-island corridor volume"}'::jsonb, updated_at = now() WHERE section_key = 'hero';
+
+UPDATE public.website_content SET content = '{"tagline":"The Problem","headline":"Cross-border payments are broken","subtitle":"Northern Ireland and Ireland SMEs trading across the all-island economy bear a disproportionate cost burden — despite operating across the world''s most integrated cross-border corridor."}'::jsonb, updated_at = now() WHERE section_key = 'problem';
+
+UPDATE public.website_content SET content = '{"tagline":"The Solution","headline":"Dual-rails payments for the all-island economy","subtitle":"Border Pay runs payment rails on both GBP and EUR — pay or get paid in your local currency with FX, settlement, and compliance handled end-to-end. The payment rail of the all-island economy."}'::jsonb, updated_at = now() WHERE section_key = 'solution';
