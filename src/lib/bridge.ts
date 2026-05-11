@@ -170,7 +170,8 @@ const BRIDGE_FX: Record<string, Record<string, number>> = {
   usdt: { usd: 1.0, eur: 0.92, gbp: 0.79, usdc: 1.0, eurc: 0.92 },
 };
 
-const DEVELOPER_FEE_PCT = 0.001;
+// BorderPay promised stablecoin fee: 0.3% flat — significantly cheaper than card/SWIFT rails.
+const DEVELOPER_FEE_PCT = 0.003;
 
 function getRate(from: BridgeCurrency, to: BridgeCurrency): number {
   if (from === to) return 1;
