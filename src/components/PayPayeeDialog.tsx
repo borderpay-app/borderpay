@@ -284,13 +284,13 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       toast.error(parsed.error.issues[0].message);
       return;
     }
-    if (rail === "stable" && !payee.wallet_address) {
+    if (isStableCoin(currency) && !payee.wallet_address) {
       toast.error("This payee has no wallet address on file", {
         description: "Add a Solana wallet to pay via stablecoin, or switch to Fiat.",
       });
       return;
     }
-    if (rail === "fiat" && !payee.account_number && !payee.iban) {
+    if (!isStableCoin(currency) && !payee.account_number && !payee.iban) {
       toast.error("This payee has no bank details on file", {
         description: "Add an account number or IBAN to pay via fiat, or switch to Stablecoin.",
       });
