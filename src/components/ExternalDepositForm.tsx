@@ -1,12 +1,46 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Copy, Check, Wallet, AlertTriangle, ArrowDownToLine } from "lucide-react";
+import { Copy, Check, Wallet, AlertTriangle, ArrowDownToLine, ShieldCheck, ShieldAlert } from "lucide-react";
 import type { Currency } from "@/components/WalletsRow";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { PublicKey } from "@solana/web3.js";
+
+// Currency-specific deposit-address validators.
+// Both BGBP and BEUR are SPL tokens on Solana, so the custodial deposit address
+// must be a valid base58-encoded Solana public key (32-byte ed25519 point).
+const validateCustodialAddress = (
+  currency: "BGBP" | "BEUR",
+  address: string | null,
+): { ok: boolean; reason?: string } => {
+  if (!address) return { ok: false, reason: "No deposit address yet." };
+  // Quick base58 + length guard (Solana addresses are 32–44 base58 chars).
+  if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
+    return { ok: false, reason: `Not a valid Solana address for ${currency}.` };
+  }
+  try {
+    const pk = new PublicKey(address);
+    // Reject the system "all-zero" address, which is never a real ATA owner.
+    if (pk.equals(PublicKey.default)) {
+      return { ok: false, reason: `Address is not a valid ${currency} deposit destination.` };
+    }
+    // Solana addresses for SPL deposits must lie on the ed25519 curve
+    // (off-curve addresses are PDAs and can't receive directly).
+    if (!PublicKey.isOnCurve(pk.toBytes())) {
+      return {
+        ok: false,
+        reason: `Address can't directly receive ${currency} (off-curve / PDA).`,
+      };
+    }
+    return { ok: true };
+  } catch {
+    return { ok: false, reason: `Not a valid Solana address for ${currency}.` };
+  }
+};
+
 
 interface Props {
   currency: Extract<Currency, "BGBP" | "BEUR">;
