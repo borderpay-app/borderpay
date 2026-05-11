@@ -65,7 +65,7 @@ const Blog = () => {
                   className="group block"
                 >
                   <article className="grid sm:grid-cols-[280px_1fr] gap-6 items-start">
-                    {post.mainImage ? (
+                    {post.mainImage?.asset ? (
                       <div className="overflow-hidden rounded-xl border border-border">
                         <img
                           src={urlFor(post.mainImage).width(560).height(360).auto("format").url()}
