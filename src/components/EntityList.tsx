@@ -181,7 +181,7 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
                   <Button
                     size="sm"
                     onClick={() => payNow(row)}
-                    disabled={!row.wallet_address && !row.account_number && !row.iban}
+                    disabled={!row.wallet_address && !row.iban && !row.account_number && !row.sort_code && !row.swift && !row.bank_name}
                   >
                     <Send className="mr-1" /> Pay
                   </Button>
