@@ -167,8 +167,21 @@ export const ExternalDepositForm = ({ currency, custodialAddress, onDeposited }:
             />
           )}
           <div className="flex-1 min-w-0 space-y-2">
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
-              {meta.network} address
+            <div className="flex items-center justify-between gap-2">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                {meta.network} address
+              </span>
+              {addressValid ? (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-primary">
+                  <ShieldCheck className="h-3 w-3" />
+                  Valid {currency} address
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-destructive">
+                  <ShieldAlert className="h-3 w-3" />
+                  Invalid for {currency}
+                </span>
+              )}
             </div>
             <code className="block font-mono text-xs break-all leading-snug">
               {custodialAddress}
@@ -177,6 +190,9 @@ export const ExternalDepositForm = ({ currency, custodialAddress, onDeposited }:
               {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
               {copied ? "Copied" : "Copy address"}
             </Button>
+            {!addressValid && addressCheck.reason && (
+              <p className="text-[11px] text-destructive">{addressCheck.reason}</p>
+            )}
           </div>
         </div>
       )}
