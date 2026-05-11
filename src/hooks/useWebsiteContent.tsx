@@ -30,9 +30,9 @@ export type SectionContent = HeroContent | ProblemContent | SolutionContent;
 
 const DEFAULTS: Record<string, SectionContent> = {
   hero: {
-    badge: "The payment rail of the all-island economy",
-    headline: "Cross-border payments,",
-    headlineAccent: "simplified.",
+    badge: "Pre-seed",
+    headline: "The payment rail of the all-island economy:",
+    headlineAccent: "",
     subtitle:
       "Border Pay is a dual-rails payments company connecting GBP and EUR — fast, low-cost settlement across the all-island economy.",
     stat1Value: "<30s",
