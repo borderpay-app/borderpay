@@ -60,6 +60,12 @@ export const ExternalDepositForm = ({ currency, custodialAddress, onDeposited }:
   const [busy, setBusy] = useState(false);
   const meta = META[currency];
 
+  const addressCheck = useMemo(
+    () => validateCustodialAddress(currency, custodialAddress),
+    [currency, custodialAddress],
+  );
+  const addressValid = addressCheck.ok;
+
   const copy = async () => {
     if (!custodialAddress) return;
     await navigator.clipboard.writeText(custodialAddress);
