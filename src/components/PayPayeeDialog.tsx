@@ -52,9 +52,25 @@ interface Payee {
   name: string;
   wallet_address?: string | null;
   bank_name?: string | null;
+  account_name?: string | null;
+  sort_code?: string | null;
   account_number?: string | null;
   iban?: string | null;
+  swift?: string | null;
 }
+
+const hasBankDetails = (p: Payee | null) =>
+  !!(p && (p.iban || p.account_number || p.sort_code || p.swift || p.bank_name));
+
+const bankDestinationLabel = (p: Payee): string => {
+  if (p.iban) return p.iban;
+  if (p.account_number) {
+    return p.sort_code ? `${p.sort_code} · ${p.account_number}` : p.account_number;
+  }
+  if (p.swift) return p.swift;
+  if (p.bank_name) return p.bank_name;
+  return "—";
+};
 
 interface Props {
   open: boolean;
@@ -290,9 +306,9 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       });
       return;
     }
-    if (!isStableCoin(currency) && !payee.account_number && !payee.iban) {
+    if (!isStableCoin(currency) && !hasBankDetails(payee)) {
       toast.error("This payee has no bank details on file", {
-        description: "Add an account number or IBAN to pay via fiat, or switch to Stablecoin.",
+        description: "Add an IBAN, account number, sort code or bank name to pay via fiat, or switch to Stablecoin.",
       });
       return;
     }
@@ -462,7 +478,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                   ? payee.wallet_address
                     ? `Wallet on file ✓`
                     : "No wallet address on file"
-                  : payee.iban || payee.account_number
+                  : hasBankDetails(payee)
                     ? `Bank details on file ✓`
                     : "No bank details on file"}
               </p>
@@ -589,7 +605,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                 <span className="font-mono text-xs text-right max-w-[60%] break-all">
                   {isStableCoin(currency)
                     ? payee.wallet_address ?? "—"
-                    : payee.iban ?? payee.account_number ?? "—"}
+                    : bankDestinationLabel(payee)}
                 </span>
               </div>
               <div className="flex justify-between items-center pt-2 border-t">
@@ -740,7 +756,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                       <span className="font-mono">
                         {quote?.pegged
                           ? `1:1 peg`
-                          : `1 ${sourceWallet} ≈ ${quote?.rate.toFixed(4)} ${currency}`}
+                          : `1 ${sourceWallet} ≈ ${(quote?.rate ?? 1).toFixed(4)} ${currency}`}
                       </span>
                     </div>
                     <div className="flex justify-between text-xs">

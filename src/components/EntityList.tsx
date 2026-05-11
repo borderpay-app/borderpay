@@ -96,7 +96,9 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
   };
 
   const payNow = (row: any) => {
-    if (!row.wallet_address && !row.account_number && !row.iban) {
+    const hasBank =
+      row.iban || row.account_number || row.sort_code || row.swift || row.bank_name;
+    if (!row.wallet_address && !hasBank) {
       toast.error("No payment details on file", {
         description: "Add a wallet address or bank details before paying this payee.",
       });
@@ -179,7 +181,7 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
                   <Button
                     size="sm"
                     onClick={() => payNow(row)}
-                    disabled={!row.wallet_address && !row.account_number && !row.iban}
+                    disabled={!row.wallet_address && !row.iban && !row.account_number && !row.sort_code && !row.swift && !row.bank_name}
                   >
                     <Send className="mr-1" /> Pay
                   </Button>
@@ -281,8 +283,11 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
                 name: paying[primaryField],
                 wallet_address: paying.wallet_address,
                 bank_name: paying.bank_name,
+                account_name: paying.account_name,
+                sort_code: paying.sort_code,
                 account_number: paying.account_number,
                 iban: paying.iban,
+                swift: paying.swift,
               }
             : null
         }
