@@ -723,7 +723,17 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                       <span className="font-mono">{formatMoney(amountCents, currency)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Exchange rate</span>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="text-muted-foreground inline-flex items-center gap-1 cursor-help">
+                            Exchange rate
+                            <Info className="h-3 w-3 text-muted-foreground/70" />
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="max-w-[16rem] text-xs">
+                          This is the partner FX rate used for settlement — not an extra fee.
+                        </TooltipContent>
+                      </Tooltip>
                       <span className="font-mono">
                         {quote?.pegged
                           ? `1:1 peg`
