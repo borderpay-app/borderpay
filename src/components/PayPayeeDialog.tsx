@@ -587,7 +587,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Destination</span>
                 <span className="font-mono text-xs text-right max-w-[60%] break-all">
-                  {rail === "stable"
+                  {isStableCoin(currency)
                     ? payee.wallet_address ?? "—"
                     : payee.iban ?? payee.account_number ?? "—"}
                 </span>
