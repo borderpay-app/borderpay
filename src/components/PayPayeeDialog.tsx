@@ -756,7 +756,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                       <span className="font-mono">
                         {quote?.pegged
                           ? `1:1 peg`
-                          : `1 ${sourceWallet} ≈ ${quote?.rate.toFixed(4)} ${currency}`}
+                          : `1 ${sourceWallet} ≈ ${(quote?.rate ?? 1).toFixed(4)} ${currency}`}
                       </span>
                     </div>
                     <div className="flex justify-between text-xs">
