@@ -44,6 +44,9 @@ import {
   type BridgeTransfer,
 } from "@/lib/bridge";
 
+const isStableCoin = (c: PayCurrency) =>
+  (STABLE_COINS as readonly string[]).includes(c);
+
 interface Payee {
   id: string;
   name: string;
@@ -281,13 +284,13 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       toast.error(parsed.error.issues[0].message);
       return;
     }
-    if (rail === "stable" && !payee.wallet_address) {
+    if (isStableCoin(currency) && !payee.wallet_address) {
       toast.error("This payee has no wallet address on file", {
         description: "Add a Solana wallet to pay via stablecoin, or switch to Fiat.",
       });
       return;
     }
-    if (rail === "fiat" && !payee.account_number && !payee.iban) {
+    if (!isStableCoin(currency) && !payee.account_number && !payee.iban) {
       toast.error("This payee has no bank details on file", {
         description: "Add an account number or IBAN to pay via fiat, or switch to Stablecoin.",
       });
@@ -455,7 +458,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {rail === "stable"
+                {isStableCoin(currency)
                   ? payee.wallet_address
                     ? `Wallet on file ✓`
                     : "No wallet address on file"
@@ -584,7 +587,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Destination</span>
                 <span className="font-mono text-xs text-right max-w-[60%] break-all">
-                  {rail === "stable"
+                  {isStableCoin(currency)
                     ? payee.wallet_address ?? "—"
                     : payee.iban ?? payee.account_number ?? "—"}
                 </span>
