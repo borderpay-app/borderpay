@@ -17,6 +17,8 @@ import { StablecoinMintDialog } from "@/components/StablecoinMintDialog";
 import { WalletTransferDialog } from "@/components/WalletTransferDialog";
 import { WalletSection } from "@/components/WalletSection";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EurOpenBankingForm } from "@/components/EurOpenBankingForm";
+import { RequestInvoiceForm } from "@/components/RequestInvoiceForm";
 
 interface Tx {
   id: string;
