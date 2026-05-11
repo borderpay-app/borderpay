@@ -714,7 +714,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                   <span className="font-mono">{bridgeQuote.exchange_rate}</span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Bridge fee (0.1%)</span>
+                  <span className="text-muted-foreground">BorderPay fee (0.3%)</span>
                   <span className="font-mono">${bridgeQuote.developer_fee}</span>
                 </div>
                 <div className="flex justify-between text-xs">
