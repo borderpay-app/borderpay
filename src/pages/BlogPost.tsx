@@ -69,7 +69,7 @@ const BlogPost = () => {
     );
   }
 
-  const ogImage = post.mainImage
+  const ogImage = post.mainImage?.asset
     ? urlFor(post.mainImage).width(1200).height(630).auto("format").url()
     : undefined;
 
@@ -122,7 +122,7 @@ const BlogPost = () => {
               )}
             </header>
 
-            {post.mainImage && (
+            {post.mainImage?.asset && (
               <div className="mb-10 overflow-hidden rounded-xl border border-border">
                 <img
                   src={urlFor(post.mainImage).width(800).auto("format").url()}
