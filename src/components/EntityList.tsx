@@ -283,8 +283,11 @@ const EntityList = ({ table, title, description, primaryField, fields }: EntityL
                 name: paying[primaryField],
                 wallet_address: paying.wallet_address,
                 bank_name: paying.bank_name,
+                account_name: paying.account_name,
+                sort_code: paying.sort_code,
                 account_number: paying.account_number,
                 iban: paying.iban,
+                swift: paying.swift,
               }
             : null
         }
