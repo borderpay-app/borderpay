@@ -247,24 +247,6 @@ const Admin = () => {
                       <p className="font-medium truncate">{r.display_name ?? r.email}</p>
                       <p className="text-xs text-muted-foreground truncate">{r.email}</p>
                     </div>
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Balance:</span>{" "}
-                      <span className="font-medium">£{(r.balance_pence / 100).toFixed(2)}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        placeholder="GBP"
-                        value={topups[r.user_id] ?? ""}
-                        onChange={(e) => setTopups((s) => ({ ...s, [r.user_id]: e.target.value }))}
-                        className="w-28"
-                      />
-                      <Button size="sm" onClick={() => topUp(r.user_id)} disabled={busy === r.user_id}>
-                        {busy === r.user_id ? "…" : "Top up"}
-                      </Button>
-                    </div>
                   </div>
                 ))}
                 {rows.length === 0 && <div className="p-6 text-sm text-muted-foreground">No users yet.</div>}
