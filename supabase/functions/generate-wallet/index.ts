@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 import { Keypair } from "https://esm.sh/@solana/web3.js@1.98.4";
 import { corsHeaders } from "https://esm.sh/@supabase/supabase-js@2.95.0/cors";
+import { Buffer } from "node:buffer";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
