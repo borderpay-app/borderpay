@@ -86,6 +86,12 @@ export const ExternalDepositForm = ({ currency, custodialAddress, onDeposited }:
       toast.error("Maximum simulated deposit is 1,000,000");
       return;
     }
+    if (!addressValid) {
+      toast.error(`Can't credit ${currency}`, {
+        description: addressCheck.reason ?? "Custodial deposit address is invalid.",
+      });
+      return;
+    }
     setBusy(true);
     try {
       const minor = Math.round(n * 100);
