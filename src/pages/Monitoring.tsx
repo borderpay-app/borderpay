@@ -56,19 +56,36 @@ const DEFAULT_RULES: FraudRule[] = [
 
 const STORAGE_KEY = "bp_fraud_rules";
 
-export default function Monitoring() {
-  const [rules, setRules] = useState<FraudRule[]>(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return JSON.parse(stored) as FraudRule[];
-    } catch {
-      /* ignore */
-    }
+// Only these fields are persisted — icons are React components and can't
+// safely round-trip through JSON.
+type PersistedRule = Pick<FraudRule, "id" | "enabled" | "notifyEnabled" | "threshold">;
+
+const loadRules = (): FraudRule[] => {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (!stored) return DEFAULT_RULES;
+    const parsed = JSON.parse(stored) as PersistedRule[];
+    if (!Array.isArray(parsed)) return DEFAULT_RULES;
+    return DEFAULT_RULES.map((def) => {
+      const override = parsed.find((p) => p && p.id === def.id);
+      return override ? { ...def, ...override, icon: def.icon } : def;
+    });
+  } catch {
     return DEFAULT_RULES;
-  });
+  }
+};
+
+export default function Monitoring() {
+  const [rules, setRules] = useState<FraudRule[]>(() => loadRules());
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(rules));
+    const persisted: PersistedRule[] = rules.map(({ id, enabled, notifyEnabled, threshold }) => ({
+      id,
+      enabled,
+      notifyEnabled,
+      threshold,
+    }));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(persisted));
   }, [rules]);
 
   const update = (id: string, patch: Partial<FraudRule>) =>
