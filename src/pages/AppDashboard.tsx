@@ -271,9 +271,13 @@ const AppDashboard = () => {
                 </p>
               </form>
             ) : selectedWallet === "EUR" ? (
-              <p className="mt-6 text-sm text-muted-foreground">
-                Use the <strong>Send</strong> feature to convert GBP → EUR, or receive EUR from another user.
-              </p>
+              <EurOpenBankingForm
+                userId={user.id}
+                currentEurCents={walletBalances.EUR}
+                onAdded={() => { setWalletsRefresh((n) => n + 1); refresh(); }}
+              />
+            ) : selectedWallet === "BGBP" || selectedWallet === "BEUR" ? (
+              <RequestInvoiceForm currency={selectedWallet} />
             ) : (
               <p className="mt-6 text-sm text-muted-foreground">
                 Use <strong>Mint / Burn</strong> above to convert fiat balances into stablecoins.
