@@ -458,7 +458,7 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
-                {rail === "stable"
+                {isStableCoin(currency)
                   ? payee.wallet_address
                     ? `Wallet on file ✓`
                     : "No wallet address on file"
