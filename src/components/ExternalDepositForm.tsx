@@ -60,9 +60,15 @@ export const ExternalDepositForm = ({ currency, custodialAddress, onDeposited }:
       const next = current + minor;
       const { error: upErr } = await supabase
         .from("wallet_balances")
-        .update({ balance_minor: next, updated_at: new Date().toISOString() })
-        .eq("user_id", user.id)
-        .eq("currency", currency);
+        .upsert(
+          {
+            user_id: user.id,
+            currency,
+            balance_minor: next,
+            updated_at: new Date().toISOString(),
+          },
+          { onConflict: "user_id,currency" },
+        );
       if (upErr) throw upErr;
 
       await supabase.from("transactions").insert({

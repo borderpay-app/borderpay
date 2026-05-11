@@ -1,0 +1,2 @@
+CREATE POLICY "Users can insert own wallets" ON public.wallet_balances FOR INSERT TO authenticated WITH CHECK ((auth.uid() = user_id) AND ((auth.jwt() ->> 'aal') = 'aal2'));
+ALTER TABLE public.wallet_balances ADD CONSTRAINT wallet_balances_user_currency_unique UNIQUE (user_id, currency);
