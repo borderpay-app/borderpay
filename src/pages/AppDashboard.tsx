@@ -18,7 +18,7 @@ import { WalletTransferDialog } from "@/components/WalletTransferDialog";
 import { WalletSection } from "@/components/WalletSection";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EurOpenBankingForm } from "@/components/EurOpenBankingForm";
-import { RequestInvoiceForm } from "@/components/RequestInvoiceForm";
+import { ExternalDepositForm } from "@/components/ExternalDepositForm";
 
 interface Tx {
   id: string;
