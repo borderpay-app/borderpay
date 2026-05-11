@@ -277,7 +277,7 @@ const AppDashboard = () => {
                 onAdded={() => { setWalletsRefresh((n) => n + 1); refresh(); }}
               />
             ) : selectedWallet === "BGBP" || selectedWallet === "BEUR" ? (
-              <RequestInvoiceForm currency={selectedWallet} />
+              <ExternalDepositForm currency={selectedWallet} custodialAddress={savedWallet} />
             ) : (
               <p className="mt-6 text-sm text-muted-foreground">
                 Use <strong>Mint / Burn</strong> above to convert fiat balances into stablecoins.
