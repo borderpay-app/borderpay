@@ -67,9 +67,9 @@ export const ExternalDepositForm = ({ currency, custodialAddress, onDeposited }:
 
       await supabase.from("transactions").insert({
         user_id: user.id,
-        type: "receive" as const,
-        status: "confirmed" as const,
-        rail: "stable" as const,
+        type: "topup",
+        status: "confirmed",
+        rail: "stable",
         currency,
         recipient_address: custodialAddress,
         notes: `Simulated external ${currency} deposit · ${n.toFixed(2)} ${currency}`,
