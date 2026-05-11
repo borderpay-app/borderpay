@@ -306,9 +306,9 @@ const PayPayeeDialog = ({ open, onOpenChange, payee, onPaid }: Props) => {
       });
       return;
     }
-    if (!isStableCoin(currency) && !payee.account_number && !payee.iban) {
+    if (!isStableCoin(currency) && !hasBankDetails(payee)) {
       toast.error("This payee has no bank details on file", {
-        description: "Add an account number or IBAN to pay via fiat, or switch to Stablecoin.",
+        description: "Add an IBAN, account number, sort code or bank name to pay via fiat, or switch to Stablecoin.",
       });
       return;
     }
