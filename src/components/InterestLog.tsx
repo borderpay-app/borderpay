@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface InterestEntry {
@@ -46,16 +46,47 @@ const InterestLog = () => {
     setLoading(false);
   };
 
+  const exportCsv = () => {
+    const headers = ["Name", "Email", "Company", "Location", "Registered", "Notification", "Sent At"];
+    const lines = rows.map((r) => [
+      r.name,
+      r.email,
+      r.company || "",
+      locationLabel[r.location] || r.location,
+      new Date(r.registered_at).toLocaleDateString("en-GB"),
+      r.email_status || "",
+      r.email_sent_at ? new Date(r.email_sent_at).toLocaleString("en-GB") : "",
+    ]);
+    const csv = [headers, ...lines]
+      .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(","))
+      .join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `interest-signups-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   useEffect(() => { load(); }, []);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-semibold">Interest Registrations ({rows.length})</h2>
-        <Button variant="ghost" size="sm" onClick={load} disabled={loading}>
-          <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
-          Refresh
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={exportCsv} disabled={rows.length === 0}>
+            <Download className="w-4 h-4 mr-1" />
+            Export CSV
+          </Button>
+          <Button variant="ghost" size="sm" onClick={load} disabled={loading}>
+            <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </Button>
+        </div>
       </div>
 
       <Card className="overflow-x-auto">
