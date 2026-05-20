@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -53,6 +54,15 @@ const Investors = () => {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>Investors — Request the Border Pay pitch deck</title>
+        <meta name="description" content="Get the Border Pay investor pitch deck by email — market opportunity, BDRP dual-pegged stablecoin, and the £14.6B NI–Ireland trade corridor." />
+        <meta property="og:title" content="Investors — Border Pay pitch deck" />
+        <meta property="og:description" content="Request the Border Pay investor pitch deck by email." />
+        <meta property="og:url" content="https://borderpay.app/investors" />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://borderpay.app/investors" />
+      </Helmet>
       <Navbar />
       <section className="pt-32 pb-24">
         <div className="max-w-4xl mx-auto px-6">
