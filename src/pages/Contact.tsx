@@ -43,6 +43,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {PAGE_HELMET}
       <Navbar />
       <main className="flex-1 py-24">
         <div className="max-w-4xl mx-auto px-6">
