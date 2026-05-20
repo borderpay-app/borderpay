@@ -1,0 +1,17 @@
+# Border Pay
+
+> Dual-rails GBP/EUR payments company connecting the all-island economy of Ireland. 0.5% on fiat, 0.3% on stablecoin, settlement in under 30 seconds.
+
+Border Pay is building the payment rail of the all-island economy — moving GBP and EUR between Northern Ireland and Ireland with the speed of stablecoins and the simplicity of a bank transfer.
+
+## Pages
+
+- [Home](/): Product overview, problem, solution, and express-interest signup.
+- [Blog](/blog): Insights on cross-border payments, stablecoins, and financial infrastructure.
+- [Investors](/investors): Request the Border Pay investor pitch deck by email.
+- [Contact](/contact): Get in touch with the Border Pay team.
+
+## Optional
+
+- [Privacy Policy](/privacy)
+- [Terms and Conditions](/terms)
