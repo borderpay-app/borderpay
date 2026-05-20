@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { CheckCircle2, FileText, ArrowLeft } from "lucide-react";
+import { CheckCircle2, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/Navbar";
