@@ -1,10 +1,20 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const PrivacyPolicy = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <Helmet>
+        <title>Privacy Policy — Border Pay</title>
+        <meta name="description" content="How Border Pay Limited collects, uses, and protects your personal information." />
+        <meta property="og:title" content="Privacy Policy — Border Pay" />
+        <meta property="og:description" content="How Border Pay handles your personal data." />
+        <meta property="og:url" content="https://borderpay.app/privacy" />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://borderpay.app/privacy" />
+      </Helmet>
       <Navbar />
       <main className="flex-1 max-w-3xl mx-auto px-6 py-20">
         <Link to="/" className="text-sm text-primary hover:underline mb-8 inline-block">← Back to Home</Link>

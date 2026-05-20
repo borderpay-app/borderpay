@@ -1,10 +1,20 @@
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const TermsAndConditions = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
+      <Helmet>
+        <title>Terms & Conditions — Border Pay</title>
+        <meta name="description" content="Terms and conditions governing your use of the Border Pay website operated by Border Pay Limited." />
+        <meta property="og:title" content="Terms & Conditions — Border Pay" />
+        <meta property="og:description" content="Terms governing use of the Border Pay website." />
+        <meta property="og:url" content="https://borderpay.app/terms" />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://borderpay.app/terms" />
+      </Helmet>
       <Navbar />
       <main className="flex-1 max-w-3xl mx-auto px-6 py-20">
         <Link to="/" className="text-sm text-primary hover:underline mb-8 inline-block">← Back to Home</Link>

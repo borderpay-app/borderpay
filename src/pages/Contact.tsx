@@ -1,7 +1,20 @@
 import { useState } from "react";
 import { CheckCircle2, Mail, Linkedin, Facebook, Youtube } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+
+const PAGE_HELMET = (
+  <Helmet>
+    <title>Contact Border Pay — Get in touch</title>
+    <meta name="description" content="Contact the Border Pay team about cross-border GBP/EUR payments, partnerships, or press enquiries." />
+    <meta property="og:title" content="Contact Border Pay" />
+    <meta property="og:description" content="Get in touch with the Border Pay team about cross-border payments and partnerships." />
+    <meta property="og:url" content="https://borderpay.app/contact" />
+    <meta property="og:type" content="website" />
+    <link rel="canonical" href="https://borderpay.app/contact" />
+  </Helmet>
+);
 
 const Contact = () => {
   const [submitted, setSubmitted] = useState(false);
@@ -30,6 +43,7 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      {PAGE_HELMET}
       <Navbar />
       <main className="flex-1 py-24">
         <div className="max-w-4xl mx-auto px-6">

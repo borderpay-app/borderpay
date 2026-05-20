@@ -81,9 +81,24 @@ const BlogPost = () => {
         <meta property="og:title" content={post.seoTitle} />
         <meta property="og:description" content={post.seoDescription} />
         <meta property="og:type" content="article" />
+        <meta property="og:url" content={`https://borderpay.app/blog/${post.slug}`} />
         {ogImage && <meta property="og:image" content={ogImage} />}
         <meta property="article:published_time" content={post.publishedAt} />
-        <link rel="canonical" href={`https://borderpay-express-interest.lovable.app/blog/${post.slug}`} />
+        <link rel="canonical" href={`https://borderpay.app/blog/${post.slug}`} />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: post.title,
+          description: post.seoDescription,
+          datePublished: post.publishedAt,
+          image: ogImage,
+          mainEntityOfPage: `https://borderpay.app/blog/${post.slug}`,
+          publisher: {
+            "@type": "Organization",
+            name: "Border Pay",
+            logo: { "@type": "ImageObject", url: "https://borderpay.app/favicon.png" },
+          },
+        })}</script>
       </Helmet>
 
       <Navbar />
