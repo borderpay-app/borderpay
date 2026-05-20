@@ -95,17 +95,9 @@ const Investors = () => {
                 ))}
               </div>
 
-              <div className="mt-10 flex items-center gap-3 text-muted-foreground">
-                <FileText size={18} />
-                <a
-                  href="https://pqjebmtxfmjvdrlvzkla.supabase.co/storage/v1/object/public/email-assets/BorderPay-Pitch-Deck.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs underline hover:text-foreground"
-                >
-                  PDF format · download directly or get it by email
-                </a>
-              </div>
+              <p className="mt-10 text-sm text-muted-foreground">
+                The pitch deck is available by email only.
+              </p>
             </div>
 
             {/* Right — form */}
