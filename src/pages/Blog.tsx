@@ -24,8 +24,13 @@ const Blog = () => {
   return (
     <>
       <Helmet>
-        <title>Blog | Border Pay</title>
+        <title>Blog — Border Pay</title>
         <meta name="description" content="Insights on cross-border payments, stablecoins, and the future of financial infrastructure between the UK and Ireland." />
+        <meta property="og:title" content="Border Pay Blog" />
+        <meta property="og:description" content="Insights on cross-border payments, stablecoins, and financial infrastructure between the UK and Ireland." />
+        <meta property="og:url" content="https://borderpay.app/blog" />
+        <meta property="og:type" content="website" />
+        <link rel="canonical" href="https://borderpay.app/blog" />
       </Helmet>
 
       <Navbar />
