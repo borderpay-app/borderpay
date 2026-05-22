@@ -23,25 +23,25 @@ const Footer = () => {
             <img src={logo} alt="Border Pay" className="h-20 w-auto" />
             <span className="text-sm font-semibold">Border Pay</span>
           </div>
-          <div className="flex items-center gap-4 text-xs text-primary-foreground/50">
-            <Link to="/privacy" className="hover:text-primary-foreground/80 transition-colors">Privacy Policy</Link>
+          <div className="flex items-center gap-4 text-xs text-primary-foreground/80">
+            <Link to="/privacy" className="hover:text-primary-foreground transition-colors">Privacy Policy</Link>
             <span>·</span>
-            <Link to="/terms" className="hover:text-primary-foreground/80 transition-colors">Terms & Conditions</Link>
+            <Link to="/terms" className="hover:text-primary-foreground transition-colors">Terms & Conditions</Link>
             <span>·</span>
-            <Link to="/contact" className="hover:text-primary-foreground/80 transition-colors">Contact</Link>
+            <Link to="/contact" className="hover:text-primary-foreground transition-colors">Contact</Link>
           </div>
           <div className="flex items-center gap-3">
-            <a href="https://www.linkedin.com/company/border-pay-ltd" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors" aria-label="LinkedIn">
+            <a href="https://www.linkedin.com/company/border-pay-ltd" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors" aria-label="LinkedIn">
               <Linkedin size={18} />
             </a>
-            <a href="https://www.facebook.com/people/Borderpay/61573268068923/" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors" aria-label="Facebook">
+            <a href="https://www.facebook.com/people/Borderpay/61573268068923/" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors" aria-label="Facebook">
               <Facebook size={18} />
             </a>
-            <a href="https://www.youtube.com/@BorderPay" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/50 hover:text-primary-foreground/80 transition-colors" aria-label="YouTube">
+            <a href="https://www.youtube.com/@BorderPay" target="_blank" rel="noopener noreferrer" className="text-primary-foreground/80 hover:text-primary-foreground transition-colors" aria-label="YouTube">
               <Youtube size={18} />
             </a>
           </div>
-          <p className="text-xs text-primary-foreground/50">
+          <p className="text-xs text-primary-foreground/80">
             © {new Date().getFullYear()} Border Pay Limited. Belfast, Northern Ireland. All rights reserved.
           </p>
         </div>

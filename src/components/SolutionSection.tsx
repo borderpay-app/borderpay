@@ -33,7 +33,7 @@ const SolutionSection = () => {
                 </div>
                 <div className="sm:mt-3">
                   <div className="text-sm font-semibold">{step.label}</div>
-                  <div className="text-xs opacity-60">{step.sub}</div>
+                  <div className="text-xs opacity-80">{step.sub}</div>
                 </div>
                 {i < 4 && <ArrowRight size={16} className="hidden sm:block absolute" style={{ display: "none" }} />}
               </div>
@@ -42,19 +42,19 @@ const SolutionSection = () => {
           <div className="mt-8 pt-6 border-t border-primary-foreground/10 grid grid-cols-2 sm:grid-cols-4 gap-6 text-center text-primary-foreground">
             <div>
               <div className="text-xl font-bold font-mono">&lt; 30 sec</div>
-              <div className="text-xs opacity-60 mt-1">Settlement</div>
+              <div className="text-xs opacity-80 mt-1">Settlement</div>
             </div>
             <div>
               <div className="text-xl font-bold font-mono">0.5%</div>
-              <div className="text-xs opacity-60 mt-1">GBP / EUR transactions</div>
+              <div className="text-xs opacity-80 mt-1">GBP / EUR transactions</div>
             </div>
             <div>
               <div className="text-xl font-bold font-mono">0.3%</div>
-              <div className="text-xs opacity-60 mt-1">Stablecoin payments</div>
+              <div className="text-xs opacity-80 mt-1">Stablecoin payments</div>
             </div>
             <div>
               <div className="text-xl font-bold font-mono">FCA / MiCA</div>
-              <div className="text-xs opacity-60 mt-1">Compliance by design</div>
+              <div className="text-xs opacity-80 mt-1">Compliance by design</div>
             </div>
           </div>
         </div>
