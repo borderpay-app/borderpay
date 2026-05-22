@@ -738,6 +738,7 @@ export type Database = {
         | "approver"
         | "readonly"
         | "tech_admin"
+        | "beta_tester"
       invoice_category: "supplier" | "payroll" | "tax"
       invoice_source: "xero" | "quickbooks" | "sage" | "upload" | "manual"
       invoice_status: "unpaid" | "paid" | "failed"
@@ -878,6 +879,7 @@ export const Constants = {
         "approver",
         "readonly",
         "tech_admin",
+        "beta_tester",
       ],
       invoice_category: ["supplier", "payroll", "tax"],
       invoice_source: ["xero", "quickbooks", "sage", "upload", "manual"],
