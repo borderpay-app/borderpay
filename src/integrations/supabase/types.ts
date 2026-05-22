@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      beta_transactions: {
+        Row: {
+          amount_minor: number
+          counterparty_address: string | null
+          created_at: string
+          currency: string
+          id: string
+          network: string
+          notes: string | null
+          solana_signature: string | null
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount_minor: number
+          counterparty_address?: string | null
+          created_at?: string
+          currency: string
+          id?: string
+          network?: string
+          notes?: string | null
+          solana_signature?: string | null
+          status?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount_minor?: number
+          counterparty_address?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          network?: string
+          notes?: string | null
+          solana_signature?: string | null
+          status?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      beta_wallet_balances: {
+        Row: {
+          balance_minor: number
+          currency: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance_minor?: number
+          currency: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance_minor?: number
+          currency?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       company_config: {
         Row: {
           address: string
