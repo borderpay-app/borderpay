@@ -14,6 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      beta_sync_cursor: {
+        Row: {
+          last_synced_signature: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          last_synced_signature?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          last_synced_signature?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       beta_transactions: {
         Row: {
           amount_minor: number
@@ -700,6 +718,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      has_beta_access: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -738,6 +757,7 @@ export type Database = {
         | "approver"
         | "readonly"
         | "tech_admin"
+        | "beta_tester"
       invoice_category: "supplier" | "payroll" | "tax"
       invoice_source: "xero" | "quickbooks" | "sage" | "upload" | "manual"
       invoice_status: "unpaid" | "paid" | "failed"
@@ -878,6 +898,7 @@ export const Constants = {
         "approver",
         "readonly",
         "tech_admin",
+        "beta_tester",
       ],
       invoice_category: ["supplier", "payroll", "tax"],
       invoice_source: ["xero", "quickbooks", "sage", "upload", "manual"],

@@ -1,102 +1,99 @@
-## Phase 1 (revised) — Demo stays, new `/beta` ships real USDC/EURC
 
-Goal: zero changes to the existing `/app` demo (BGBP/BEUR/BDRP on devnet). Add a parallel `/beta` dashboard that runs on Solana mainnet with real USDC and EURC. Demo and beta share auth and the same custodial keypair, but live in separate routes, separate edge functions, and separate ledger rows.
+# Phase 1 — Make /beta wallet real (mainnet USDC/EURC)
 
-### What stays exactly as-is
+Goal: a working real wallet for you and invited testers — not for public onboarding yet. `/app` demo stays untouched on devnet.
 
-- `/app` and all its sub-routes (`/app/dashboard`, `/app/payroll`, `/app/suppliers`, `/app/transactions`, etc.)
-- `WalletsRow`, `SolanaSendPanel`, `StablecoinMintDialog`, `WalletTransferDialog`
-- `sign-and-send` edge function (keeps devnet + mock mints)
-- `wallet_balances` rows for `GBP`, `EUR`, `BGBP`, `BEUR`, `BDRP`
-- Footer regulatory notice
+## Scope
+- Network: Solana **mainnet-beta**
+- Tokens: **USDC** + **EURC** only (SPL mints)
+- Flows: **Deposit** (receive) + **Send** (outbound to any Solana address)
+- Access: invite-only via new `beta_tester` role (you = admin, also auto-granted)
+- Custody: reuse existing custodial keypair (`vault_retrieve_wallet_key`), treasury pays SOL fees
 
-### What gets added (new, isolated)
+Not in this phase: KYC/AML, fiat on/off-ramp, BGBP/BEUR/BDRP as real tokens, MPC custody, removing regulatory footer.
+
+## Pre-work: secrets & accounts (you do)
+
+I'll walk you through, then request both secrets via the secure form:
+
+1. **Helius RPC** — sign up at helius.dev → create mainnet API key → copy URL `https://mainnet.helius-rpc.com/?api-key=...`
+2. **Treasury fee-payer keypair** — I'll provide a one-line script (`solana-keygen` or a tiny Node script using `@solana/web3.js`) to generate a fresh keypair. You fund the public key with ~0.5 SOL from any exchange. You paste the base58 secret key into the secret form.
+
+Secrets to add:
+- `SOLANA_RPC_URL_MAINNET`
+- `TREASURY_FEE_PAYER_SECRET` (base58)
+
+## Database (migration)
+
+Tables `beta_wallet_balances` and `beta_transactions` already exist. Add:
+
+- `app_role` enum value `beta_tester` (or new enum value)
+- Grant yourself `admin` + `beta_tester` automatically via SQL insert
+- Helper: `has_beta_access(uid)` = `has_role(uid,'admin') OR has_role(uid,'beta_tester')`
+- RLS on beta tables: gate INSERT/SELECT behind `has_beta_access(auth.uid())` + `aal2`
+- Index on `beta_transactions(solana_signature)` unique (already) + on `(user_id, created_at desc)`
+
+## Edge functions
 
 ```text
-/beta                          new route group, separate sidebar entry "Beta (mainnet)"
-  /beta/dashboard              wallets + deposit + send
-  /beta/history                mainnet-only transaction history
-  /beta/treasury  (admin)      fee-payer SOL + ATA balances
-
-src/pages/beta/                new folder, mirrors the /app layout shell
-src/components/beta/           BetaWalletsRow, BetaSendDialog, BetaDepositDialog
-src/lib/solanaMainnet.ts       mainnet RPC + USDC/EURC mint registry
 supabase/functions/
-  beta-sign-and-send/          mainnet signer with treasury fee-payer
-  beta-treasury-status/        SOL + ATA balances for ops
-  beta-watch-deposits/         credits beta_wallet_balances on incoming transfer
+  beta-sign-and-send/    POST { to, amount, currency }  -> { signature }
+  beta-treasury-status/  GET                             -> { sol_balance, fee_payer_pubkey } (admin)
+  beta-watch-deposits/   cron every 30s                  -> credits incoming USDC/EURC
+  beta-grant-tester/     POST { email }                  -> grants beta_tester role (admin)
 ```
 
-### Database
+`beta-sign-and-send` logic:
+1. Verify JWT + `has_beta_access` + `aal2`
+2. Validate inputs (zod): to = base58 pubkey, amount > 0, currency in {USDC,EURC}
+3. Load user keypair (vault) + treasury keypair (secret)
+4. Lookup/create recipient ATA, build SPL transfer (per-mint decimals: USDC=6, EURC=6)
+5. Treasury = fee payer; dual-sign; send + confirm via Helius
+6. Insert `beta_transactions` row (`status=confirmed`, signature)
+7. Decrement local `beta_wallet_balances` (best-effort; deposit watcher reconciles)
 
-New tables, fully separate from the demo ledger so nothing can cross-contaminate:
+`beta-watch-deposits` (pg_cron → invokes function every 30s):
+- For each beta user: `getSignaturesForAddress(userPubkey, since last_synced_sig)`
+- Parse SPL token transfers for USDC/EURC mints → insert deposit rows (idempotent on signature) → increment balance
+- Track `last_synced_sig` per user (small new table `beta_sync_cursor`)
+
+## Frontend
 
 ```text
-beta_wallet_balances           user_id, currency ('USDC'|'EURC'), balance_minor
-beta_transactions              user_id, type, status, currency, amount_minor,
-                               recipient_address, solana_signature, network='mainnet-beta'
+src/
+  lib/solanaMainnet.ts          # connection + mint constants
+  pages/beta/
+    BetaIndex.tsx               # wallet dashboard
+    BetaTransactions.tsx        # history
+  components/beta/
+    BetaWalletsRow.tsx          # USDC + EURC cards
+    BetaDepositDialog.tsx       # QR + address copy
+    BetaSendDialog.tsx          # to, amount, currency select
+    MainnetBanner.tsx           # "MAINNET — real funds. Beta." warning
+  routes:
+    /beta                       # gated: must be admin OR beta_tester + aal2
 ```
 
-RLS: same pattern as existing tables — user sees own rows, admin sees all, AAL2 required. Auto-seed two rows per user (USDC, EURC = 0) via an `on_auth_user_created` trigger addition, or lazy-insert on first beta visit.
+Reuse existing auth, MFA, layout shell. Add nav link "Beta" visible only to beta-access users.
 
-### Architecture
+## Admin: invite a tester
+Small admin UI tile: enter email → calls `beta-grant-tester` → looks up user_id by email → inserts `user_roles` row.
 
-```text
-┌─ /app (unchanged) ──────────┐    ┌─ /beta (new) ───────────────┐
-│ devnet + mock SPL mints     │    │ mainnet-beta                │
-│ user keypair pays fees      │    │ USDC + EURC real mints      │
-│ wallet_balances table       │    │ treasury keypair pays fees  │
-│ sign-and-send fn            │    │ beta_wallet_balances        │
-│ transactions table          │    │ beta-sign-and-send fn       │
-└─────────────────────────────┘    │ beta_transactions table     │
-              │                    └─────────────────────────────┘
-              └────── shared: auth, MFA, custodial keypair in vault
-```
+## Acceptance checks
+1. You log in, MFA, visit `/beta`, see 0 USDC / 0 EURC + your existing Solana address
+2. Send 1 USDC from an exchange → within ~60s, balance updates + tx row appears
+3. Send 0.5 USDC to another address → tx confirms on Solscan, balance decreases
+4. Treasury SOL visible in admin tile; alert if < 0.05 SOL
+5. Non-beta user gets 403 on `/beta` and edge functions
+6. `/app` demo unchanged on devnet
 
-The same `vault_retrieve_wallet_key` keypair is reused so a user's Solana address is identical across demo and beta. That address simply holds devnet tokens on one cluster and mainnet tokens on the other.
+## Order of work after plan approval
+1. You: confirm plan
+2. Me: migration (roles + helper + cursor table) → you approve
+3. Me: walk you through Helius + keypair generation
+4. Me: request secrets form → you paste
+5. Me: edge functions + frontend in one batch
+6. Me: enable pg_cron schedule for deposit watcher
+7. We test together with a small real deposit
 
-### Mint registry (mainnet)
-
-- **USDC**: `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` · 6 decimals
-- **EURC**: `HzFL2oLkAuT5kZX5pXjsZjk7Jp1mYn6PaqkwgkrEdR4` · 6 decimals
-- Mainnet addresses verified against Circle's published registry before implementation.
-
-### Mainnet UX differences from demo
-
-1. **No mint button** — you can't conjure USDC. Replaced with **Deposit**: shows user's Solana address + QR + copy-button and instructions to send USDC/EURC from an external wallet/exchange.
-2. **Treasury pays SOL fees** — user never needs SOL. `beta-sign-and-send` builds a transaction signed by both the treasury (fee-payer) and the user (token authority).
-3. **Deposit detection** — `beta-watch-deposits` runs on a cron (every 30s) polling `getSignaturesForAddress` for each user's address, credits `beta_wallet_balances` when it sees a new USDC/EURC transfer, writes a `beta_transactions` row. Idempotent on signature.
-4. **Explorer links** go to `?cluster=mainnet-beta` (no cluster param = mainnet by default).
-5. **Visible "MAINNET — real funds" warning banner** on every `/beta` page.
-
-### Step-by-step build order
-
-1. Migration: create `beta_wallet_balances`, `beta_transactions`, RLS, indexes.
-2. Secrets request: `SOLANA_RPC_URL_MAINNET` (Helius/Triton), `TREASURY_FEE_PAYER_SECRET` (base58 of a fresh keypair you fund with ~0.5 SOL).
-3. Edge function: `beta-sign-and-send` (mainnet RPC, dual-sign, per-mint decimals lookup, USDC + EURC only).
-4. Edge function: `beta-treasury-status` (admin-only, reads treasury SOL + ATAs).
-5. Edge function: `beta-watch-deposits` (cron-triggered via pg_cron → invoke).
-6. Frontend: `src/lib/solanaMainnet.ts`, `src/pages/beta/BetaLayout.tsx`, `src/pages/beta/Dashboard.tsx`, `src/pages/beta/History.tsx`, `src/pages/beta/Treasury.tsx`.
-7. New components in `src/components/beta/`: `BetaWalletsRow`, `BetaDepositDialog` (QR + address), `BetaSendDialog` (address + amount + USDC/EURC select).
-8. Add `/beta/*` routes to `src/App.tsx`; add "Beta (mainnet)" link to `AppSidebar`.
-9. Mainnet banner component, included in `BetaLayout`.
-10. Smoke test: deposit 0.5 USDC from external wallet → watcher credits balance → send 0.1 USDC to a second test address → signature appears in `beta_transactions` with mainnet explorer link.
-
-### What this still does NOT include
-
-- KYC/AML (deposits are accepted with no identity check — fine for closed beta with trusted users; flag to user)
-- Custody migration to MPC (keys still in Supabase Vault)
-- GBP/EUR banking integration
-- BGBP/BDRP as real tokens
-- Removal of regulatory footer notice (must stay)
-
-### Secrets you'll need to provide when we build
-
-- `SOLANA_RPC_URL_MAINNET` — Helius or Triton mainnet endpoint
-- `TREASURY_FEE_PAYER_SECRET` — base58 of a fresh Solana keypair, funded with ~0.5 SOL
-
-### Open questions
-
-1. Who can access `/beta`? Options: (a) all authenticated users, (b) admin-only, (c) a new `beta_tester` role gated via `has_role`.
-2. Is closed-beta-without-KYC acceptable for now, or should we wire Sumsub/Onfido as a prerequisite to using `/beta`?
-3. Confirm USDC + EURC only — no third token in Phase 1.
+Ready to proceed?
