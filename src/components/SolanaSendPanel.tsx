@@ -159,9 +159,9 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   useEffect(() => {
     (async () => {
       const [{ data: sup }, { data: emp }, { data: tax }] = await Promise.all([
-        supabase.from("suppliers").select("id, name, wallet_address, sort_code, account_number, iban, swift").eq("user_id", userId),
-        supabase.from("employees").select("id, name, wallet_address, sort_code, account_number, iban, swift").eq("user_id", userId),
-        supabase.from("tax_offices").select("id, authority_name, wallet_address, sort_code, account_number, iban, swift").eq("user_id", userId),
+        supabase.from("suppliers").select("id, name, wallet_address, sort_code, account_number, iban, swift"),
+        supabase.from("employees").select("id, name, wallet_address, sort_code, account_number, iban, swift"),
+        supabase.from("tax_offices").select("id, authority_name, wallet_address, sort_code, account_number, iban, swift"),
       ]);
       const list: Payee[] = [
         ...(sup ?? []).map((r: any) => ({ key: `s:${r.id}`, name: r.name, group: "Suppliers" as const, wallet_address: r.wallet_address, sort_code: r.sort_code, account_number: r.account_number, iban: r.iban, swift: r.swift })),
