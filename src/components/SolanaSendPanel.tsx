@@ -630,18 +630,62 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               </Select>
             </div>
 
-            {/* Payee Legal Name */}
+            {/* Payee */}
             <div>
-              <Label htmlFor="payeeLegalName">Payee Legal Name</Label>
-              <Input
-                id="payeeLegalName"
-                value={payeeLegalName}
-                onChange={(e) => setPayeeLegalName(e.target.value)}
-                placeholder="e.g. Acme Ltd or John Smith"
-                required
-              />
+              <Label htmlFor="payee">Payee</Label>
+              <Select
+                value={selectedPayeeKey}
+                onValueChange={(v) => {
+                  setSelectedPayeeKey(v);
+                  if (v === "__custom__") {
+                    setPayeeLegalName("");
+                    return;
+                  }
+                  const p = payees.find((x) => x.key === v);
+                  if (!p) return;
+                  setPayeeLegalName(p.name);
+                  if (deliveryMethod === "solana" && p.wallet_address) setRecipient(p.wallet_address);
+                  if (deliveryMethod === "domestic") {
+                    if (p.sort_code) setSortCode(p.sort_code);
+                    if (p.account_number) setAccountNumber(p.account_number);
+                  }
+                  if (deliveryMethod === "iban") {
+                    if (p.swift) setBic(p.swift);
+                    if (p.iban) setIban(p.iban);
+                  }
+                }}
+              >
+                <SelectTrigger id="payee" className="mt-1">
+                  <SelectValue placeholder="Select a saved payee or enter manually" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__custom__">✍️ Enter manually</SelectItem>
+                  {(["Suppliers", "Payroll", "Tax"] as const).map((group) => {
+                    const items = payees.filter((p) => p.group === group);
+                    if (items.length === 0) return null;
+                    return (
+                      <div key={group}>
+                        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{group}</div>
+                        {items.map((p) => (
+                          <SelectItem key={p.key} value={p.key}>{p.name}</SelectItem>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              {(selectedPayeeKey === "__custom__" || selectedPayeeKey === "") && (
+                <Input
+                  className="mt-2"
+                  id="payeeLegalName"
+                  value={payeeLegalName}
+                  onChange={(e) => setPayeeLegalName(e.target.value)}
+                  placeholder="Payee legal name (e.g. Acme Ltd)"
+                  required
+                />
+              )}
               <p className="text-xs text-muted-foreground mt-1">
-                Full legal name of the beneficiary as registered with their bank
+                Pick from your Suppliers, Payroll, or Tax — bank/wallet details auto-fill.
               </p>
             </div>
 
