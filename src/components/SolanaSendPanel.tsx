@@ -135,6 +135,7 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   };
   const [payees, setPayees] = useState<Payee[]>([]);
   const [selectedPayeeKey, setSelectedPayeeKey] = useState<string>("");
+  const calcAmount = amount || "1000";
 
   useEffect(() => {
     setDeliveryMethod(defaultDeliveryMethod(sendCurrency));
