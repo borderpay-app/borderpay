@@ -123,7 +123,18 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const [eurcNetwork, setEurcNetwork] = useState<"solana" | "ethereum" | "polygon" | "base">("solana");
   const [eurcAddress, setEurcAddress] = useState("");
   const [showCalc, setShowCalc] = useState(false);
-  const calcAmount = amount || "1000";
+  type Payee = {
+    key: string;
+    name: string;
+    group: "Suppliers" | "Payroll" | "Tax";
+    wallet_address?: string | null;
+    sort_code?: string | null;
+    account_number?: string | null;
+    iban?: string | null;
+    swift?: string | null;
+  };
+  const [payees, setPayees] = useState<Payee[]>([]);
+  const [selectedPayeeKey, setSelectedPayeeKey] = useState<string>("");
 
   useEffect(() => {
     setDeliveryMethod(defaultDeliveryMethod(sendCurrency));
