@@ -123,6 +123,18 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   const [eurcNetwork, setEurcNetwork] = useState<"solana" | "ethereum" | "polygon" | "base">("solana");
   const [eurcAddress, setEurcAddress] = useState("");
   const [showCalc, setShowCalc] = useState(false);
+  type Payee = {
+    key: string;
+    name: string;
+    group: "Suppliers" | "Payroll" | "Tax";
+    wallet_address?: string | null;
+    sort_code?: string | null;
+    account_number?: string | null;
+    iban?: string | null;
+    swift?: string | null;
+  };
+  const [payees, setPayees] = useState<Payee[]>([]);
+  const [selectedPayeeKey, setSelectedPayeeKey] = useState<string>("");
   const calcAmount = amount || "1000";
 
   useEffect(() => {
@@ -141,6 +153,22 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
       }
       setWalletBalances(map);
       setCustodialAddress((profData?.wallet_address as string | null) ?? null);
+    })();
+  }, [userId]);
+
+  useEffect(() => {
+    (async () => {
+      const [{ data: sup }, { data: emp }, { data: tax }] = await Promise.all([
+        supabase.from("suppliers").select("id, name, wallet_address, sort_code, account_number, iban, swift"),
+        supabase.from("employees").select("id, name, wallet_address, sort_code, account_number, iban, swift"),
+        supabase.from("tax_offices").select("id, authority_name, wallet_address, sort_code, account_number, iban, swift"),
+      ]);
+      const list: Payee[] = [
+        ...(sup ?? []).map((r: any) => ({ key: `s:${r.id}`, name: r.name, group: "Suppliers" as const, wallet_address: r.wallet_address, sort_code: r.sort_code, account_number: r.account_number, iban: r.iban, swift: r.swift })),
+        ...(emp ?? []).map((r: any) => ({ key: `e:${r.id}`, name: r.name, group: "Payroll" as const, wallet_address: r.wallet_address, sort_code: r.sort_code, account_number: r.account_number, iban: r.iban, swift: r.swift })),
+        ...(tax ?? []).map((r: any) => ({ key: `t:${r.id}`, name: r.authority_name, group: "Tax" as const, wallet_address: r.wallet_address, sort_code: r.sort_code, account_number: r.account_number, iban: r.iban, swift: r.swift })),
+      ];
+      setPayees(list);
     })();
   }, [userId]);
 
@@ -602,18 +630,62 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
               </Select>
             </div>
 
-            {/* Payee Legal Name */}
+            {/* Payee */}
             <div>
-              <Label htmlFor="payeeLegalName">Payee Legal Name</Label>
-              <Input
-                id="payeeLegalName"
-                value={payeeLegalName}
-                onChange={(e) => setPayeeLegalName(e.target.value)}
-                placeholder="e.g. Acme Ltd or John Smith"
-                required
-              />
+              <Label htmlFor="payee">Payee</Label>
+              <Select
+                value={selectedPayeeKey}
+                onValueChange={(v) => {
+                  setSelectedPayeeKey(v);
+                  if (v === "__custom__") {
+                    setPayeeLegalName("");
+                    return;
+                  }
+                  const p = payees.find((x) => x.key === v);
+                  if (!p) return;
+                  setPayeeLegalName(p.name);
+                  if (deliveryMethod === "solana" && p.wallet_address) setRecipient(p.wallet_address);
+                  if (deliveryMethod === "domestic") {
+                    if (p.sort_code) setSortCode(p.sort_code);
+                    if (p.account_number) setAccountNumber(p.account_number);
+                  }
+                  if (deliveryMethod === "iban") {
+                    if (p.swift) setBic(p.swift);
+                    if (p.iban) setIban(p.iban);
+                  }
+                }}
+              >
+                <SelectTrigger id="payee" className="mt-1">
+                  <SelectValue placeholder="Select a saved payee or enter manually" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__custom__">✍️ Enter manually</SelectItem>
+                  {(["Suppliers", "Payroll", "Tax"] as const).map((group) => {
+                    const items = payees.filter((p) => p.group === group);
+                    if (items.length === 0) return null;
+                    return (
+                      <div key={group}>
+                        <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{group}</div>
+                        {items.map((p) => (
+                          <SelectItem key={p.key} value={p.key}>{p.name}</SelectItem>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+              {(selectedPayeeKey === "__custom__" || selectedPayeeKey === "") && (
+                <Input
+                  className="mt-2"
+                  id="payeeLegalName"
+                  value={payeeLegalName}
+                  onChange={(e) => setPayeeLegalName(e.target.value)}
+                  placeholder="Payee legal name (e.g. Acme Ltd)"
+                  required
+                />
+              )}
               <p className="text-xs text-muted-foreground mt-1">
-                Full legal name of the beneficiary as registered with their bank
+                Pick from your Suppliers, Payroll, or Tax — bank/wallet details auto-fill.
               </p>
             </div>
 
