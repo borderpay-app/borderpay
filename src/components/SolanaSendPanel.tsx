@@ -157,6 +157,22 @@ const SolanaSendPanel = ({ userId, balancePence, onSent }: Props) => {
   }, [userId]);
 
   useEffect(() => {
+    (async () => {
+      const [{ data: sup }, { data: emp }, { data: tax }] = await Promise.all([
+        supabase.from("suppliers").select("id, name, wallet_address, sort_code, account_number, iban, swift").eq("user_id", userId),
+        supabase.from("employees").select("id, name, wallet_address, sort_code, account_number, iban, swift").eq("user_id", userId),
+        supabase.from("tax_offices").select("id, authority_name, wallet_address, sort_code, account_number, iban, swift").eq("user_id", userId),
+      ]);
+      const list: Payee[] = [
+        ...(sup ?? []).map((r: any) => ({ key: `s:${r.id}`, name: r.name, group: "Suppliers" as const, wallet_address: r.wallet_address, sort_code: r.sort_code, account_number: r.account_number, iban: r.iban, swift: r.swift })),
+        ...(emp ?? []).map((r: any) => ({ key: `e:${r.id}`, name: r.name, group: "Payroll" as const, wallet_address: r.wallet_address, sort_code: r.sort_code, account_number: r.account_number, iban: r.iban, swift: r.swift })),
+        ...(tax ?? []).map((r: any) => ({ key: `t:${r.id}`, name: r.authority_name, group: "Tax" as const, wallet_address: r.wallet_address, sort_code: r.sort_code, account_number: r.account_number, iban: r.iban, swift: r.swift })),
+      ];
+      setPayees(list);
+    })();
+  }, [userId]);
+
+  useEffect(() => {
     try {
       const raw = sessionStorage.getItem("borderpay:prefill");
       if (!raw) return;
